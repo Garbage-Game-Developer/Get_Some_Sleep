@@ -1,0 +1,122 @@
+[gd_scene load_steps=13 format=3 uid="uid://drqm0goeoar6w"]
+
+[ext_resource type="Shader" uid="uid://btly1huqctrdc" path="res://Scripts/Shaders/bg-shader.gdshader" id="1_j6mki"]
+[ext_resource type="Texture2D" uid="uid://dm08pjhaume3d" path="res://685b0cd97319dd57f70211fc_120053945_13861-5.png" id="2_bmece"]
+
+[sub_resource type="Gradient" id="Gradient_q3nsw"]
+offsets = PackedFloat32Array(0.02715655, 0.07827476, 0.115015976, 0.16932908, 0.20447284, 0.23003195, 0.33226836, 0.3546326, 0.37859425, 0.43769968, 0.485623, 0.6501597, 0.71246004, 0.7683706, 0.8578275, 1)
+colors = PackedColorArray(0.7663427, 0.23028785, 0.36458215, 1, 0.09949305, 0.010912872, 0.17011184, 1, 0.7642383, 0.22910625, 0.36329833, 1, 0.026309138, 0.035708632, 0.14841256, 1, 0.055933118, 0.05428657, 0.17480385, 1, 0.08235294, 0.42352942, 0.5176471, 1, 0.11094908, 0.08878844, 0.22381625, 1, 0.08682109, 0.37122616, 0.47173604, 1, 0.106332354, 0.08589318, 0.21970332, 1, 0.026309138, 0.035708632, 0.14841256, 1, 0.24475658, 0.21761444, 0.4809481, 1, 0.026309138, 0.035708632, 0.14841256, 1, 0.15980001, 0.21986671, 0.34, 1, 0.026309138, 0.035708632, 0.14841256, 1, 0.05352713, 0.050445765, 0.20170885, 1, 0.026309138, 0.035708632, 0.14841256, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_6ibv8"]
+gradient = SubResource("Gradient_q3nsw")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_ujvyk"]
+noise_type = 2
+seed = 1
+cellular_distance_function = 1
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_fcuil"]
+width = 480
+height = 270
+noise = SubResource("FastNoiseLite_ujvyk")
+seamless = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6ibv8"]
+shader = ExtResource("1_j6mki")
+shader_parameter/intensity = 1.0
+shader_parameter/black_level = 1.0
+shader_parameter/secondNoiseMap = SubResource("NoiseTexture2D_fcuil")
+shader_parameter/startingImage = ExtResource("2_bmece")
+shader_parameter/colorTexture = SubResource("GradientTexture1D_6ibv8")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_xanpa"]
+noise_type = 2
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_ujvyk"]
+width = 1920
+height = 1080
+noise = SubResource("FastNoiseLite_xanpa")
+seamless = true
+
+[sub_resource type="Animation" id="Animation_j6mki"]
+resource_name = "On_Start"
+length = 3.8
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:material:shader_parameter/black_level")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 2.4, 3.1, 3.8),
+"transitions": PackedFloat32Array(1, 1.5, 0.5, 1),
+"update": 0,
+"values": [0.0, 0.0, 0.5, 1.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ColorRect:color")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 2.4, 3.8),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(0.08, 0.08, 0.08, 1), Color(0.08, 0.08, 0.08, 1), Color(0.08, 0.08, 0.08, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_bmece"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:material:shader_parameter/black_level")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ColorRect:color")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.08, 0.08, 0.08, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_44jdp"]
+_data = {
+&"On_Start": SubResource("Animation_j6mki"),
+&"RESET": SubResource("Animation_bmece")
+}
+
+[node name="BgShader" type="Node2D"]
+z_index = -10
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0, 0, 0, 1)
+texture_repeat = 2
+material = SubResource("ShaderMaterial_6ibv8")
+position = Vector2(960, 540)
+texture = SubResource("NoiseTexture2D_ujvyk")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_44jdp")
+}
+autoplay = "On_Start"
+
+[node name="ColorRect" type="ColorRect" parent="."]
+custom_minimum_size = Vector2(1920, 1080)
+offset_right = 1920.0
+offset_bottom = 1080.0
+color = Color(0.08, 0.08, 0.08, 1)

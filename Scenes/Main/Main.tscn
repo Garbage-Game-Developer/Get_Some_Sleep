@@ -1,9 +1,15 @@
-[gd_scene load_steps=2 format=3 uid="uid://bq3xmjkcsdyfd"]
+[gd_scene load_steps=5 format=3 uid="uid://bq3xmjkcsdyfd"]
 
-[ext_resource type="Script" uid="uid://dkbysbv064ecg" path="res://Scripts/Global/game-controller.gd" id="1_p8rbg"]
+[ext_resource type="Script" uid="uid://cakv453h528ja" path="res://Scripts/Global/main.gd" id="1_p8rbg"]
+[ext_resource type="PackedScene" uid="uid://brg81neqjot5y" path="res://Scenes/GUI/Splash Screen/Splash-Screen.tscn" id="2_cmk6n"]
+[ext_resource type="PackedScene" uid="uid://drqm0goeoar6w" path="res://Scenes/Backgrounds/Main-Menu-BG-Shader.tscn" id="3_cmk6n"]
+[ext_resource type="PackedScene" uid="uid://c1so2pct01h68" path="res://Scenes/GUI/Main Menu/Main-Menu.tscn" id="3_i3fi7"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_p8rbg")
+main_menu_background = ExtResource("3_cmk6n")
+splash_screen = ExtResource("2_cmk6n")
+main_menu = ExtResource("3_i3fi7")
 
 [node name="World2D" type="Node2D" parent="."]
 

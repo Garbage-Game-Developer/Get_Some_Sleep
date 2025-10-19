@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="Get Some Sleep"
+run/main_scene="uid://bq3xmjkcsdyfd"
 config/features=PackedStringArray("4.5", "Forward Plus")
 boot_splash/bg_color=Color(0, 0, 0, 1)
 boot_splash/show_image=false
@@ -25,6 +26,7 @@ Global="*res://Scripts/Global/global.gd"
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
+window/size/mode=3
 window/stretch/mode="viewport"
 
 [file_customization]
@@ -36,6 +38,19 @@ folder_colors={
 "res://Sounds/": "pink",
 "res://Steam/": "purple"
 }
+
+[layer_names]
+
+2d_physics/layer_1="Normal Surface"
+2d_physics/layer_2="Slow Surface"
+2d_physics/layer_3="Safe Surface"
+2d_physics/layer_4="Attackable"
+2d_physics/layer_5="Swingable"
+2d_physics/layer_6="Interactable"
+2d_physics/layer_7="Player Aura"
+2d_physics/layer_8="Hazard"
+2d_physics/layer_9="Jump Pad"
+2d_physics/layer_10="Water"
 
 [rendering]
 
