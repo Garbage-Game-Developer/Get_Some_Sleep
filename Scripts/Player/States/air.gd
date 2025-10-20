@@ -27,16 +27,12 @@ func update(delta : float, new_state : bool = false):
 	
 	var new_action = false
 	
-	##	Check a global setting for even move vectors first
-	var max_speed
-	
-	
-	P.velocity += left_right_priority(Input.is_action_pressed("LEFT"), Input.is_action_pressed("RIGHT")) * P.BASE_SPEED * P.speed_boost * delta
+	P.velocity += left_right_priority(Input.is_action_pressed("LEFT"), Input.is_action_pressed("RIGHT")) * P.AIR_SPEED * P.speed_boost * delta
 	
 	
 	if(!P.dashing):
 		##	Check for ground type
-		P.velocity.x = maxf(P.velocity.x, P.SURFACE_MAX_SPEED * P.speed_boost)
+		P.velocity.x = maxf(P.velocity.x, P.AIR_MAX_SPEED * P.speed_boost)
 	
 	
 	""" Animations to Play """
