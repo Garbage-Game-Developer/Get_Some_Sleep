@@ -10,27 +10,27 @@ var current_animation : int = 1
 
 
 """ Internal Functions """
+
+##	This sets the variable
 var anim_name_start : String = "R_"
 func _process(_delta):
-	if Engine.is_editor_hint(): ##	Only runs in editor
-		if(left_or_right_changed != left_or_right):
-			anim_name_start = ("R_" if left_or_right == 1 else "L_")
-			play_animation()
-			left_or_right_changed = left_or_right
-		if(animation != 0):
-			current_animation = animation
-			animation = 0
-			play_animation()
-		if(reset_idle):
-			animation = 0
-			current_animation = 1
-			left_or_right = 1
-			left_or_right_changed = 1
-			anim_name_start = "R_"
-			play_animation()
-			reset_idle = false
-	else: ##  Run in game
-		pass
+	if(left_or_right_changed != left_or_right):
+		anim_name_start = ("R_" if left_or_right == 1 else "L_")
+		play_animation()
+		left_or_right_changed = left_or_right
+	if(animation != 0):
+		current_animation = animation
+		animation = 0
+		play_animation()
+	if(reset_idle):
+		animation = 0
+		current_animation = 1
+		left_or_right = 1
+		left_or_right_changed = 1
+		anim_name_start = "R_"
+		play_animation()
+		reset_idle = false
+
 
 func play_animation():
 	match current_animation:

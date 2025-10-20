@@ -14,6 +14,7 @@ enum State { AIR = 0, GROUNDED = 1, KICK = 2, SLIDE = 3, SWIM = 4, SWING = 5, WA
 
 var current_state : State = State.GROUNDED
 var last_state : State = State.GROUNDED
+var walk_mode : bool = false  ##  A special grounded state and falling state where most actions are locked
 
 """ Other Exports """
 ##	
@@ -54,6 +55,7 @@ const SLIDE_VELOCITY_CUTOFF : float = 150  ##  lowest velocity until you're kick
 const AIR_MAX_SPEED : float = 2400
 const SURFACE_MAX_SPEED : float = 300  ##  Max speed on normal surfaces
 const SURFACE_FRICTION : float = 0.2  ##  Friction coefficient (Not quite sure how to use this yet \: )
+const WALK_MAX_SPEED : float = 150  ##  Max speed while in walk state
 const WATER_FRICTION : float = 0.3  ##  Coefficient of friction
 
 # Slow surface
@@ -84,6 +86,9 @@ var dashing = false  ##  Currently dashing as an action
 # physics manipulation
 var speed_boost : float = 1.0  ##  Boosts to all speed stuff
 var layered_gravity : Vector2 = Vector2.ZERO  ##  Things like wind and extra gravity that are applied outside of the state
+
+# Animations
+var left_or_right : bool = false  ## false for left, true for right
 
 
 """ Godot Built-In Functions """
