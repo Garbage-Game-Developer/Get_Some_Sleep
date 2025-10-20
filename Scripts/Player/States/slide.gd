@@ -22,7 +22,7 @@ But you will keep slide state if you come in contact with one on the ground and 
 
 
 """ Exports """
-@onready var player_base : Player = $"../.."
+@onready var P : Player = $"../.."
 
 
 func update(delta : float, new_state : bool):

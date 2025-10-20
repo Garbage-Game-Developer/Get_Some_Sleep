@@ -19,7 +19,7 @@ else : Jump		Would cause a double jump proportional to a fraction of downward ve
 
 
 """ Exports """
-@onready var player_base : Player = $"../.."
+@onready var P : Player = $"../.."
 
 
 func update(delta : float, new_state : bool):

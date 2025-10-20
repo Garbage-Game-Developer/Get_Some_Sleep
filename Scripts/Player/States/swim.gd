@@ -19,7 +19,7 @@ Actions available (When time up)
 
 
 """ Exports """
-@onready var player_base : Player = $"../.."
+@onready var P : Player = $"../.."
 
 
 func update(delta : float, new_state : bool):
