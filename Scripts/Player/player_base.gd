@@ -52,7 +52,8 @@ const SLIDE_VELOCITY_CUTOFF : float = 150  ##  lowest velocity until you're kick
 
 # Max speed and friction
 ## Little note here, NO friction in air, but also very slow air accelerations
-const AIR_MAX_SPEED : float = 2400
+const AIR_MAX_SPEED : float = 2400  ##  Max speed in the air (horizontal vector)
+const AIR_MAX_FALL_SPEED : float = 1200  ##  Max speed in air (vertical vector)
 const SURFACE_MAX_SPEED : float = 300  ##  Max speed on normal surfaces
 const SURFACE_FRICTION : float = 0.2  ##  Friction coefficient (Not quite sure how to use this yet \: )
 const WALK_MAX_SPEED : float = 150  ##  Max speed while in walk state
@@ -100,6 +101,8 @@ func _ready():
 var changed_states = false
 func _process(delta):
 	
+	
+	
 	""" State Machine """
 	changed_states = false
 	check_new_state()  ##  Checks what state it should be
@@ -107,10 +110,11 @@ func _process(delta):
 	##	The state process
 	var new_state = current_state == last_state
 	last_state = current_state
-	match State:
+	match current_state:
 		0:	##	AIR
 			Air.update(delta, new_state)
 		1:	##	GROUNDED
+			print("working")
 			Grounded.update(delta, new_state)
 		2:	##	KICK
 			Kick.update(delta, new_state)

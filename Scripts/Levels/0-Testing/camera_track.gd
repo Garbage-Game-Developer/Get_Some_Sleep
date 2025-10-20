@@ -7,4 +7,5 @@ func _ready():
 
 func _process(delta):
 	##	In an actual level, will use min and max stuff to keep it in bounds
-	$CameraPosition.position = Global.player.position
+	if(Global.player != null):
+		$CameraPosition.position = Global.player.position
