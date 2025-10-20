@@ -101,7 +101,25 @@ func _ready():
 var changed_states = false
 func _process(delta):
 	
+	"""
+	Notes before logoff
+		The code is treating it as if it were in the air to start with, in every case where this 
+		is true, I'm getting huge right velocity on start without any input. This could just be
+		default true for physics objects since it can't read the ground yet. Might need a waittime
+		before it starts doing state machine process stuff. Also sometimes its running the grounded
+		process every so often, and might be running others aswell? Didn't have other prints when I
+		tested that error, very inconsistant, can't replocate yet.
+		
+		I'm also not reading input on either processes for air or grounded it looks like
+		
+		Check the maxf() function, I might not be understanding it right, and it could be setting
+		the velocity instantly to the max instead of to the actual value? idk, very weird 
+		interactionstoday.
+		
+		Check in the processes first to debug, then the left_or_right_priority() function, then the
+		player script itself.
 	
+	"""
 	
 	""" State Machine """
 	changed_states = false
@@ -112,6 +130,7 @@ func _process(delta):
 	last_state = current_state
 	match current_state:
 		0:	##	AIR
+			print("not")
 			Air.update(delta, new_state)
 		1:	##	GROUNDED
 			print("working")
