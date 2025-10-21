@@ -40,7 +40,8 @@ const DOUBLE_JUMP_FORCE : float = -500
 const WATER_JUMP_FORCE : float = -900  ##  Force upon jumping out of water while surfaced
 
 # Movenment speed
-const BASE_SPEED : float = 350  ##  Pixel acceleration on any ground (px/s)
+const BASE_SPEED : float = 650  ##  Pixel acceleration at base???
+const GROUND_SPEED : float = 1200  ##  Pixel acceleration on any ground (px/s)
 const AIR_SPEED : float = 125  ##  Pixel acceleration in air (px/s)
 const SWIM_SPEED_BASE : float = 250  ##  Pixel acceleration in water (px/s)
 
@@ -130,10 +131,8 @@ func _process(delta):
 	last_state = current_state
 	match current_state:
 		0:	##	AIR
-			print("not")
 			Air.update(delta, new_state)
 		1:	##	GROUNDED
-			print("working")
 			Grounded.update(delta, new_state)
 		2:	##	KICK
 			Kick.update(delta, new_state)

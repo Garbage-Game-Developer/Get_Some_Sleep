@@ -30,7 +30,9 @@ func update(delta : float, new_state : bool = false):
 	
 	if(!P.dashing):
 		##	Check for ground type
-		P.velocity.x = maxf(P.velocity.x, P.AIR_MAX_SPEED * P.speed_boost)
+		
+		##	This does not account for negative values, and therfore will not work properly
+		P.velocity.x = minf(P.velocity.x, P.AIR_MAX_SPEED * P.speed_boost)
 	
 	""" Animations to Play """
 	

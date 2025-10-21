@@ -13,4 +13,4 @@ func _ready():
 
 func _process(delta):
 	if(Global.camera_lock != null):
-		position = Global.camera_lock.global_position
+		position = Global.camera_lock.global_position + Vector2(0.0,-100.0)

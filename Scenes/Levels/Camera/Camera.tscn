@@ -7,7 +7,6 @@ script = ExtResource("1_0jrrr")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 limit_enabled = false
-position_smoothing_enabled = true
 
 [node name="Overlay_Shader" type="ColorRect" parent="Camera2D"]
 custom_minimum_size = Vector2(1920, 1080)
