@@ -30,7 +30,7 @@ func update(delta : float, new_state : bool = false):
 	P.velocity += velocity
 	
 	
-	if(!P.dashing):
+	if(!P.dashing):  ##  Being mid dash will cause inputs to be paused
 		
 		##	Check for ground type instead of just using normal surface  *sigh*
 		if(P.velocity.x != 0):

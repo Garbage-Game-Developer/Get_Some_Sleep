@@ -43,6 +43,10 @@ func update(delta : float, new_state : bool = false):
 		
 		##	Check if not dashing before checking if velocity.y < 0, and then setting animation to falling
 		
+		
+		##	
+		
+		
 		"""
 			Need a more advanced system for detecting if an animation is finished, so swapping between left and right doesn't re do 
 			the animation, and just skips to the end frame (Only for one shot animations)
