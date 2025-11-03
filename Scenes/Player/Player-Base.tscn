@@ -1,4 +1,4 @@
-[gd_scene load_steps=46 format=3 uid="uid://bl7tp660hpbgu"]
+[gd_scene load_steps=48 format=3 uid="uid://bl7tp660hpbgu"]
 
 [ext_resource type="Texture2D" uid="uid://32m0hhn4325y" path="res://Assets/Sprites/Actors/Player Spritesheets/player-base.png" id="1_4jfo0"]
 [ext_resource type="Script" uid="uid://coji8x5p1svqt" path="res://Scripts/Player/player_base.gd" id="1_pcxub"]
@@ -8,8 +8,10 @@
 [ext_resource type="Texture2D" uid="uid://c4nwp7n3x8i0s" path="res://Assets/Effects/Shaders/64FadedCircle.png" id="2_ii8om"]
 [ext_resource type="Script" uid="uid://bboq2wxo458qt" path="res://Scripts/Player/States/grounded.gd" id="3_gri1l"]
 [ext_resource type="Script" uid="uid://dtcs2aly5qdbu" path="res://Scripts/Player/States/kick.gd" id="4_2md8j"]
+[ext_resource type="Script" uid="uid://bbs2iystkryj0" path="res://Scripts/Player/States/dash.gd" id="4_c2mg2"]
 [ext_resource type="Script" uid="uid://cifi7oopvu1y5" path="res://Scripts/Player/States/slide.gd" id="5_erevo"]
 [ext_resource type="Script" uid="uid://b17d8vvff2003" path="res://Scripts/Player/States/swim.gd" id="6_2gvn5"]
+[ext_resource type="Script" uid="uid://ewymm0e3v0ph" path="res://Scripts/Player/States/jump.gd" id="6_2tyb8"]
 [ext_resource type="Script" uid="uid://xks3o5wq4vdb" path="res://Scripts/Player/States/wall.gd" id="7_sixxt"]
 [ext_resource type="Script" uid="uid://b3xpymlugfmul" path="res://Scripts/Player/States/swing.gd" id="8_2u4vx"]
 [ext_resource type="Script" uid="uid://bp34dbfvbxmvv" path="res://Scripts/Player/States/dead.gd" id="8_nxqjj"]
@@ -302,8 +304,14 @@ texture_scale = 0.3
 [node name="Air" type="Node" parent="S"]
 script = ExtResource("2_hvnhq")
 
+[node name="Dash" type="Node" parent="S"]
+script = ExtResource("4_c2mg2")
+
 [node name="Grounded" type="Node" parent="S"]
 script = ExtResource("3_gri1l")
+
+[node name="Jump" type="Node" parent="S"]
+script = ExtResource("6_2tyb8")
 
 [node name="Kick" type="Node" parent="S"]
 script = ExtResource("4_2md8j")
@@ -345,57 +353,111 @@ position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_4jfo0")
 debug_color = Color(0.99, 0, 0.31349993, 0)
 
-[node name="WallRays" type="Node2D" parent="."]
+[node name="ConvenienceRays" type="Node2D" parent="."]
 
-[node name="RightNormalWall" type="RayCast2D" parent="WallRays"]
+[node name="VelocityClamber" type="RayCast2D" parent="ConvenienceRays"]
+position = Vector2(0, -6)
+target_position = Vector2(10, 0)
+collision_mask = 15
+
+[node name="VelocityOver" type="RayCast2D" parent="ConvenienceRays"]
+position = Vector2(0, -2.0000002)
+target_position = Vector2(10, 0)
+collision_mask = 15
+
+[node name="VelocityNextPosition" type="RayCast2D" parent="ConvenienceRays"]
+target_position = Vector2(10, 0)
+collision_mask = 15
+
+[node name="VelocityCeilingSnapLeft" type="RayCast2D" parent="ConvenienceRays"]
+position = Vector2(-4, -15.999999)
+target_position = Vector2(0, -10)
+
+[node name="VelocityCeilingSnapRight" type="RayCast2D" parent="ConvenienceRays"]
+position = Vector2(4, -16)
+target_position = Vector2(0, -10)
+
+[node name="WallTypeRays" type="Node2D" parent="."]
+
+[node name="RightNormalWall" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -8)
 target_position = Vector2(7, 0)
 collision_mask = 9
 
-[node name="LeftNormalWall" type="RayCast2D" parent="WallRays"]
+[node name="LeftNormalWall" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -8)
 target_position = Vector2(-7, 0)
 collision_mask = 9
 
-[node name="RightSlowWall" type="RayCast2D" parent="WallRays"]
+[node name="RightSlowWall" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -8)
 target_position = Vector2(7, 0)
 
-[node name="LeftSlowWall" type="RayCast2D" parent="WallRays"]
+[node name="LeftSlowWall" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -8)
 target_position = Vector2(-7, 0)
 
-[node name="RightIceWall" type="RayCast2D" parent="WallRays"]
+[node name="RightIceWall" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -8)
 target_position = Vector2(7, 0)
 
-[node name="LeftIceWall" type="RayCast2D" parent="WallRays"]
+[node name="LeftIceWall" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -8)
 target_position = Vector2(-7, 0)
 
-[node name="RightVelocityBouncePad" type="RayCast2D" parent="WallRays"]
+[node name="RightVelocityBouncePad" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -8)
 target_position = Vector2(7, 0)
 
-[node name="LeftVelocityBouncePad" type="RayCast2D" parent="WallRays"]
+[node name="LeftVelocityBouncePad" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -8)
 target_position = Vector2(-7, 0)
 
-[node name="GroundRays" type="Node2D" parent="."]
+[node name="GroundTypeRays" type="Node2D" parent="."]
 
-[node name="NormalGround" type="RayCast2D" parent="GroundRays"]
+[node name="NormalGroundLeft" type="RayCast2D" parent="GroundTypeRays"]
+position = Vector2(-6, 0)
 target_position = Vector2(0, 2)
 collision_mask = 9
 
-[node name="SlowGround" type="RayCast2D" parent="GroundRays"]
+[node name="NormalGroundMiddle" type="RayCast2D" parent="GroundTypeRays"]
+target_position = Vector2(0, 2)
+collision_mask = 9
+
+[node name="NormalGroundRight" type="RayCast2D" parent="GroundTypeRays"]
+position = Vector2(6, 0)
+target_position = Vector2(0, 2)
+collision_mask = 9
+
+[node name="SlowGroundLeft" type="RayCast2D" parent="GroundTypeRays"]
+position = Vector2(-6, 0)
 target_position = Vector2(0, 2)
 collision_mask = 2
 
-[node name="IceGround" type="RayCast2D" parent="GroundRays"]
+[node name="SlowGroundMiddle" type="RayCast2D" parent="GroundTypeRays"]
+target_position = Vector2(0, 2)
+collision_mask = 2
+
+[node name="SlowGroundRight" type="RayCast2D" parent="GroundTypeRays"]
+position = Vector2(6, 0)
+target_position = Vector2(0, 2)
+collision_mask = 2
+
+[node name="IceGroundLeft" type="RayCast2D" parent="GroundTypeRays"]
+position = Vector2(-6, 0)
 target_position = Vector2(0, 2)
 collision_mask = 4
 
-[node name="VelocityBouncePad" type="RayCast2D" parent="GroundRays"]
+[node name="IceGroundMiddle" type="RayCast2D" parent="GroundTypeRays"]
+target_position = Vector2(0, 2)
+collision_mask = 4
+
+[node name="IceGroundRight" type="RayCast2D" parent="GroundTypeRays"]
+position = Vector2(6, 0)
+target_position = Vector2(0, 2)
+collision_mask = 4
+
+[node name="VelocityBouncePad" type="RayCast2D" parent="GroundTypeRays"]
 target_position = Vector2(0, 2)
 collision_mask = 256
 

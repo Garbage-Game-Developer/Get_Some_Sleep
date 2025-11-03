@@ -2,15 +2,17 @@ class_name Player extends CharacterBody2D
 
 
 """ States """
-enum State { AIR = 0, GROUNDED = 1, KICK = 2, SLIDE = 3, SWIM = 4, SWING = 5, WALL = 6, DEAD = -1 }
-@onready var Air : AirState = $S/Air					#	     (6 Priority)
-@onready var Grounded : GroundedState = $S/Grounded		#	    (5 Priority)
-@onready var Kick : KickState = $S/Kick					#	 (2 Priority)
-@onready var Slide : SlideState = $S/Slide				#	  (3 Priority)
-@onready var Swim : SwimState = $S/Swim					#	(1 Priority)
-@onready var Swing : SwingState = $S/Swing				#  (0 Priority)
-@onready var Wall : WallState = $S/Wall					#	   (4 Priority)
-@onready var Dead : DeadState = $S/Dead					#  (0 Priority)
+enum State { AIR = 0, DASH = 1, GROUNDED = 2, JUMP = 3, KICK = 4, SLIDE = 5, SWIM = 6, SWING = 7, WALL = 8, DEAD = -1 }
+@onready var Air : AirState = $S/Air
+@onready var Dash : DashState = $S/Dash
+@onready var Grounded : GroundedState = $S/Grounded
+@onready var Jump : JumpState = $S/Jump
+@onready var Kick : KickState = $S/Kick
+@onready var Slide : SlideState = $S/Slide
+@onready var Swim : SwimState = $S/Swim
+@onready var Swing : SwingState = $S/Swing
+@onready var Wall : WallState = $S/Wall
+@onready var Dead : DeadState = $S/Dead
 
 var current_state : State = State.GROUNDED
 var last_state : State = State.GROUNDED
@@ -83,7 +85,6 @@ const DASH_AIR_MAX_TIME : float = 0.6  ##  Max time in the dash state (seconds)
 # available actions
 var special_available = true  ##  Can double jump or dash mid air
 var has_dashed_in_air = false  ##  Has dashed in the air
-var dashing = false  ##  Currently dashing as an action
 
 # physics manipulation
 var speed_boost : float = 1.0  ##  Boosts to all speed stuff
@@ -91,6 +92,10 @@ var layered_gravity : Vector2 = Vector2.ZERO  ##  Things like wind and extra gra
 
 # Animations
 var left_or_right : bool = false  ## false for left, true for right
+var left_right_vector : Vector2 = Vector2.ZERO
+
+# Rays
+
 
 
 """ Godot Built-In Functions """
@@ -102,25 +107,10 @@ func _ready():
 var changed_states = false
 func _process(delta):
 	
-	"""
-	Notes before logoff
-		The code is treating it as if it were in the air to start with, in every case where this 
-		is true, I'm getting huge right velocity on start without any input. This could just be
-		default true for physics objects since it can't read the ground yet. Might need a waittime
-		before it starts doing state machine process stuff. Also sometimes its running the grounded
-		process every so often, and might be running others aswell? Didn't have other prints when I
-		tested that error, very inconsistant, can't replocate yet.
-		
-		I'm also not reading input on either processes for air or grounded it looks like
-		
-		Check the maxf() function, I might not be understanding it right, and it could be setting
-		the velocity instantly to the max instead of to the actual value? idk, very weird 
-		interactionstoday.
-		
-		Check in the processes first to debug, then the left_or_right_priority() function, then the
-		player script itself.
+	##	Check velocity rays and other state related stuff
+	left_right_vector = left_right_priority(Input.is_action_pressed("LEFT"), Input.is_action_pressed("RIGHT"))
 	
-	"""
+	
 	
 	""" State Machine """
 	changed_states = false
@@ -130,28 +120,80 @@ func _process(delta):
 	var new_state = current_state == last_state
 	last_state = current_state
 	match current_state:
-		0:	##	AIR
-			Air.update(delta, new_state)
-		1:	##	GROUNDED
-			Grounded.update(delta, new_state)
-		2:	##	KICK
-			Kick.update(delta, new_state)
-		3:	##	SLIDE
-			Slide.update(delta, new_state)
-		4:	##	SWIM
-			Swim.update(delta, new_state)
-		5:	##	SWING
-			Swing.update(delta, new_state)
-		6:	##	WALL
-			Wall.update(delta, new_state)
-		-1:	##	DEAD
-			Dead.update(delta, new_state)
+		State.AIR:
+			Air.update(delta, new_state)		##	Unfinished
+		State.DASH:
+			Dash.update(delta, new_state)		##	Unfinished
+		State.GROUNDED:
+			Grounded.update(delta, new_state)	##	Unfinished
+		State.JUMP:
+			Jump.update(delta, new_state)		##	Unfinished
+		State.KICK:
+			Kick.update(delta, new_state)		##	Unfinished
+		State.SLIDE:
+			Slide.update(delta, new_state)		##	Unfinished
+		State.SWIM:
+			Swim.update(delta, new_state)		##	Unfinished
+		State.SWING:
+			Swing.update(delta, new_state)		##	Unfinished
+		State.WALL:
+			Wall.update(delta, new_state)		##	Unfinished
+		
+		State.DEAD:
+			Dead.update(delta, new_state)		##	Unfinished
 	
 	""" End of process """
-	if(!(dashing && able_special)):
-		velocity += layered_gravity * delta
 	
 	velocity *= Global.time_speed  ##  Sets it to the speed of the game
+	
+	##	Set Velocity Rays
+	$GroundTypeRays/VelocityBouncePad.target_position = velocity
+	$ConvenienceRays/VelocityClamber.target_position = velocity
+	$ConvenienceRays/VelocityOver.target_position = velocity
+	$ConvenienceRays/VelocityNextPosition.target_position = velocity
+	$ConvenienceRays/VelocityCeilingSnapLeft.target_position.y = minf(0, velocity.y - 16.0)
+	$ConvenienceRays/VelocityCeilingSnapRight.target_position.y = minf(0, velocity.y - 16.0)
+	
+	##	Check Velocity Rays (And call actions)
+	match current_state:
+		State.AIR:
+			"""
+				Check if can clamber, over, or ceiling snap, also bounce pads on walls or floors
+			"""
+			pass	##	Unfinished
+		State.DASH:
+			"""
+				Check if can clamber, over, or ceiling snap, also bounce pads on walls or floors
+			"""
+			pass	##	Unfinished
+		State.GROUNDED:
+			pass	##	Unfinished
+		State.JUMP:
+			"""
+				Check if can clamber, over, or ceiling snap, also bounce pads on walls
+			"""
+			pass	##	Unfinished
+		State.KICK:
+			"""
+				Check if there's bounce pads
+			"""
+			pass	##	Unfinished
+		State.SLIDE:
+			"""
+				Check if can clamber, over, or ceiling snap, also bounce pads on walls and floors
+			"""
+			pass	##	Unfinished
+		State.SWIM:
+			pass	##	Unfinished
+		State.SWING:
+			pass	##	Unfinished
+		State.WALL:
+			"""
+				Check if there's bounce pads on walls and floors
+			"""
+			pass	##	Unfinished
+	
+	
 	move_and_slide() # Might do this first, idk
 
 
@@ -197,6 +239,44 @@ func check_new_state(overwrite_priority : bool = false):
 	if(current_state != State.AIR):
 		current_state = State.AIR
 		changed_states = true
+
+
+var just_switched_directions : bool = false
+var left_hold : bool = false  ##  LEFT been pressed for longer than a frame
+var right_hold : bool = false  ##  RIGHT been pressed for longer than a frame
+func left_right_priority(left_pressed : bool, right_pressed : bool) -> Vector2:
+	just_switched_directions = true
+	if(right_pressed):
+		if(!left_pressed):  ##  RIGHT is the 'only' button pressed
+			just_switched_directions = !left_or_right  ##  if was left, switch directions
+			left_hold = false
+			left_or_right = true
+			right_hold = true
+			return Vector2.RIGHT
+		else:
+			if(!right_hold):  ##  RIGHT was 'just' pressed and LEFT is down
+				just_switched_directions = !left_or_right  ##  if was left, switch directions
+				left_or_right = true
+				right_hold = true
+				return Vector2.RIGHT
+			else:
+				if(!left_hold):  ##  LEFT was 'just' pressed and RIGHT is down
+					just_switched_directions = left_or_right  ##  if was right, switch directions
+					left_or_right = false
+					left_hold = true
+					return Vector2.LEFT
+				if(left_or_right):  ##  RIGHT was 'most recently' pressed and LEFT is down
+					return Vector2.RIGHT
+	if(left_pressed):  ##  LEFT is the 'only' button pressed, 'or' LEFT was 'most recently' pressed and RIGHT is down
+		just_switched_directions = left_or_right  ##  if was right, switch directions
+		right_hold = right_pressed
+		left_or_right = false
+		left_hold = true
+		return Vector2.LEFT
+	
+	left_hold = false
+	right_hold = false
+	return Vector2.ZERO
 
 
 """ External Functions """
