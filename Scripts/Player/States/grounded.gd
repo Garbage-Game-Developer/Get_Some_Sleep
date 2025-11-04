@@ -2,84 +2,172 @@ class_name GroundedState extends Node
 
 """ 
 Description
-	This state is for when the player is in contact with the ground and not sliding
-	The main not action animation for this state is idle, for when x velocity is zero
+	This state is for when the player is in contact with the ground, and not in any other movenment state
 
-This state considers movenment
+This state considers horizontal movenment, and uses a complex movenment curve
+This state does not consider vertical movenment
 
 Actions available
-- Jump			Gives upward velocity, and leaves the ground
-- Dash			Gives a large ammount of horizontal velocity
-- Slide			Starts sliding, can jump out of sliding, and can't really slide in low velocity since it has a cutoff point 
-- (Punch)		A sub action that can be used while running and walking that has the player punch in the direction they are facing
-- (Interact)	A sub action that can be used while running or walking that has the player simply interact with an interactable object
+- Jump			Swap to the "Jump" state, from_ground = true
+- Dash			Swap to the "Dash" state, from_ground = true
+- Slide			Swap to the "Slide" state, from_ground = true
+- (Punch)		Sub action that calls the parent's Punch function, and plays an animation
+- (Interact)	Sub action that calls the parent's Interact function, and plays an animation
 """
 
 
-""" Exports """
+""" Externals """
 @onready var P : Player = $"../.."
 @onready var Animation_Controller : Node2D = $"../../C"
 
 
 """ Constants """
-
-##	Function for movenment
-##		Temp_Variable = Acceleration Time - (Acceleration Time * Starting Velocity) / (2 * Max Speed)
-##		Speed = -1 * (Max Speed - Starting Velocity) * (Frame * (Frame - 2 * Temp Variable) / (Temp Variable * Temp Variable)) + Starting Velocity
-##	Frame is the independent variable and speed is the dependent variable of this function
+@export var WALK_MAX_SPEED : float = 100.0	##	Maximum speed (px * s) the player can move
+@export var WALK_MAX_ACC_TIME : int = 12	##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
+@export var WALK_MAX_DEC_TIME : int = 06	##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
 
 @export var GROUND_MAX_SPEED : float = 300.0	##	Maximum speed (px * s) the player can move
-@export var GROUND_MAX_ACC_SPEED : int = 24		##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
-@export var GROUND_MAX_DEC_SPEED : int = 12		##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
+@export var GROUND_MAX_ACC_TIME : int = 24		##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
+@export var GROUND_MAX_DEC_TIME : int = 12		##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
 
 @export var SLOW_GROUND_MAX_SPEED : float = 200.0	##	Maximum speed (px * s) the player can move
-@export var SLOW_GROUND_MAX_ACC_SPEED : int = 48	##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
-@export var SLOW_GROUND_MAX_DEC_SPEED : int = 10	##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
+@export var SLOW_GROUND_MAX_ACC_TIME : int = 48		##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
+@export var SLOW_GROUND_MAX_DEC_TIME : int = 10		##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
 
 @export var ICE_GROUND_MAX_SPEED : float = 350.0	##	Maximum speed (px * s) the player can move
-@export var ICE_GROUND_MAX_ACC_SPEED : int = 60		##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
-@export var ICE_GROUND_MAX_DEC_SPEED : int = 30		##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
+@export var ICE_GROUND_MAX_ACC_TIME : int = 60		##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
+@export var ICE_GROUND_MAX_DEC_TIME : int = 30		##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
 
 
-func update(delta : float, new_state : bool = false):
+""" Internals """
+var movenment_curve_frame : float = 0
+var movenment_curve_max_frame : int = 0
+var last_velocity : Vector2 = Vector2.ZERO
+
+
+func new_state(delta : float):
 	
-	""" Actions Available """
+	##	Run set up code for animations and such
+	
+	update(delta)
+
+
+
+func update(delta : float):
+	
+	""" States (Pre Change) """
+	var state_change_to : Player.State = Player.State.GROUNDED
+	
+	if(!P.is_on_floor()):
+		state_change_to = Player.State.AIR
+		$"../../Timers/CoyoteTimer".start()
+	else:
+		determine_ground_type()
+	
+	
+	""" Actions """
 	var new_action = false
+	var action_is_punch = false
+	var interupt_normal_movenment = false
+	if(Input.is_action_just_pressed("DASH") && $"../../Timers/DashFloorCooldown".is_stopped()):
+		""" Default Key : "Shift"
+			Swap to the "Dash" state, from_ground = true   """
+		
+		state_change_to = Player.State.DASH
+		$"../../Timers/DashFloorCooldown".start()
+		interupt_normal_movenment = true
 	
 	
-	##	LEFT and RIGHT movenment
-	var velocity = P.left_right_priority(Input.is_action_pressed("LEFT"), Input.is_action_pressed("RIGHT")) * P.GROUND_SPEED * P.speed_boost * delta
-	P.velocity += velocity
+	elif(Input.is_action_just_pressed("SLIDE")):
+		""" Default Key : "C"
+			Swap to the "Slide" state, from_ground = true   """
+		
+		state_change_to = Player.State.SLIDE
+		interupt_normal_movenment = true
 	
 	
-	##	Check for ground type instead of just using normal surface  *sigh*
-	var ground_type : int = 0	##	1 - Normal, 2 - Slow, 3 - Ice
-	if(true):
-		pass
+	elif(Input.is_action_just_pressed("JUMP")):
+		""" Default Key : "Space"
+			Swap to the "Jump" state, from_ground = true   """
+		
+		state_change_to = Player.State.JUMP
 	
 	
+	else:
+		if(Input.is_action_just_pressed("ATTACK")):
+			""" Default Keys : "F", "V", "Right Mouse Button"
+				Sub action that calls the parent's Punch function, and plays an animation   """
+			
+			##	There might be some weapon thing at some point where you can aim a weapon or orb for a boss fight / other mechanic thing
+			#P.Punch()
+			new_action = true
+			action_is_punch = true
+		
+		
+		elif(Input.is_action_just_pressed("INTERACT")):
+			""" Default Keys : "E", "Left Mouse Button"
+				Sub action that calls the parent's Interact function, and plays an animation   """
+			
+			##	Interact() returns an integer: 0 - Nothing happens, 1 - Cutscene, 2 - Swap to swing state
+			var interact_type = 0 #P.Interact()
+			match interact_type:
+				0:
+					new_action = true
+					action_is_punch = false
+				1:
+					pass
+				2:
+					state_change_to = Player.State.SWING
 	
-	if(Input.is_action_just_pressed("JUMP")):
-		#P.velocity.y += P.JUMP_FORCE
-		#new_action = true
-		pass
 	
-	if(Input.is_action_just_pressed("DASH")):
-		pass
+	""" States (Post Change)"""
+	if(state_change_to != Player.State.GROUNDED):
+		match state_change_to:
+			Player.State.AIR:
+				#P.current_state = Player.State.AIR
+				#P.Air.new_state(delta)
+				pass
+			Player.State.DASH:
+				#P.current_state = Player.State.DASH
+				#P.Dash.new_state(delta)
+				pass
+			Player.State.JUMP:
+				#P.current_state = Player.State.JUMP
+				#P.Jump.new_state(delta)
+				pass
+			Player.State.SLIDE:
+				#P.current_state = Player.State.SLIDE
+				#P.Slide.new_state(delta)
+				pass
+			Player.State.SWIM:
+				#P.current_state = Player.State.SWIM
+				#P.Swim.new_state(delta)
+				pass
+			Player.State.SWING:
+				#P.current_state = Player.State.SWING
+				#P.Swing.new_state(delta)
+				pass
+			Player.State.WALL:
+				#P.current_state = Player.State.WALL
+				#P.Wall.new_state(delta)
+				pass
+		return
 	
-	if(Input.is_action_just_pressed("SLIDE")):
-		pass
 	
-	if(Input.is_action_just_pressed("ATTACK")):
-		pass
+	""" Movenement Vector """
+	var move_vector = P.move_vector
+	var velocity : Vector2 = Vector2.ZERO
 	
-	##	calls the interaction function in the player parant class
-	if(Input.is_action_just_pressed("INTERACT")):
-		pass
+	if(P.just_switched_directions || P.interference):
+		P.interference = false
+		movenment_curve_frame = 0
+		gen_movenment_curve(move_vector.x, move_vector.x == 0.0 || false)
+	movenment_curve_frame = minf(movenment_curve_frame + 1.0 * P.speed_boost, float(movenment_curve_max_frame))
+	velocity.x = velocity_on_curve(movenment_curve_frame)
+	print(velocity.x)
 	
 	
 	""" Animations to Play """
-	
 	if(!new_action):
 		
 		if(P.just_switched_directions):
@@ -94,15 +182,63 @@ func update(delta : float, new_state : bool = false):
 			Could have a left and right sprite that show and hide based on left or right to ensure animation is always in sync, and 
 			it doesn't need to restart (probably the easiest and best solution for non mirrorable sprites)
 			
-			Alternativly, I could take the texture overlay approach of just having a model sprite, and then have shaders check from
-			the texture node and place the coresponding pixels where they need to be. (Much more complex, but doesn't need 2 sprite 
-			sets to work)
-			
 			Also, could have shaders detect weather or not the leg sprite has gone up a pixel, and move the sprite up respectivly in
 			the shader (I really like this solution ngl)
 		"""
 		pass
 	
+	
 	""" Physics """
-	##	Check for moving platforms
+	velocity.x *= P.speed_boost
+	P.velocity = velocity * delta
+
+
+var ground_type : int = 1	##	1 - Normal, 2 - Slow, 3 - Ice
+func determine_ground_type():
 	pass
+
+
+
+""" Movenment Curve Functions """
+
+##	Function for movenment
+##		temp_variable = acceleration time - (acceleration time * starting velocity) / (2 * max speed)
+##		speed = -1 * (max speed - starting velocity) * (frame * (frame - 2 * temp_variable) / (temp_variable * temp_variable)) + starting velocity
+##	Frame is the independent variable and speed is the dependent variable of this function
+
+var max_speed : float = 0.0				##	Maximum speed (in px*s)
+var starting_velocity : float = 0.0		##	Starting velocity (in px*s)
+var acceleration_time : int = 0			##	Ammount of frames it takes to reach max_speed from starting_velocity (frames)
+
+var direction : float = 0.0				##	The direction the player is moving towards
+var temp_variable : float = 0.0			##	Will be set in the gen_movenment_curve() function as a reused constant dependent on varying constants
+func gen_movenment_curve(direct : float, is_decelerating : bool):
+	direction = direct
+	match ground_type:
+		1:
+			max_speed = GROUND_MAX_SPEED * direction
+			starting_velocity = P.velocity.x
+			acceleration_time = (GROUND_MAX_ACC_TIME if is_decelerating else GROUND_MAX_DEC_TIME)
+		2:
+			max_speed = SLOW_GROUND_MAX_SPEED * direction
+			starting_velocity = P.velocity.x
+			acceleration_time = (SLOW_GROUND_MAX_ACC_TIME if is_decelerating else SLOW_GROUND_MAX_DEC_TIME)
+		3:
+			max_speed = ICE_GROUND_MAX_SPEED * direction
+			starting_velocity = P.velocity.x
+			acceleration_time = (ICE_GROUND_MAX_ACC_TIME if is_decelerating else ICE_GROUND_MAX_DEC_TIME)
+	movenment_curve_max_frame = acceleration_time
+	temp_variable = acceleration_time - (acceleration_time * starting_velocity) / (2 * max_speed)
+	print("DEBUG - New curve is generated succesfully : " + str(max_speed) + ", " + str(starting_velocity) + ", " + str(acceleration_time))
+
+
+func velocity_on_curve(frame : float) -> float:
+	if(int(frame) >= acceleration_time):
+		if(int(frame) > acceleration_time): ##	Just in case something is going wrong, this will be a failsafe
+			print("Likely PROBLEM found with Grounded's frames if statement prior to the velocity_on_curve() function being called")
+		return max_speed
+	var speed = -1 * (max_speed - starting_velocity) * (frame * (frame - 2 * temp_variable) / (temp_variable * temp_variable)) + starting_velocity
+	return speed
+
+
+##	Is this code not buetiful

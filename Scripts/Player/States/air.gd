@@ -21,12 +21,19 @@ Actions available
 @onready var P : Player = $"../.."
 
 
+func new_state(delta : float):
+	"""
+		This will only be used if I decide every state should check if the state has changed
+	"""
+	update(delta)
+
+
 func update(delta : float, new_state : bool = false):
 	
 	""" Actions Available """
 	var new_action = false
 	
-	P.velocity += left_right_priority(Input.is_action_pressed("LEFT"), Input.is_action_pressed("RIGHT")) * P.AIR_SPEED * P.speed_boost * delta
+	P.velocity += P.move_vector * P.AIR_SPEED * P.speed_boost * delta
 	
 	if(!P.dashing):
 		##	Check for ground type
@@ -38,8 +45,8 @@ func update(delta : float, new_state : bool = false):
 	
 	if(!new_action):
 		
-		if(just_switched_directions):
-			$"../../C".left_or_right = (1 if P.left_or_right else 0)
+		#if(just_switched_directions):
+		#	$"../../C".left_or_right = (1 if P.left_or_right else 0)
 		
 		##	Check if not dashing before checking if velocity.y < 0, and then setting animation to falling
 		

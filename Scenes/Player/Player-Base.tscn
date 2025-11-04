@@ -280,11 +280,21 @@ size = Vector2(1, 4)
 z_index = 2
 scale = Vector2(3, 3)
 collision_layer = 0
-collision_mask = 15
+collision_mask = 7
 platform_floor_layers = 4294901783
 script = ExtResource("1_pcxub")
 
-[node name="Player Collisions" type="CollisionShape2D" parent="."]
+[node name="PlayerCollisions" type="CollisionShape2D" parent="."]
+position = Vector2(0, -8)
+shape = SubResource("RectangleShape2D_ii8om")
+debug_color = Color(0, 0.5950001, 0.7, 0.13725491)
+
+[node name="GhostBoxDetector" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 7
+monitorable = false
+
+[node name="GhostBox" type="CollisionShape2D" parent="GhostBoxDetector"]
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_ii8om")
 debug_color = Color(0, 0.5950001, 0.7, 0.13725491)
@@ -334,15 +344,36 @@ script = ExtResource("8_nxqjj")
 [node name="Timers" type="Node" parent="."]
 
 [node name="SlideReqTime" type="Timer" parent="Timers"]
+process_callback = 0
+one_shot = true
+
+[node name="SlideLeaveCooldown" type="Timer" parent="Timers"]
+process_callback = 0
+wait_time = 0.1
 one_shot = true
 
 [node name="DashReqTime" type="Timer" parent="Timers"]
+process_callback = 0
 one_shot = true
 
 [node name="DashMaxTime" type="Timer" parent="Timers"]
+process_callback = 0
+one_shot = true
+
+[node name="DashFloorCooldown" type="Timer" parent="Timers"]
+process_callback = 0
+one_shot = true
+
+[node name="AttackCooldown" type="Timer" parent="Timers"]
+process_callback = 0
+one_shot = true
+
+[node name="InteractCooldown" type="Timer" parent="Timers"]
+process_callback = 0
 one_shot = true
 
 [node name="CoyoteTimer" type="Timer" parent="Timers"]
+process_callback = 0
 wait_time = 0.1
 one_shot = true
 
@@ -358,76 +389,89 @@ debug_color = Color(0.99, 0, 0.31349993, 0)
 [node name="VelocityClamber" type="RayCast2D" parent="ConvenienceRays"]
 position = Vector2(0, -6)
 target_position = Vector2(10, 0)
-collision_mask = 15
+collision_mask = 7
 
 [node name="VelocityOver" type="RayCast2D" parent="ConvenienceRays"]
 position = Vector2(0, -2.0000002)
 target_position = Vector2(10, 0)
-collision_mask = 15
+collision_mask = 7
 
 [node name="VelocityNextPosition" type="RayCast2D" parent="ConvenienceRays"]
 target_position = Vector2(10, 0)
-collision_mask = 15
+collision_mask = 7
 
 [node name="VelocityCeilingSnapLeft" type="RayCast2D" parent="ConvenienceRays"]
 position = Vector2(-4, -15.999999)
 target_position = Vector2(0, -10)
+collision_mask = 7
 
 [node name="VelocityCeilingSnapRight" type="RayCast2D" parent="ConvenienceRays"]
 position = Vector2(4, -16)
 target_position = Vector2(0, -10)
+collision_mask = 7
+
+[node name="VelocityCeilingLeft" type="RayCast2D" parent="ConvenienceRays"]
+position = Vector2(-6, -16)
+target_position = Vector2(0, -10)
+collision_mask = 7
+
+[node name="VelocityCeilingRight" type="RayCast2D" parent="ConvenienceRays"]
+position = Vector2(6, -16)
+target_position = Vector2(0, -10)
+collision_mask = 7
 
 [node name="WallTypeRays" type="Node2D" parent="."]
 
-[node name="RightNormalWall" type="RayCast2D" parent="WallTypeRays"]
-position = Vector2(0, -8)
-target_position = Vector2(7, 0)
-collision_mask = 9
-
-[node name="LeftNormalWall" type="RayCast2D" parent="WallTypeRays"]
-position = Vector2(0, -8)
-target_position = Vector2(-7, 0)
-collision_mask = 9
-
-[node name="RightSlowWall" type="RayCast2D" parent="WallTypeRays"]
+[node name="NormalWallRight" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -8)
 target_position = Vector2(7, 0)
 
-[node name="LeftSlowWall" type="RayCast2D" parent="WallTypeRays"]
-position = Vector2(0, -8)
+[node name="NormalWallLeft" type="RayCast2D" parent="WallTypeRays"]
+position = Vector2(0, -7.9999995)
 target_position = Vector2(-7, 0)
 
-[node name="RightIceWall" type="RayCast2D" parent="WallTypeRays"]
+[node name="SlowWallRight" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -8)
 target_position = Vector2(7, 0)
+collision_mask = 2
 
-[node name="LeftIceWall" type="RayCast2D" parent="WallTypeRays"]
+[node name="SlowWallLeft" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -8)
 target_position = Vector2(-7, 0)
+collision_mask = 2
 
-[node name="RightVelocityBouncePad" type="RayCast2D" parent="WallTypeRays"]
+[node name="IceWallRight" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -8)
 target_position = Vector2(7, 0)
+collision_mask = 4
 
-[node name="LeftVelocityBouncePad" type="RayCast2D" parent="WallTypeRays"]
+[node name="IceWallLeft" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -8)
 target_position = Vector2(-7, 0)
+collision_mask = 4
+
+[node name="VelocityBouncePadHigh" type="RayCast2D" parent="WallTypeRays"]
+position = Vector2(0, -11)
+target_position = Vector2(7, 0)
+collision_mask = 512
+
+[node name="VelocityBouncePadLow" type="RayCast2D" parent="WallTypeRays"]
+position = Vector2(0, -5)
+target_position = Vector2(7, 0)
+collision_mask = 512
 
 [node name="GroundTypeRays" type="Node2D" parent="."]
 
 [node name="NormalGroundLeft" type="RayCast2D" parent="GroundTypeRays"]
 position = Vector2(-6, 0)
 target_position = Vector2(0, 2)
-collision_mask = 9
 
 [node name="NormalGroundMiddle" type="RayCast2D" parent="GroundTypeRays"]
 target_position = Vector2(0, 2)
-collision_mask = 9
 
 [node name="NormalGroundRight" type="RayCast2D" parent="GroundTypeRays"]
 position = Vector2(6, 0)
 target_position = Vector2(0, 2)
-collision_mask = 9
 
 [node name="SlowGroundLeft" type="RayCast2D" parent="GroundTypeRays"]
 position = Vector2(-6, 0)
@@ -459,7 +503,7 @@ collision_mask = 4
 
 [node name="VelocityBouncePad" type="RayCast2D" parent="GroundTypeRays"]
 target_position = Vector2(0, 2)
-collision_mask = 256
+collision_mask = 512
 
 [node name="C" type="Node2D" parent="."]
 material = SubResource("ShaderMaterial_hvnhq")
