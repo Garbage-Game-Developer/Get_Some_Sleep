@@ -43,12 +43,15 @@ Actions available
 var movenment_curve_frame : float = 0
 var movenment_curve_max_frame : int = 0
 var last_velocity : Vector2 = Vector2.ZERO
+var velocity : Vector2 = Vector2.ZERO
 
 
 func new_state(delta : float):
 	
 	##	Run set up code for animations and such
 	
+	velocity = P.velocity / Global.time_speed
+	gen_movenment_curve(1.0 if (P.move_vector.x == 0.0 && velocity.x < 0.0) || P.move_vector.x > 0.0 else -1.0)
 	update(delta)
 
 
@@ -156,12 +159,12 @@ func update(delta : float):
 	
 	""" Movenement Vector """
 	var move_vector = P.move_vector
-	var velocity : Vector2 = Vector2.ZERO
+	
 	
 	if(P.just_switched_directions || P.interference):
 		P.interference = false
 		movenment_curve_frame = 0
-		gen_movenment_curve(move_vector.x, move_vector.x == 0.0 || false)
+		gen_movenment_curve(1.0 if (move_vector.x == 0.0 && velocity.x < 0.0) || move_vector.x > 0.0 else -1.0)
 	movenment_curve_frame = minf(movenment_curve_frame + 1.0 * P.speed_boost, float(movenment_curve_max_frame))
 	velocity.x = velocity_on_curve(movenment_curve_frame)
 	print(velocity.x)
@@ -206,38 +209,61 @@ func determine_ground_type():
 ##		speed = -1 * (max speed - starting velocity) * (frame * (frame - 2 * temp_variable) / (temp_variable * temp_variable)) + starting velocity
 ##	Frame is the independent variable and speed is the dependent variable of this function
 
-var max_speed : float = 0.0				##	Maximum speed (in px*s)
+var target_speed : float = 0.0				##	Maximum speed (in px*s)
 var starting_velocity : float = 0.0		##	Starting velocity (in px*s)
 var acceleration_time : int = 0			##	Ammount of frames it takes to reach max_speed from starting_velocity (frames)
 
+var to_zero = false
 var direction : float = 0.0				##	The direction the player is moving towards
 var temp_variable : float = 0.0			##	Will be set in the gen_movenment_curve() function as a reused constant dependent on varying constants
-func gen_movenment_curve(direct : float, is_decelerating : bool):
+func gen_movenment_curve(direct : float):
 	direction = direct
+	
+	"""
+		If its still not working for decceleration, have it run the normal function with acceleration_time tweaks,
+		and then also have the frame calculated as (frame - temp_variable) in the curve function, I will also
+		need to tweek the starting value a little (likely to something * -1 or max value - starting value)
+	"""
+	
 	match ground_type:
 		1:
-			max_speed = GROUND_MAX_SPEED * direction
-			starting_velocity = P.velocity.x
-			acceleration_time = (GROUND_MAX_ACC_TIME if is_decelerating else GROUND_MAX_DEC_TIME)
+			target_speed = GROUND_MAX_SPEED * direction
+			starting_velocity = velocity.x if !to_zero else (GROUND_MAX_SPEED * (velocity.x / abs(velocity.x))) - velocity.x
+			acceleration_time = GROUND_MAX_ACC_TIME if !to_zero else GROUND_MAX_DEC_TIME
+			##	This will set it to the deccelerate to zero value, but will be overwritten if its not deccelerating to zero
+			temp_variable = acceleration_time + acceleration_time * starting_velocity / (2 * (GROUND_MAX_SPEED * (velocity.x / abs(velocity.x))))
 		2:
-			max_speed = SLOW_GROUND_MAX_SPEED * direction
-			starting_velocity = P.velocity.x
-			acceleration_time = (SLOW_GROUND_MAX_ACC_TIME if is_decelerating else SLOW_GROUND_MAX_DEC_TIME)
+			target_speed = SLOW_GROUND_MAX_SPEED * direction
+			starting_velocity = velocity.x if !to_zero else (SLOW_GROUND_MAX_SPEED * (velocity.x / abs(velocity.x))) - velocity.x
+			acceleration_time = SLOW_GROUND_MAX_ACC_TIME if !to_zero else SLOW_GROUND_MAX_DEC_TIME
+			##	This will set it to the deccelerate to zero value, but will be overwritten if its not deccelerating to zero
+			temp_variable = acceleration_time + acceleration_time * starting_velocity / (2 * (SLOW_GROUND_MAX_SPEED * (velocity.x / abs(velocity.x))))
 		3:
-			max_speed = ICE_GROUND_MAX_SPEED * direction
-			starting_velocity = P.velocity.x
-			acceleration_time = (ICE_GROUND_MAX_ACC_TIME if is_decelerating else ICE_GROUND_MAX_DEC_TIME)
-	movenment_curve_max_frame = acceleration_time
-	temp_variable = acceleration_time - (acceleration_time * starting_velocity) / (2 * max_speed)
-	print("DEBUG - New curve is generated succesfully : " + str(max_speed) + ", " + str(starting_velocity) + ", " + str(acceleration_time))
+			target_speed = ICE_GROUND_MAX_SPEED * direction
+			starting_velocity = velocity.x if !to_zero else (ICE_GROUND_MAX_SPEED * (velocity.x / abs(velocity.x))) - velocity.x
+			acceleration_time = ICE_GROUND_MAX_ACC_TIME if !to_zero else ICE_GROUND_MAX_DEC_TIME
+			##	This will set it to the deccelerate to zero value, but will be overwritten if its not deccelerating to zero
+			temp_variable = acceleration_time + acceleration_time * starting_velocity / (2 * (ICE_GROUND_MAX_DEC_TIME * (velocity.x / abs(velocity.x))))
+	
+	if(direction != 0.0):
+		temp_variable = acceleration_time - (acceleration_time * starting_velocity) / (2 * target_speed)
+	
+	movenment_curve_max_frame = int(temp_variable)
+	print("DEBUG - New curve is generated succesfully : " + str(to_zero) + ", " + str(target_speed) + ", " + str(starting_velocity) + ", " + str(acceleration_time))
 
 
 func velocity_on_curve(frame : float) -> float:
 	if(int(frame) >= acceleration_time):
 		if(int(frame) > acceleration_time): ##	Just in case something is going wrong, this will be a failsafe
 			print("Likely PROBLEM found with Grounded's frames if statement prior to the velocity_on_curve() function being called")
-		return max_speed
-	var speed = -1 * (max_speed - starting_velocity) * (frame * (frame - 2 * temp_variable) / (temp_variable * temp_variable)) + starting_velocity
+		return target_speed
+	
+	var speed : float = 0.0
+	if(target_speed == 0.0):
+		""" This is the last thing to do before debugging, if it doesn't work in like 5 min of bug fixing, switch approach """
+		speed = -1 * (target_speed - starting_velocity) * (frame * (frame - 2 * temp_variable) / (temp_variable * temp_variable)) + starting_velocity
+		return speed
+	speed = -1 * (target_speed - starting_velocity) * (frame * (frame - 2 * temp_variable) / (temp_variable * temp_variable)) + starting_velocity
 	return speed
 
 
