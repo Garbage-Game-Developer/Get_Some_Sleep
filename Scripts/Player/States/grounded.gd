@@ -164,10 +164,11 @@ func update(delta : float):
 	if(P.just_switched_directions || P.interference):
 		P.interference = false
 		movenment_curve_frame = 0
-		gen_movenment_curve(1.0 if (move_vector.x == 0.0 && velocity.x < 0.0) || move_vector.x > 0.0 else -1.0)
+		gen_movenment_curve(move_vector.x)
 	movenment_curve_frame = minf(movenment_curve_frame + 1.0 * P.speed_boost, float(movenment_curve_max_frame))
 	velocity.x = velocity_on_curve(movenment_curve_frame)
-	print(velocity.x)
+	
+	#print("DEBUG velocity:" +str(velocity.x))
 	
 	
 	""" Animations to Play """
@@ -225,6 +226,10 @@ func gen_movenment_curve(direct : float):
 		need to tweek the starting value a little (likely to something * -1 or max value - starting value)
 	"""
 	
+	to_zero = direction == 0.0
+	if(to_zero && velocity.x == 0.0):
+		return
+	
 	match ground_type:
 		1:
 			target_speed = GROUND_MAX_SPEED * direction
@@ -256,11 +261,11 @@ func gen_movenment_curve(direct : float):
 				temp_variable = acceleration_time + acceleration_time * starting_velocity / (8 * temp_decc_max_height)
 				movenment_curve_max_frame = sqrt(((starting_velocity * temp_variable * temp_variable) / temp_decc_max_height) + (temp_variable * temp_variable))
 	
-	if(direction != 0.0):
+	if(!to_zero):
 		temp_variable = acceleration_time - (acceleration_time * starting_velocity) / (2 * target_speed)
 		movenment_curve_max_frame = int(temp_variable)
 	
-	print("DEBUG - New curve is generated succesfully : " + str(to_zero) + ", " + str(target_speed) + ", " + str(starting_velocity) + ", " + str(acceleration_time))
+	print("DEBUG - New curve is generated succesfully : " + str(direction) + ", " + str(to_zero) + ", " + str(target_speed) + ", " + str(starting_velocity) + ", " + str(acceleration_time))
 
 
 func velocity_on_curve(frame : float) -> float:

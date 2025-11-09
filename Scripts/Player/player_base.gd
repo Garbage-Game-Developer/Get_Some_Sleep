@@ -230,7 +230,6 @@ var just_switched_directions : bool = false
 var left_hold : bool = false  ##  LEFT been pressed for longer than a frame
 var right_hold : bool = false  ##  RIGHT been pressed for longer than a frame
 func left_right_priority(left_pressed : bool, right_pressed : bool) -> Vector2:
-	just_switched_directions = true
 	if(right_pressed):
 		if(!left_pressed):  ##  RIGHT is the 'only' button pressed
 			just_switched_directions = !left_or_right  ##  if was left, switch directions
