@@ -40,6 +40,8 @@ Actions available
 
 
 """ Internals """
+var ACTIVE_STATE : bool = false
+
 var movenment_curve_frame : float = 0
 var movenment_curve_max_frame : int = 0
 var last_velocity : Vector2 = Vector2.ZERO
@@ -50,6 +52,7 @@ func new_state(delta : float):
 	
 	##	Run set up code for animations and such
 	
+	ACTIVE_STATE = true
 	velocity = P.velocity / Global.time_speed
 	gen_movenment_curve(1.0 if (P.move_vector.x == 0.0 && velocity.x < 0.0) || P.move_vector.x > 0.0 else -1.0)
 	update(delta)
@@ -125,6 +128,7 @@ func update(delta : float):
 	
 	""" States (Post Change)"""
 	if(state_change_to != Player.State.GROUNDED):
+		#ACTIVE_STATE = false
 		match state_change_to:
 			Player.State.AIR:
 				#P.current_state = Player.State.AIR
@@ -231,56 +235,66 @@ func gen_movenment_curve(direct : float):
 		return
 	
 	match ground_type:
-		1:
-			target_speed = GROUND_MAX_SPEED * direction
-			starting_velocity = velocity.x if !to_zero else velocity.x - (GROUND_MAX_SPEED * (velocity.x / abs(velocity.x)))
-			acceleration_time = GROUND_MAX_ACC_TIME if !to_zero else GROUND_MAX_DEC_TIME
+		1:  ##  Normal Ground
+			if(!to_zero):
+				target_speed = GROUND_MAX_SPEED * direction
+				starting_velocity = velocity.x
+				acceleration_time = GROUND_MAX_ACC_TIME
+				
+				temp_variable = acceleration_time - (acceleration_time * starting_velocity) / (2 * target_speed)
+				movenment_curve_max_frame = int(temp_variable)
 			
-			if(to_zero):
-				var temp_decc_max_height = GROUND_MAX_SPEED * (velocity.x / abs(velocity.x))
-				temp_variable = acceleration_time + acceleration_time * starting_velocity / (8 * temp_decc_max_height)
-				movenment_curve_max_frame = sqrt(((starting_velocity * temp_variable * temp_variable) / temp_decc_max_height) + (temp_variable * temp_variable))
+			else:
+				target_speed = GROUND_MAX_SPEED * (velocity.x / abs(velocity.x))
+				starting_velocity = velocity.x - target_speed
+				acceleration_time = GROUND_MAX_DEC_TIME
+				
+				temp_variable = acceleration_time + acceleration_time * starting_velocity / (8 * target_speed)
+				movenment_curve_max_frame = int( sqrt(((starting_velocity * temp_variable * temp_variable) / target_speed) + (temp_variable * temp_variable)) )
 		
-		2:
+		2:  ##  Slow Ground
 			target_speed = SLOW_GROUND_MAX_SPEED * direction
 			starting_velocity = velocity.x if !to_zero else velocity.x - (SLOW_GROUND_MAX_SPEED * (velocity.x / abs(velocity.x)))
 			acceleration_time = SLOW_GROUND_MAX_ACC_TIME if !to_zero else SLOW_GROUND_MAX_DEC_TIME
 			
 			if(to_zero):
-				var temp_decc_max_height = SLOW_GROUND_MAX_SPEED * (velocity.x / abs(velocity.x))
-				temp_variable = acceleration_time + acceleration_time * starting_velocity / (8 * temp_decc_max_height)
-				movenment_curve_max_frame = sqrt(((starting_velocity * temp_variable * temp_variable) / temp_decc_max_height) + (temp_variable * temp_variable))
+				target_speed = SLOW_GROUND_MAX_SPEED * (velocity.x / abs(velocity.x))
+				temp_variable = acceleration_time + acceleration_time * starting_velocity / (8 * target_speed)
+				movenment_curve_max_frame = int( sqrt(((starting_velocity * temp_variable * temp_variable) / target_speed) + (temp_variable * temp_variable)) )
 		
-		3:
+		3:  ##  Ice Ground
 			target_speed = ICE_GROUND_MAX_SPEED * direction
 			starting_velocity = velocity.x if !to_zero else velocity.x - (ICE_GROUND_MAX_SPEED * (velocity.x / abs(velocity.x)))
 			acceleration_time = ICE_GROUND_MAX_ACC_TIME if !to_zero else ICE_GROUND_MAX_DEC_TIME
 			
 			if(to_zero):
-				var temp_decc_max_height = SLOW_GROUND_MAX_SPEED * (velocity.x / abs(velocity.x))
-				temp_variable = acceleration_time + acceleration_time * starting_velocity / (8 * temp_decc_max_height)
-				movenment_curve_max_frame = sqrt(((starting_velocity * temp_variable * temp_variable) / temp_decc_max_height) + (temp_variable * temp_variable))
-	
-	if(!to_zero):
-		temp_variable = acceleration_time - (acceleration_time * starting_velocity) / (2 * target_speed)
-		movenment_curve_max_frame = int(temp_variable)
-	
-	print("DEBUG - New curve is generated succesfully : " + str(direction) + ", " + str(to_zero) + ", " + str(target_speed) + ", " + str(starting_velocity) + ", " + str(acceleration_time))
+				target_speed = SLOW_GROUND_MAX_SPEED * (velocity.x / abs(velocity.x))
+				temp_variable = acceleration_time + (acceleration_time * starting_velocity / (8 * target_speed))
+				movenment_curve_max_frame = int( sqrt(((starting_velocity * temp_variable * temp_variable) / target_speed) + (temp_variable * temp_variable)) )
+
+	print("DEBUG - New curve is generated succesfully : D="
+	 + str(direction)
+	 + ", Z=" + str(to_zero)
+	 + ", T=" + str(target_speed)
+	 + ", S=" + str(starting_velocity)
+	 + ", V=" + str(velocity.x)
+	 + ", A=" + str(acceleration_time)
+	 + ", AA=" + str(movenment_curve_max_frame))
 
 
 func velocity_on_curve(frame : float) -> float:
 	if(int(frame) >= movenment_curve_max_frame):
 		if(int(frame) > movenment_curve_max_frame): ##	Just in case something is going wrong, this will be a failsafe
 			print("Likely PROBLEM found with Grounded's frames if statement prior to the velocity_on_curve() function being called")
-		return target_speed
+		return target_speed if !to_zero else 0.0
 	
 	var speed : float = 0.0
 	if(target_speed == 0.0):
 		""" This is the last thing to do before debugging, if it doesn't work in like 5 min of bug fixing, switch approach """
-		speed = (-1 * target_speed * (frame + temp_variable) * (frame - temp_variable)) / (temp_variable * temp_variable) + starting_velocity
+		speed = -1 * (target_speed * (frame + temp_variable) * (frame - temp_variable)) / (temp_variable * temp_variable) + starting_velocity
 		return speed
 	speed = -1 * (target_speed - starting_velocity) * (frame * (frame - 2 * temp_variable) / (temp_variable * temp_variable)) + starting_velocity
 	return speed
 
 
-##	Is this code not buetiful
+##	Is this code not bwutiful

@@ -221,7 +221,7 @@ func _physics_process(delta):
 			"""
 			pass	##	Unfinished
 	
-	
+	#pingpong()
 	move_and_slide() # Might do this first, idk
 
 
@@ -232,7 +232,7 @@ var right_hold : bool = false  ##  RIGHT been pressed for longer than a frame
 func left_right_priority(left_pressed : bool, right_pressed : bool) -> Vector2:
 	if(right_pressed):
 		if(!left_pressed):  ##  RIGHT is the 'only' button pressed
-			just_switched_directions = !left_or_right  ##  if was left, switch directions
+			just_switched_directions = !left_or_right || !right_hold ##  if was left, switch directions
 			left_hold = false
 			left_or_right = true
 			right_hold = true
@@ -250,9 +250,10 @@ func left_right_priority(left_pressed : bool, right_pressed : bool) -> Vector2:
 					left_hold = true
 					return Vector2.LEFT
 				if(left_or_right):  ##  RIGHT was 'most recently' pressed and LEFT is down
+					just_switched_directions = false
 					return Vector2.RIGHT
 	if(left_pressed):  ##  LEFT is the 'only' button pressed, 'or' LEFT was 'most recently' pressed and RIGHT is down
-		just_switched_directions = left_or_right  ##  if was right, switch directions
+		just_switched_directions = left_or_right || !left_hold  ##  if was right, switch directions
 		right_hold = right_pressed
 		left_or_right = false
 		left_hold = true
