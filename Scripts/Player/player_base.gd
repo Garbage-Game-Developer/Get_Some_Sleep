@@ -22,6 +22,29 @@ var walk_mode : bool = false  ##  A special grounded state and falling state whe
 ##	
 
 ##	Unique Player Variables
+#  Player can swim
+@export var can_swim : bool = true
+
+#  Player can punch and air kick, sliding does half damage (rounded up) and upward knockback, dash does half damage (rounded up) and forward knockback
+@export var combat_skills : bool = true
+@export var combat_power : int = 5  #  Damage done by attacks
+
+#  Allows for ground dash, wall dash, and swinging
+@export var basic_movenment : bool = true
+
+#  Allows for air normal dash, swinging dash, and advanced climbing
+@export var advanced_movenment : bool = true
+
+#  Allows for air double jump under a condition
+@export var item_double_jump : bool = true  
+
+#  Allows for air double jump with no conditional
+@export var free_double_jump : bool = true
+
+#  Allows for special dash variation on ground, air, and water
+@export var special_dash : bool = true
+
+
 @export var able_special : bool = true  ##  Can double jump and dash in air, can consume more pills
 @export var able_swing : bool = true  ##  Can use swingables
 @export var able_attack : bool = true  ##  Can punch and kick
@@ -88,7 +111,6 @@ var left_or_right : bool = false  ## false for left, true for right
 
 
 # Simple internals
-var interference : bool = false  ## If something has interfered with the player, causing a new movenment curve to need generating
 var move_vector : Vector2 = Vector2.ZERO
 
 
@@ -223,6 +245,20 @@ func _physics_process(delta):
 	
 	#pingpong()
 	move_and_slide() # Might do this first, idk
+
+
+
+""" Interference """
+var interference : bool = false  ## If something has interfered with the player, causing a new movenment curve to need generating
+var interference_vector : Vector2
+func player_interference(int_vector : Vector2, int_location : Vector2, do_rotation : bool = true, time_freeze : float = 0.0):
+	interference = true
+	var int_rotation = global_position.angle_to(int_location)
+	if(do_rotation):
+		interference_vector = int_vector.rotated(int_rotation)
+	else:
+		interference_vector = int_vector
+
 
 
 """ Internal Functions """

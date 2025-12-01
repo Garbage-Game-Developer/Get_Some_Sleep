@@ -21,6 +21,9 @@ Actions available
 @onready var P : Player = $"../.."
 
 
+"""  Don't forget about interferience and how it affects decelleration in air """
+
+
 func new_state(delta : float):
 	"""
 		This will only be used if I decide every state should check if the state has changed

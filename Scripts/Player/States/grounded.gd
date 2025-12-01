@@ -2,16 +2,16 @@ class_name GroundedState extends Node
 
 """ 
 Description
-	This state is for when the player is in contact with the ground, and not in any other movenment state
+	This state is for when the player is in contact with the ground, and not water
 
 This state considers horizontal movenment, and uses a complex movenment curve
 This state does not consider vertical movenment
 
 Actions available
 - Jump			Swap to the "Jump" state, from_ground = true
-- Dash			Swap to the "Dash" state, from_ground = true
++ Dash			Swap to the "Dash" state, from_ground = true
 - Slide			Swap to the "Slide" state, from_ground = true
-- (Punch)		Sub action that calls the parent's Punch function, and plays an animation
+o (Punch)		Sub action that calls the parent's Punch function, and plays an animation
 - (Interact)	Sub action that calls the parent's Interact function, and plays an animation
 """
 
@@ -74,14 +74,17 @@ func update(delta : float):
 	""" Actions """
 	var new_action = false
 	var action_is_punch = false
-	var interupt_normal_movenment = false
 	if(Input.is_action_just_pressed("DASH") && $"../../Timers/DashFloorCooldown".is_stopped()):
 		""" Default Key : "Shift"
 			Swap to the "Dash" state, from_ground = true   """
 		
-		state_change_to = Player.State.DASH
-		$"../../Timers/DashFloorCooldown".start()
-		interupt_normal_movenment = true
+		if(state_change_to == Player.State.AIR && (P.advanced_movenment || P.special_dash)):
+			state_change_to = Player.State.DASH
+			$"../../Timers/DashFloorCooldown".start()
+			
+		elif(state_change_to != Player.State.AIR):
+			state_change_to = Player.State.DASH
+			$"../../Timers/DashFloorCooldown".start()
 	
 	
 	elif(Input.is_action_just_pressed("SLIDE")):
@@ -89,7 +92,6 @@ func update(delta : float):
 			Swap to the "Slide" state, from_ground = true   """
 		
 		state_change_to = Player.State.SLIDE
-		interupt_normal_movenment = true
 	
 	
 	elif(Input.is_action_just_pressed("JUMP")):
@@ -165,7 +167,7 @@ func update(delta : float):
 	var move_vector = P.move_vector
 	
 	
-	if(P.just_switched_directions || P.interference):
+	if(P.just_switched_directions):
 		P.interference = false
 		movenment_curve_frame = 0
 		gen_movenment_curve(move_vector.x)
@@ -223,12 +225,6 @@ var direction : float = 0.0				##	The direction the player is moving towards
 var temp_variable : float = 0.0			##	Will be set in the gen_movenment_curve() function as a reused constant dependent on varying constants
 func gen_movenment_curve(direct : float):
 	direction = direct
-	
-	"""
-		If its still not working for decceleration, have it run the normal function with acceleration_time tweaks,
-		and then also have the frame calculated as (frame - temp_variable) in the curve function, I will also
-		need to tweek the starting value a little (likely to something * -1 or max value - starting value)
-	"""
 	
 	to_zero = direction == 0.0
 	if(to_zero && velocity.x == 0.0):
