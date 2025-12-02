@@ -47,6 +47,9 @@ var movenment_curve_max_frame : float = 0
 var last_velocity : Vector2 = Vector2.ZERO
 var velocity : Vector2 = Vector2.ZERO
 
+""" DEBUG """
+var time : float
+
 
 func new_state(delta : float):
 	
@@ -60,6 +63,8 @@ func new_state(delta : float):
 
 
 func update(delta : float):
+	
+	var time = Time.get_ticks_msec() / 1000.0
 	
 	""" States (Pre Change) """
 	var state_change_to : Player.State = Player.State.GROUNDED
@@ -174,7 +179,7 @@ func update(delta : float):
 	movenment_curve_frame = minf(movenment_curve_frame + 1.0 * P.speed_boost, movenment_curve_max_frame)
 	velocity.x = velocity_on_curve(movenment_curve_frame)
 	
-	print("%8.3f" % (Time.get_ticks_msec() / 1000.0), " DEBUG velocity : V=%8.3f" % velocity.x)
+	print("%8.3f" % time, " DEBUG velocity : V=%8.3f" % velocity.x)
 	
 	
 	""" Animations to Play """
@@ -223,7 +228,7 @@ func determine_ground_type():
 var target_velocity : float = 0.0		#	"f", The speed we're lerping to (in px*s)
 var starting_velocity : float = 0.0		#	"s", Starting velocity (in px*s)
 var acceleration_time : float = 0.0		#	"time" or "t", Ammount of frames it takes to reach target_velocity from starting_velocity (frames)
-var direction : float = 0.0
+var direction : bool = false
 
 ##	a constant set based on other variable constants
 var temp_variable : float = 0.0		#	Will be set in the gen_movenment_curve() function as a reused constant dependent on varying constants
@@ -235,7 +240,7 @@ var time_scale_constant : float = 3.0 / 5.0	#	"C2", The constant that determines
 func gen_movenment_curve(direct : float):
 	
 	if(direct == 0):
-		direction = -1.0
+		direction = false
 	
 	var to_zero = direct == 0.0
 	if(to_zero && velocity.x == 0.0):
@@ -245,30 +250,47 @@ func gen_movenment_curve(direct : float):
 		
 		""" Figure this out, also need to figure out how disruptions and other stuff affect this, might keep it in the floating/dazed states """
 		
-		print("%8.3f" % (Time.get_ticks_msec() / 1000.0), " DEBUG - velocity at zero moving to zero")
+		print("%8.3f" % time, " DEBUG - velocity at zero moving to zero")
 		return
+	
+	var temp_boolean : bool
+	var multiple : float
 	
 	match ground_type:
 		1:  ##  Normal Ground
-			starting_velocity = velocity.x
-			target_velocity = GROUND_MAX_SPEED * direct if !to_zero else 0.0
-			direction = 1.0 if abs(target_velocity) > abs(starting_velocity) else -1.0
 			
-			acceleration_time = GROUND_MAX_ACC_TIME if direction == 1.0 else GROUND_MAX_DEC_TIME
+			starting_velocity = velocity.x
+			#	This boolean works as so : (velocity is negative and direct is positive)
+			temp_boolean = (sign(starting_velocity) != sign(direct) && direct > 0.0)
+			#	This boolean works as so : (both velocity and direct are different signs) and (not yet calculated) target_speed > velocity
+			temp_boolean |= (sign(starting_velocity) == sign(direct) && ((direct > 0.0 && GROUND_MAX_SPEED > starting_velocity) || (direct < 0.0 && -GROUND_MAX_SPEED > starting_velocity)))
+			multiple = 1.0 if temp_boolean else -1.0 # This multiple is used for 
+			target_velocity = GROUND_MAX_SPEED * multiple if !to_zero else 0.0
+			
+			# 	This boolean works as so : (target velocity is greater than or equal to starting velocity) or (target is less than starting but target and starting aren't both either positive or negative)
+			direction = abs(target_velocity) >= abs(starting_velocity) || (abs(target_velocity) < abs(starting_velocity) && sign(target_velocity) != sign(starting_velocity))
+			acceleration_time = GROUND_MAX_ACC_TIME if direction else GROUND_MAX_DEC_TIME
 			acceleration_time = acceleration_time * pow((abs(target_velocity - starting_velocity) / GROUND_MAX_SPEED), time_scale_constant)
 			
 			temp_variable = abs(target_velocity - starting_velocity) / pow(acceleration_time, curve_constant)
 		
 		2:  ##  Slow Ground
-			starting_velocity = velocity.x
-			target_velocity = SLOW_GROUND_MAX_SPEED * direct if !to_zero else 0.0
-			direction = 1.0 if abs(target_velocity) > abs(starting_velocity) else -1.0
 			
-			acceleration_time = SLOW_GROUND_MAX_ACC_TIME if direction == 1.0 else SLOW_GROUND_MAX_DEC_TIME
-			acceleration_time = acceleration_time * pow((abs(target_velocity - starting_velocity) / SLOW_GROUND_MAX_SPEED), time_scale_constant)
+			starting_velocity = velocity.x
+			#	This boolean works as so : (velocity is negative and direct is positive)
+			temp_boolean = (sign(starting_velocity) != sign(direct) && direct > 0.0)
+			#	This boolean works as so : (both velocity and direct are different signs) and (not yet calculated) target_speed > velocity
+			temp_boolean |= (sign(starting_velocity) == sign(direct) && ((direct > 0.0 && SLOW_GROUND_MAX_SPEED > starting_velocity) || (direct < 0.0 && -SLOW_GROUND_MAX_SPEED > starting_velocity)))
+			multiple = 1.0 if temp_boolean else -1.0 # This multiple is used for 
+			target_velocity = SLOW_GROUND_MAX_SPEED * multiple if !to_zero else 0.0
+			
+			# 	This boolean works as so : (target velocity is greater than or equal to starting velocity) or (target is less than starting but target and starting aren't both either positive or negative)
+			direction = abs(target_velocity) >= abs(starting_velocity) || (abs(target_velocity) < abs(starting_velocity) && sign(target_velocity) != sign(starting_velocity))
+			acceleration_time = ICE_GROUND_MAX_ACC_TIME if direction else ICE_GROUND_MAX_DEC_TIME
+			acceleration_time = acceleration_time * pow((abs(target_velocity - starting_velocity) / GROUND_MAX_SPEED), time_scale_constant)
 			
 			temp_variable = abs(target_velocity - starting_velocity) / pow(acceleration_time, curve_constant)
-		
+			
 		3:  ##  Ice Ground
 			starting_velocity = velocity.x
 			target_velocity = ICE_GROUND_MAX_SPEED * direct if !to_zero else 0.0
@@ -283,7 +305,7 @@ func gen_movenment_curve(direct : float):
 	
 	"""  Set the printf time thing to a variable in the beggining of the process and use it  """
 	
-	print("%8.3f" % (Time.get_ticks_msec() / 1000.0), " DEBUG - New curve is generated succesfully :"
+	print("%8.3f" % time, " DEBUG - New curve is generated succesfully :"
 	 ,  " D=%8.3f"  % direction
 	 , ", Z=%8.3f"  % to_zero
 	 , ", T=%8.3f"  % target_velocity
@@ -296,11 +318,11 @@ func gen_movenment_curve(direct : float):
 func velocity_on_curve(frame : float) -> float:
 	if(frame >= movenment_curve_max_frame):
 		if(frame > movenment_curve_max_frame): ##	Just in case something is going wrong, this will be a failsafe
-			print("%8.3f" % (Time.get_ticks_msec() / 1000.0), " PROBLEM - found with Grounded's frames if statement prior to the velocity_on_curve() function being called")
+			print("%8.3f" % time, " PROBLEM - found with Grounded's frames if statement prior to the velocity_on_curve() function being called")
 		return target_velocity
 	var speed : float = 0.0
 	speed = temp_variable * pow(frame, curve_constant) + starting_velocity
-	print("%8.3f" % (Time.get_ticks_msec() / 1000.0), " DEBUG - Speed found on curve : S=", "%8.3f" % speed)
+	print("%8.3f" % time, " DEBUG - Speed found on curve : S=", "%8.3f" % speed)
 	return speed
 
 
