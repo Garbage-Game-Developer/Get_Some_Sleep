@@ -284,7 +284,6 @@ platform_floor_layers = 4294901783
 script = ExtResource("1_pcxub")
 basic_movenment = null
 advanced_movenment = null
-can_air_dash = null
 able_special = null
 able_swing = null
 able_attack = null
