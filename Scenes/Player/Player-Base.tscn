@@ -331,18 +331,6 @@ script = ExtResource("4_c2mg2")
 
 [node name="Grounded" type="Node" parent="S"]
 script = ExtResource("3_gri1l")
-WALK_MAX_SPEED = null
-WALK_MAX_ACC_TIME = null
-WALK_MAX_DEC_TIME = null
-GROUND_MAX_SPEED = null
-GROUND_MAX_ACC_TIME = null
-GROUND_MAX_DEC_TIME = null
-SLOW_GROUND_MAX_SPEED = null
-SLOW_GROUND_MAX_ACC_TIME = null
-SLOW_GROUND_MAX_DEC_TIME = null
-ICE_GROUND_MAX_SPEED = null
-ICE_GROUND_MAX_ACC_TIME = null
-ICE_GROUND_MAX_DEC_TIME = null
 
 [node name="Jump" type="Node" parent="S"]
 script = ExtResource("6_2tyb8")
