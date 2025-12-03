@@ -23,7 +23,7 @@ var time_speed : float = 1.0  ##  The percentile speed of everything in the game
 @onready var freeze_timer : Timer = Timer.new()
 
 
-"""	Inputs """
+"""	Inputs (Prefrences) """
 var left_input_one : Key = KEY_A
 var left_input_two : Key = KEY_LEFT
 var up_input_one : Key = KEY_W

@@ -23,10 +23,16 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 
 """ Constants """
 ##	These need to be the same for Air and Jump
-@export var AIR_MAX_SPEED : float = 250.0		##	Maximum speed (px * s) the player can move in the air
+@export var AIR_MAX_X_SPEED : float = 250.0		##	Maximum speed (px * s) the player can move in the air
 @export var AIR_MAX_ACC_TIME : int = 12			##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
 @export var AIR_MAX_DEC_TIME : int = 06			##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
 @export var AIR_MAX_OVER_DEC_TIME : int = 06	##	Ammount of time (frames/60) it takes for the player to decelerate to AIR_MAX_SPEED px*s from AIR_MAX_SPEED * 2 px*s
+
+@export var GROUND_INITIAL_VELOCITY : float = 500.0		##	Maximum speed (px * s) the player can move in the air
+@export var GROUND_DECELERATION_TIME : int = 12			##	Ammount of time (frames/60) it takes for the player to go from full jump to 0
+
+@export var DOUBLE_INITIAL_VELOCITY : float = 500.0		##	Maximum speed (px * s) the player can move in the air
+@export var DOUBLE_DECELERATION_TIME : int = 12			##	Ammount of time (frames/60) it takes for the player to go from full jump to 0
 
 """ Internals """
 var ACTIVE_STATE : bool = false
@@ -36,20 +42,20 @@ var movenment_curve_max_frame : float = 0
 var last_velocity : Vector2 = Vector2.ZERO
 var velocity : Vector2 = Vector2.ZERO
 
-var new_surface : bool = false
+var ground_jump : bool = false
 
 
 """ DEBUG """
 var time : String
 
 
-func new_state(delta : float):
+func new_state(delta : float, from_ground : bool):
 	
 	##	Run set up code for animations and such
-	
 	ACTIVE_STATE = true
 	velocity = P.velocity / Global.time_speed
 	#gen_movenment_curve(1.0 if (P.move_vector.x == 0.0 && velocity.x < 0.0) || P.move_vector.x > 0.0 else -1.0)
+	ground_jump = from_ground
 	update(delta)
 
 
@@ -64,7 +70,8 @@ func update(delta : float):
 		state_change_to = Player.State.GROUNDED
 	elif(P.is_on_wall_only() && true):  ##  find if also holding direction
 		state_change_to = Player.State.WALL
-	
+	elif(!Input.is_action_pressed("JUMP")):
+		state_change_to = Player.State.AIR
 	
 	""" Actions """
 	var new_action = false
