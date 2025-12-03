@@ -1,20 +1,12 @@
-[gd_scene load_steps=48 format=3 uid="uid://bl7tp660hpbgu"]
+[gd_scene load_steps=55 format=3 uid="uid://bl7tp660hpbgu"]
 
 [ext_resource type="Texture2D" uid="uid://32m0hhn4325y" path="res://Assets/Sprites/Actors/Player Spritesheets/player-base.png" id="1_4jfo0"]
 [ext_resource type="Script" uid="uid://coji8x5p1svqt" path="res://Scripts/Player/player_base.gd" id="1_pcxub"]
 [ext_resource type="Script" uid="uid://ivfkaytss4d5" path="res://Scripts/Player/Internal/character.gd" id="1_sfkqq"]
 [ext_resource type="Shader" uid="uid://bhw4eqxw532og" path="res://Scripts/Player/Shaders/Player-Base.gdshader" id="2_7oum1"]
-[ext_resource type="Script" uid="uid://dqhex5uyycpmy" path="res://Scripts/Player/States/air.gd" id="2_hvnhq"]
 [ext_resource type="Texture2D" uid="uid://c4nwp7n3x8i0s" path="res://Assets/Effects/Shaders/64FadedCircle.png" id="2_ii8om"]
 [ext_resource type="Script" uid="uid://bboq2wxo458qt" path="res://Scripts/Player/States/grounded.gd" id="3_gri1l"]
-[ext_resource type="Script" uid="uid://dtcs2aly5qdbu" path="res://Scripts/Player/States/kick.gd" id="4_2md8j"]
-[ext_resource type="Script" uid="uid://bbs2iystkryj0" path="res://Scripts/Player/States/dash.gd" id="4_c2mg2"]
-[ext_resource type="Script" uid="uid://cifi7oopvu1y5" path="res://Scripts/Player/States/slide.gd" id="5_erevo"]
-[ext_resource type="Script" uid="uid://b17d8vvff2003" path="res://Scripts/Player/States/swim.gd" id="6_2gvn5"]
-[ext_resource type="Script" uid="uid://ewymm0e3v0ph" path="res://Scripts/Player/States/jump.gd" id="6_2tyb8"]
-[ext_resource type="Script" uid="uid://xks3o5wq4vdb" path="res://Scripts/Player/States/wall.gd" id="7_sixxt"]
-[ext_resource type="Script" uid="uid://b3xpymlugfmul" path="res://Scripts/Player/States/swing.gd" id="8_2u4vx"]
-[ext_resource type="Script" uid="uid://bp34dbfvbxmvv" path="res://Scripts/Player/States/dead.gd" id="8_nxqjj"]
+[ext_resource type="Script" uid="uid://3cly8xer7q8k" path="res://Scripts/Player/States/jump.gd" id="6_2tyb8"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ii8om"]
 size = Vector2(12, 16)
@@ -28,6 +20,38 @@ shader = ExtResource("2_7oum1")
 [sub_resource type="AtlasTexture" id="AtlasTexture_pcxub"]
 atlas = ExtResource("1_4jfo0")
 region = Rect2(200, 160, 20, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_iwt12"]
+atlas = ExtResource("1_4jfo0")
+region = Rect2(240, 160, 20, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dxm8w"]
+atlas = ExtResource("1_4jfo0")
+region = Rect2(260, 160, 20, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dfpga"]
+atlas = ExtResource("1_4jfo0")
+region = Rect2(280, 160, 20, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pj5mx"]
+atlas = ExtResource("1_4jfo0")
+region = Rect2(300, 160, 20, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3sbtj"]
+atlas = ExtResource("1_4jfo0")
+region = Rect2(320, 160, 20, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ew8e0"]
+atlas = ExtResource("1_4jfo0")
+region = Rect2(340, 160, 20, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y5pcb"]
+atlas = ExtResource("1_4jfo0")
+region = Rect2(360, 160, 20, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4j28b"]
+atlas = ExtResource("1_4jfo0")
+region = Rect2(380, 160, 20, 20)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_hvnhq"]
 atlas = ExtResource("1_4jfo0")
@@ -72,6 +96,34 @@ region = Rect2(380, 180, 20, 20)
 [sub_resource type="AtlasTexture" id="AtlasTexture_4jfo0"]
 atlas = ExtResource("1_4jfo0")
 region = Rect2(200, 0, 20, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2tk40"]
+atlas = ExtResource("1_4jfo0")
+region = Rect2(240, 0, 20, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hkug1"]
+atlas = ExtResource("1_4jfo0")
+region = Rect2(260, 0, 20, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q547s"]
+atlas = ExtResource("1_4jfo0")
+region = Rect2(280, 0, 20, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h46b5"]
+atlas = ExtResource("1_4jfo0")
+region = Rect2(300, 0, 20, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sjprn"]
+atlas = ExtResource("1_4jfo0")
+region = Rect2(320, 0, 20, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ha2pg"]
+atlas = ExtResource("1_4jfo0")
+region = Rect2(340, 0, 20, 20)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p84of"]
+atlas = ExtResource("1_4jfo0")
+region = Rect2(360, 0, 20, 20)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_uyynq"]
 atlas = ExtResource("1_4jfo0")
@@ -130,6 +182,35 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_iwt12")
+}, {
+"duration": 3.0,
+"texture": SubResource("AtlasTexture_dxm8w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dfpga")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pj5mx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3sbtj")
+}, {
+"duration": 3.0,
+"texture": SubResource("AtlasTexture_ew8e0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y5pcb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4j28b")
+}],
+"loop": true,
+"name": &"L_Run",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_hvnhq")
 }, {
 "duration": 1.0,
@@ -175,6 +256,32 @@ animations = [{
 "loop": false,
 "name": &"R_Idle",
 "speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2tk40")
+}, {
+"duration": 3.0,
+"texture": SubResource("AtlasTexture_hkug1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q547s")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_h46b5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_sjprn")
+}, {
+"duration": 3.0,
+"texture": SubResource("AtlasTexture_ha2pg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p84of")
+}],
+"loop": true,
+"name": &"R_Run",
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -243,6 +350,11 @@ animations = [{
 "name": &"L_Idle",
 "speed": 5.0
 }, {
+"frames": [],
+"loop": true,
+"name": &"L_Run",
+"speed": 5.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_c2mg2")
@@ -264,6 +376,11 @@ animations = [{
 "name": &"R_Idle",
 "speed": 5.0
 }, {
+"frames": [],
+"loop": true,
+"name": &"R_Run",
+"speed": 5.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_2tyb8")
@@ -282,8 +399,14 @@ collision_layer = 0
 collision_mask = 7
 platform_floor_layers = 4294901783
 script = ExtResource("1_pcxub")
+can_swim = null
+combat_skills = null
+combat_power = null
 basic_movenment = null
 advanced_movenment = null
+item_double_jump = null
+free_double_jump = null
+special_dash = null
 able_special = null
 able_swing = null
 able_attack = null
@@ -318,10 +441,8 @@ texture_scale = 0.3
 [node name="S" type="Node" parent="."]
 
 [node name="Air" type="Node" parent="S"]
-script = ExtResource("2_hvnhq")
 
 [node name="Dash" type="Node" parent="S"]
-script = ExtResource("4_c2mg2")
 
 [node name="Dazed" type="Node" parent="S"]
 
@@ -329,29 +450,31 @@ script = ExtResource("4_c2mg2")
 
 [node name="Frozen" type="Node" parent="S"]
 
+[node name="Ghost - need to write down" type="Node" parent="S"]
+
 [node name="Grounded" type="Node" parent="S"]
 script = ExtResource("3_gri1l")
 
 [node name="Jump" type="Node" parent="S"]
 script = ExtResource("6_2tyb8")
+AIR_MAX_SPEED = null
+AIR_MAX_ACC_TIME = null
+AIR_MAX_DEC_TIME = null
+AIR_MAX_OVER_DEC_TIME = null
 
 [node name="Kick" type="Node" parent="S"]
-script = ExtResource("4_2md8j")
 
 [node name="Slide" type="Node" parent="S"]
-script = ExtResource("5_erevo")
 
 [node name="Swim" type="Node" parent="S"]
-script = ExtResource("6_2gvn5")
 
 [node name="Swing" type="Node" parent="S"]
-script = ExtResource("8_2u4vx")
 
 [node name="Wall" type="Node" parent="S"]
-script = ExtResource("7_sixxt")
 
 [node name="Dead" type="Node" parent="S"]
-script = ExtResource("8_nxqjj")
+
+[node name="Cutscene" type="Node" parent="S"]
 
 [node name="Timers" type="Node" parent="."]
 
@@ -402,120 +525,145 @@ debug_color = Color(0.99, 0, 0.31349993, 0)
 position = Vector2(0, -6)
 target_position = Vector2(10, 0)
 collision_mask = 7
+hit_from_inside = true
 
 [node name="VelocityOver" type="RayCast2D" parent="ConvenienceRays"]
 position = Vector2(0, -2.0000002)
 target_position = Vector2(10, 0)
 collision_mask = 7
+hit_from_inside = true
 
 [node name="VelocityNextPosition" type="RayCast2D" parent="ConvenienceRays"]
 target_position = Vector2(10, 0)
 collision_mask = 7
+hit_from_inside = true
 
 [node name="VelocityCeilingSnapLeft" type="RayCast2D" parent="ConvenienceRays"]
 position = Vector2(-4, -15.999999)
 target_position = Vector2(0, -10)
 collision_mask = 7
+hit_from_inside = true
 
 [node name="VelocityCeilingSnapRight" type="RayCast2D" parent="ConvenienceRays"]
 position = Vector2(4, -16)
 target_position = Vector2(0, -10)
 collision_mask = 7
+hit_from_inside = true
 
 [node name="VelocityCeilingLeft" type="RayCast2D" parent="ConvenienceRays"]
 position = Vector2(-6, -16)
 target_position = Vector2(0, -10)
 collision_mask = 7
+hit_from_inside = true
 
 [node name="VelocityCeilingRight" type="RayCast2D" parent="ConvenienceRays"]
 position = Vector2(6, -16)
 target_position = Vector2(0, -10)
 collision_mask = 7
+hit_from_inside = true
 
 [node name="WallTypeRays" type="Node2D" parent="."]
 
 [node name="NormalWallRight" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -8)
 target_position = Vector2(7, 0)
+hit_from_inside = true
 
 [node name="NormalWallLeft" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -7.9999995)
 target_position = Vector2(-7, 0)
+hit_from_inside = true
 
 [node name="SlowWallRight" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -8)
 target_position = Vector2(7, 0)
 collision_mask = 2
+hit_from_inside = true
 
 [node name="SlowWallLeft" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -8)
 target_position = Vector2(-7, 0)
 collision_mask = 2
+hit_from_inside = true
 
 [node name="IceWallRight" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -8)
 target_position = Vector2(7, 0)
 collision_mask = 4
+hit_from_inside = true
 
 [node name="IceWallLeft" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -8)
 target_position = Vector2(-7, 0)
 collision_mask = 4
+hit_from_inside = true
 
 [node name="VelocityBouncePadHigh" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -11)
 target_position = Vector2(7, 0)
 collision_mask = 512
+hit_from_inside = true
 
 [node name="VelocityBouncePadLow" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -5)
 target_position = Vector2(7, 0)
 collision_mask = 512
+hit_from_inside = true
 
 [node name="GroundTypeRays" type="Node2D" parent="."]
 
 [node name="NormalGroundLeft" type="RayCast2D" parent="GroundTypeRays"]
 position = Vector2(-6, 0)
 target_position = Vector2(0, 2)
+hit_from_inside = true
 
 [node name="NormalGroundMiddle" type="RayCast2D" parent="GroundTypeRays"]
 target_position = Vector2(0, 2)
+hit_from_inside = true
 
 [node name="NormalGroundRight" type="RayCast2D" parent="GroundTypeRays"]
 position = Vector2(6, 0)
 target_position = Vector2(0, 2)
+hit_from_inside = true
 
 [node name="SlowGroundLeft" type="RayCast2D" parent="GroundTypeRays"]
 position = Vector2(-6, 0)
 target_position = Vector2(0, 2)
 collision_mask = 2
+hit_from_inside = true
 
 [node name="SlowGroundMiddle" type="RayCast2D" parent="GroundTypeRays"]
 target_position = Vector2(0, 2)
 collision_mask = 2
+hit_from_inside = true
 
 [node name="SlowGroundRight" type="RayCast2D" parent="GroundTypeRays"]
 position = Vector2(6, 0)
 target_position = Vector2(0, 2)
 collision_mask = 2
+hit_from_inside = true
 
 [node name="IceGroundLeft" type="RayCast2D" parent="GroundTypeRays"]
 position = Vector2(-6, 0)
 target_position = Vector2(0, 2)
 collision_mask = 4
+hit_from_inside = true
 
 [node name="IceGroundMiddle" type="RayCast2D" parent="GroundTypeRays"]
 target_position = Vector2(0, 2)
 collision_mask = 4
+hit_from_inside = true
 
 [node name="IceGroundRight" type="RayCast2D" parent="GroundTypeRays"]
 position = Vector2(6, 0)
 target_position = Vector2(0, 2)
 collision_mask = 4
+hit_from_inside = true
 
 [node name="VelocityBouncePad" type="RayCast2D" parent="GroundTypeRays"]
 target_position = Vector2(0, 2)
 collision_mask = 512
+hit_from_inside = true
 
 [node name="C" type="Node2D" parent="."]
 material = SubResource("ShaderMaterial_hvnhq")

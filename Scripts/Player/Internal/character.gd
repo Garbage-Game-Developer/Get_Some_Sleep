@@ -5,7 +5,7 @@ extends Node2D
 @export_enum("Left:0", "Right:1") var left_or_right : int = 1
 var left_or_right_changed : int = 0  ##  Set to the most previous left_or_right value for checking against current
 @export_enum("Current:0", "Idle:1", "Walk:2") var animation : int = 0
-var current_animation : int = 1
+var current_animation : int = 1  ##  0-default, 1-idle, 2-walk, 3-run
 @export var reset_idle : bool = false
 
 
@@ -38,6 +38,9 @@ func play_animation():
 			$Legs.play(anim_name_start + "Idle")
 			$Torso.play(anim_name_start + "Idle")
 		2:
+			$Legs.play(anim_name_start + "Walk")
+			$Torso.play(anim_name_start + "Walk")
+		3:
 			$Legs.play(anim_name_start + "Walk")
 			$Torso.play(anim_name_start + "Walk")
 

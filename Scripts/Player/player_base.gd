@@ -2,17 +2,39 @@ class_name Player extends CharacterBody2D
 
 
 """ States """
-enum State { AIR = 0, DASH = 1, GROUNDED = 2, JUMP = 3, KICK = 4, SLIDE = 5, SWIM = 6, SWING = 7, WALL = 8, DEAD = -1, CUTSCENE = -2 }
-@onready var Air : AirState = $S/Air
-@onready var Dash : DashState = $S/Dash
+enum State {
+	AIR = 0, 
+	DASH = 1, 
+	DAZED = 2, 
+	FLOATING = 3, 
+	FROZEN = 4, 
+	GHOST = 5, 
+	GROUNDED = 6, 
+	JUMP = 7, 
+	KICK = 8, 
+	SLIDE = 9, 
+	SWIM = 10, 
+	SWING = 11, 
+	WALL = 12, 
+	DEAD = -1, 
+	CUTSCENE = -2, 
+	PAUSE = -3 
+}
+#@onready var Air : AirState = $S/Air
+#@onready var Dash : DashState = $S/Dash
+#@onready var Dazed : DazedState = $S/Dazed
+#@onready var Floating : FloatingState = $S/Floating
+#@onready var Frozen : FrozenState = $S/Frozen
+#@onready var Ghost : GhostState = $S/Ghost
 @onready var Grounded : GroundedState = $S/Grounded
 @onready var Jump : JumpState = $S/Jump
-@onready var Kick : KickState = $S/Kick
-@onready var Slide : SlideState = $S/Slide
-@onready var Swim : SwimState = $S/Swim
-@onready var Swing : SwingState = $S/Swing
-@onready var Wall : WallState = $S/Wall
-@onready var Dead : DeadState = $S/Dead
+#@onready var Kick : KickState = $S/Kick
+#@onready var Slide : SlideState = $S/Slide
+#@onready var Swim : SwimState = $S/Swim
+#@onready var Swing : SwingState = $S/Swing
+#@onready var Wall : WallState = $S/Wall
+#@onready var Dead : DeadState = $S/Dead
+#@onready var Cutscene : CutsceneState = $S/Cutscene
 
 var current_state : State = State.GROUNDED
 var walk_mode : bool = false  ##  A special grounded state and falling state where most actions are locked
@@ -140,27 +162,36 @@ func _physics_process(delta):
 	##	The state process
 	var new_state = false
 	match current_state:
-		State.AIR:
-			Air.update(delta, new_state)		##	Unfinished
-		State.DASH:
-			Dash.update(delta, new_state)		##	Unfinished
+		#State.AIR:
+			#Air.update(delta, new_state)		##	Unfinished
+		#State.DASH:
+			#Dash.update(delta, new_state)		##	Unfinished
+		#State.DAZED:
+			#Dazed.update(delta, new_state)		##	Unfinished
+		#State.FLOATING:
+			#Floating.update(delta, new_state)		##	Unfinished
+		#State.FROZEN:
+			#Frozen.update(delta, new_state)		##	Unfinished
+		#State.GHOST:
+			#Ghost.update(delta, new_state)		##	Unfinished
 		State.GROUNDED:
-			Grounded.update(delta)				##	Unfinished - Working On
+			Grounded.update(delta)				##	Unfinished - Prototyped
 		State.JUMP:
 			Jump.update(delta, new_state)		##	Unfinished
-		State.KICK:
-			Kick.update(delta, new_state)		##	Unfinished
-		State.SLIDE:
-			Slide.update(delta, new_state)		##	Unfinished
-		State.SWIM:
-			Swim.update(delta, new_state)		##	Unfinished
-		State.SWING:
-			Swing.update(delta, new_state)		##	Unfinished
-		State.WALL:
-			Wall.update(delta, new_state)		##	Unfinished
-		
-		State.DEAD:
-			Dead.update(delta, new_state)		##	Unfinished
+		#State.KICK:
+			#Kick.update(delta, new_state)		##	Unfinished
+		#State.SLIDE:
+			#Slide.update(delta, new_state)		##	Unfinished
+		#State.SWIM:
+			#Swim.update(delta, new_state)		##	Unfinished
+		#State.SWING:
+			#Swing.update(delta, new_state)		##	Unfinished
+		#State.WALL:
+			#Wall.update(delta, new_state)		##	Unfinished
+		#State.DEAD:
+			#Dead.update(delta, new_state)		##	Unfinished
+		#State.CUTSCENE:
+			#Cutscene.update(delta, new_state)		##	Unfinished
 	
 	""" End of process """
 	

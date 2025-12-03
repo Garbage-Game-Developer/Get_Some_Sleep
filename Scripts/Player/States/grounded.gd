@@ -2,7 +2,7 @@ class_name GroundedState extends Node
 
 """ 
 Description
-	This state is for when the player is in contact with the ground, and not water
+	This normal state is for when the player is in contact with the ground, and not water
 
 This state considers horizontal movenment, and uses a complex movenment curve
 This state does not consider vertical movenment
@@ -22,19 +22,19 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 
 
 """ Constants """
-@export var WALK_MAX_SPEED : float = 100.0	##	Maximum speed (px * s) the player can move
+@export var WALK_MAX_SPEED : float = 50.0	##	Maximum speed (px * s) the player can move
 @export var WALK_MAX_ACC_TIME : int = 12	##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
 @export var WALK_MAX_DEC_TIME : int = 06	##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
 
-@export var GROUND_MAX_SPEED : float = 300.0	##	Maximum speed (px * s) the player can move
+@export var GROUND_MAX_SPEED : float = 200.0	##	Maximum speed (px * s) the player can move
 @export var GROUND_MAX_ACC_TIME : int = 24		##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
 @export var GROUND_MAX_DEC_TIME : int = 12		##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
 
-@export var SLOW_GROUND_MAX_SPEED : float = 200.0	##	Maximum speed (px * s) the player can move
+@export var SLOW_GROUND_MAX_SPEED : float = 120.0	##	Maximum speed (px * s) the player can move
 @export var SLOW_GROUND_MAX_ACC_TIME : int = 48		##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
 @export var SLOW_GROUND_MAX_DEC_TIME : int = 10		##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
 
-@export var ICE_GROUND_MAX_SPEED : float = 350.0	##	Maximum speed (px * s) the player can move
+@export var ICE_GROUND_MAX_SPEED : float = 300.0	##	Maximum speed (px * s) the player can move
 @export var ICE_GROUND_MAX_ACC_TIME : int = 60		##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
 @export var ICE_GROUND_MAX_DEC_TIME : int = 30		##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
 
@@ -181,7 +181,7 @@ func update(delta : float):
 	movenment_curve_frame = minf(movenment_curve_frame + 1.0 * P.speed_boost, movenment_curve_max_frame)
 	velocity.x = velocity_on_curve(movenment_curve_frame)
 	
-	print(time, " DEBUG velocity : V=%8.3f" % velocity.x)
+	#print(time, " DEBUG velocity : V=%8.3f" % velocity.x)
 	
 	
 	""" Animations to Play """
@@ -189,6 +189,8 @@ func update(delta : float):
 		
 		if(P.just_switched_directions):
 			Animation_Controller.left_or_right = (1 if P.left_or_right else 0)
+		
+		pass
 		
 		##	Check if not dashing before checking if velocity.y < 0, and then setting animation to falling
 		
@@ -211,20 +213,23 @@ func update(delta : float):
 
 
 var ground_type : int = 1	##	1 - Normal, 2 - Slow, 3 - Ice
+var last_ground_type : int = 1
 func determine_ground_type():
-	if($"../../GroundTypeRays/NormalGroundMiddle".collide_with_bodies):
+	last_ground_type = ground_type
+	if($"../../GroundTypeRays/NormalGroundMiddle".is_colliding()):
 		ground_type = 1
-	elif($"../../GroundTypeRays/SlowGroundMiddle".collide_with_bodies):
+	elif($"../../GroundTypeRays/SlowGroundMiddle".is_colliding()):
 		ground_type = 2
-	elif($"../../GroundTypeRays/IceGroundMiddle".collide_with_bodies):
+	elif($"../../GroundTypeRays/IceGroundMiddle".is_colliding()):
 		ground_type = 3
 	else:
-		if($"../../GroundTypeRays/NormalGroundLeft".collide_with_bodies || $"../../GroundTypeRays/NormalGroundRight".collide_with_bodies):
+		if($"../../GroundTypeRays/NormalGroundLeft".is_colliding() || $"../../GroundTypeRays/NormalGroundRight".is_colliding()):
 			ground_type = 1
-		elif($"../../GroundTypeRays/SlowGroundLeft".collide_with_bodies || $"../../GroundTypeRays/SlowGroundRight".collide_with_bodies):
+		elif($"../../GroundTypeRays/SlowGroundLeft".is_colliding() || $"../../GroundTypeRays/SlowGroundRight".is_colliding()):
 			ground_type = 2
-		elif($"../../GroundTypeRays/IceGroundLeft".collide_with_bodies || $"../../GroundTypeRays/IceGroundRight".collide_with_bodies):
+		elif($"../../GroundTypeRays/IceGroundLeft".is_colliding() || $"../../GroundTypeRays/IceGroundRight".is_colliding()):
 			ground_type = 3
+	return ground_type != last_ground_type
 
 
 
@@ -261,7 +266,7 @@ func gen_movenment_curve(direct : float):
 		
 		""" Figure this out, also need to figure out how disruptions and other stuff affect this, might keep it in the floating/dazed states """
 		
-		print(time, " DEBUG - velocity at zero moving to zero")
+		#print(time, " DEBUG - velocity at zero moving to zero")
 		return
 	
 	var temp_boolean : bool
@@ -274,7 +279,8 @@ func gen_movenment_curve(direct : float):
 			#	This boolean works as so : (velocity is negative and direct is positive)
 			temp_boolean = (sign(starting_velocity) != sign(direct) && direct > 0.0)
 			#	This boolean works as so : not moving towards zero and (both velocity and direct are different signs) and (not yet calculated) target_speed > velocity
-			temp_boolean = temp_boolean || (sign(starting_velocity) == sign(direct) && ((direct > 0.0 && GROUND_MAX_SPEED > starting_velocity) || (direct < 0.0 && -GROUND_MAX_SPEED > starting_velocity)))
+			##temp_boolean = temp_boolean || (sign(starting_velocity) == sign(direct) && ((direct > 0.0 && GROUND_MAX_SPEED > starting_velocity) || (direct < 0.0 && -GROUND_MAX_SPEED > starting_velocity)))
+			temp_boolean = temp_boolean || (sign(starting_velocity) == sign(direct) && direct > 0.0)
 			multiple = 1.0 if temp_boolean else -1.0 # This multiple is used for 
 			target_velocity = GROUND_MAX_SPEED * multiple if !to_zero else 0.0
 			
@@ -291,7 +297,8 @@ func gen_movenment_curve(direct : float):
 			#	This boolean works as so : (velocity is negative and direct is positive)
 			temp_boolean = (sign(starting_velocity) != sign(direct) && direct > 0.0)
 			#	This boolean works as so : (both velocity and direct are different signs) and (not yet calculated) target_speed > velocity
-			temp_boolean = temp_boolean || (sign(starting_velocity) == sign(direct) && ((direct > 0.0 && SLOW_GROUND_MAX_SPEED > starting_velocity) || (direct < 0.0 && -SLOW_GROUND_MAX_SPEED > starting_velocity)))
+			##temp_boolean = temp_boolean || (sign(starting_velocity) == sign(direct) && ((direct > 0.0 && SLOW_GROUND_MAX_SPEED > starting_velocity) || (direct < 0.0 && -SLOW_GROUND_MAX_SPEED > starting_velocity)))
+			temp_boolean = temp_boolean || (sign(starting_velocity) == sign(direct) && direct > 0.0)
 			multiple = 1.0 if temp_boolean else -1.0 # This multiple is used for 
 			target_velocity = SLOW_GROUND_MAX_SPEED * multiple if !to_zero else 0.0
 			
@@ -325,9 +332,9 @@ func gen_movenment_curve(direct : float):
 	"""  Set the printf time thing to a variable in the beggining of the process and use it  """
 	
 	print(time, " DEBUG - New curve is generated succesfully :"
-	,   " d=%3.1f"  % direct
-	,  ", D="  , str(direction)
-	 , ", Z="  , str(to_zero)
+	,   " d=%4.1f"  % direct
+	,  ", D=%5s"    % str(direction)
+	 , ", Z=%5s"    % str(to_zero)
 	 , ", T=%9.3f"  % target_velocity
 	 , ", S=%9.3f"  % starting_velocity
 	 , ", V=%9.3f"  % velocity.x
@@ -338,12 +345,12 @@ func gen_movenment_curve(direct : float):
 
 func velocity_on_curve(frame : float) -> float:
 	if(frame >= movenment_curve_max_frame):
-		if(frame > movenment_curve_max_frame): ##	Just in case something is going wrong, this will be a failsafe
-			print(time, " PROBLEM - found with Grounded's frames if statement prior to the velocity_on_curve() function being called")
+		#if(frame > movenment_curve_max_frame): ##	Just in case something is going wrong, this will be a failsafe
+			#print(time, " PROBLEM - found with Grounded's frames if statement prior to the velocity_on_curve() function being called")
 		return target_velocity
 	var speed : float = 0.0
 	speed = temp_variable * pow(frame, curve_constant) + starting_velocity
-	print(time, " DEBUG - Speed found on curve : S=", "%8.3f" % speed)
+	#print(time, " DEBUG - Speed found on curve : S=", "%8.3f" % speed)
 	return speed
 
 
