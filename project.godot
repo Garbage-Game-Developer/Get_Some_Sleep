@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="Get Some Sleep"
+config/description="A game about medicine tampering"
 run/main_scene="uid://bt73e02l1b1xk"
 config/features=PackedStringArray("4.5", "Forward Plus")
 boot_splash/bg_color=Color(0, 0, 0, 1)

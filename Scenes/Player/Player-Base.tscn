@@ -399,19 +399,6 @@ collision_layer = 0
 collision_mask = 7
 platform_floor_layers = 4294901783
 script = ExtResource("1_pcxub")
-can_swim = null
-combat_skills = null
-combat_power = null
-basic_movenment = null
-advanced_movenment = null
-item_double_jump = null
-free_double_jump = null
-special_dash = null
-able_special = null
-able_swing = null
-able_attack = null
-able_expert_wall = null
-able_fast_swim = null
 
 [node name="PlayerCollisions" type="CollisionShape2D" parent="."]
 position = Vector2(0, -8)
@@ -457,10 +444,6 @@ script = ExtResource("3_gri1l")
 
 [node name="Jump" type="Node" parent="S"]
 script = ExtResource("6_2tyb8")
-AIR_MAX_SPEED = null
-AIR_MAX_ACC_TIME = null
-AIR_MAX_DEC_TIME = null
-AIR_MAX_OVER_DEC_TIME = null
 
 [node name="Kick" type="Node" parent="S"]
 

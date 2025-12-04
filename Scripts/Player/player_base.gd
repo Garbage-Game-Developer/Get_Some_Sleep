@@ -163,35 +163,35 @@ func _physics_process(delta):
 	var new_state = false
 	match current_state:
 		#State.AIR:
-			#Air.update(delta, new_state)		##	Unfinished
+			#Air.update(delta)		##	Unfinished
 		#State.DASH:
-			#Dash.update(delta, new_state)		##	Unfinished
+			#Dash.update(delta)		##	Unfinished
 		#State.DAZED:
-			#Dazed.update(delta, new_state)		##	Unfinished
+			#Dazed.update(delta)		##	Unfinished
 		#State.FLOATING:
-			#Floating.update(delta, new_state)		##	Unfinished
+			#Floating.update(delta)		##	Unfinished
 		#State.FROZEN:
-			#Frozen.update(delta, new_state)		##	Unfinished
+			#Frozen.update(delta)		##	Unfinished
 		#State.GHOST:
-			#Ghost.update(delta, new_state)		##	Unfinished
+			#Ghost.update(delta)		##	Unfinished
 		State.GROUNDED:
 			Grounded.update(delta)				##	Unfinished - Prototyped
 		State.JUMP:
-			Jump.update(delta, new_state)		##	Unfinished
+			Jump.update(delta)		##	Unfinished
 		#State.KICK:
-			#Kick.update(delta, new_state)		##	Unfinished
+			#Kick.update(delta)		##	Unfinished
 		#State.SLIDE:
-			#Slide.update(delta, new_state)		##	Unfinished
+			#Slide.update(delta)		##	Unfinished
 		#State.SWIM:
-			#Swim.update(delta, new_state)		##	Unfinished
+			#Swim.update(delta)		##	Unfinished
 		#State.SWING:
-			#Swing.update(delta, new_state)		##	Unfinished
+			#Swing.update(delta)		##	Unfinished
 		#State.WALL:
-			#Wall.update(delta, new_state)		##	Unfinished
+			#Wall.update(delta)		##	Unfinished
 		#State.DEAD:
-			#Dead.update(delta, new_state)		##	Unfinished
+			#Dead.update(delta)		##	Unfinished
 		#State.CUTSCENE:
-			#Cutscene.update(delta, new_state)		##	Unfinished
+			#Cutscene.update(delta)		##	Unfinished
 	
 	""" End of process """
 	
@@ -345,8 +345,15 @@ func knockback(applied_force: Vector2, freeze_time: float = 0.0, freeze_intensit
 """ To-Do
 - Player Sprites
 	- Advanced Climbing animations
-	- Swiming animations
+	- Swiming animations (A whole lot of them)
 	- Diagonal Kick animation
+	- Interact animation
+	- Punch animation
+	- Air Punch animation
+	- Switch all animations to be connected (no seperation between upper and lower body)
+	- Have a left facing animated_sprite node and a right facing, and swap them between shown and hidden as needed
+	
+	- Rework all sprites so that they aren't screwed when there's a little bit of screen tearing (do this later)
 - The code?
 	- Code the wall and ground detectors
 	- Code player movenment in the normal state
