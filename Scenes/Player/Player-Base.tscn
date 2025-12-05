@@ -1,10 +1,11 @@
-[gd_scene load_steps=55 format=3 uid="uid://bl7tp660hpbgu"]
+[gd_scene load_steps=56 format=3 uid="uid://bl7tp660hpbgu"]
 
 [ext_resource type="Texture2D" uid="uid://32m0hhn4325y" path="res://Assets/Sprites/Actors/Player Spritesheets/player-base.png" id="1_4jfo0"]
 [ext_resource type="Script" uid="uid://coji8x5p1svqt" path="res://Scripts/Player/player_base.gd" id="1_pcxub"]
 [ext_resource type="Script" uid="uid://ivfkaytss4d5" path="res://Scripts/Player/Internal/character.gd" id="1_sfkqq"]
 [ext_resource type="Shader" uid="uid://bhw4eqxw532og" path="res://Scripts/Player/Shaders/Player-Base.gdshader" id="2_7oum1"]
 [ext_resource type="Texture2D" uid="uid://c4nwp7n3x8i0s" path="res://Assets/Effects/Shaders/64FadedCircle.png" id="2_ii8om"]
+[ext_resource type="Script" uid="uid://dqhex5uyycpmy" path="res://Scripts/Player/States/air.gd" id="3_erevo"]
 [ext_resource type="Script" uid="uid://bboq2wxo458qt" path="res://Scripts/Player/States/grounded.gd" id="3_gri1l"]
 [ext_resource type="Script" uid="uid://3cly8xer7q8k" path="res://Scripts/Player/States/jump.gd" id="6_2tyb8"]
 
@@ -428,6 +429,7 @@ texture_scale = 0.3
 [node name="S" type="Node" parent="."]
 
 [node name="Air" type="Node" parent="S"]
+script = ExtResource("3_erevo")
 
 [node name="Dash" type="Node" parent="S"]
 

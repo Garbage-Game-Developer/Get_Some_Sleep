@@ -20,7 +20,7 @@ enum State {
 	CUTSCENE = -2, 
 	PAUSE = -3 
 }
-#@onready var Air : AirState = $S/Air
+@onready var Air : AirState = $S/Air
 #@onready var Dash : DashState = $S/Dash
 #@onready var Dazed : DazedState = $S/Dazed
 #@onready var Floating : FloatingState = $S/Floating
@@ -162,8 +162,8 @@ func _physics_process(delta):
 	##	The state process
 	var new_state = false
 	match current_state:
-		#State.AIR:
-			#Air.update(delta)		##	Unfinished
+		State.AIR:
+			Air.update(delta)		##	Unfinished - Working on
 		#State.DASH:
 			#Dash.update(delta)		##	Unfinished
 		#State.DAZED:
@@ -175,9 +175,9 @@ func _physics_process(delta):
 		#State.GHOST:
 			#Ghost.update(delta)		##	Unfinished
 		State.GROUNDED:
-			Grounded.update(delta)				##	Unfinished - Prototyped
+			Grounded.update(delta)				##	Unfinished - Prototyped (Needs review)
 		State.JUMP:
-			Jump.update(delta)		##	Unfinished
+			Jump.update(delta)		##	Unfinished - Working on
 		#State.KICK:
 			#Kick.update(delta)		##	Unfinished
 		#State.SLIDE:

@@ -148,9 +148,19 @@ func update(delta : float):
 				#P.current_state = Player.State.DASH
 				#P.Dash.new_state(delta)
 				pass
+			Player.State.DAZED:
+				pass
+			Player.State.FLOATING:
+				pass
+			Player.State.FROZEN:
+				pass
+			Player.State.GHOST:
+				pass
 			Player.State.JUMP:
 				#P.current_state = Player.State.JUMP
 				#P.Jump.new_state(delta)
+				pass
+			Player.State.KICK:
 				pass
 			Player.State.SLIDE:
 				#P.current_state = Player.State.SLIDE
@@ -167,6 +177,10 @@ func update(delta : float):
 			Player.State.WALL:
 				#P.current_state = Player.State.WALL
 				#P.Wall.new_state(delta)
+				pass
+			Player.State.DEAD:
+				pass
+			Player.State.CUTSCENE:
 				pass
 		return
 	

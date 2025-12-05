@@ -1,4 +1,4 @@
-class_name JumpState extends Node
+class_name AirState extends Node
 
 """ 
 Description
@@ -69,14 +69,12 @@ func update(delta : float):
 	time = "%9.3f" % (float(Time.get_ticks_msec()) / 1000.0)
 	
 	""" States (Pre Change) """
-	var state_change_to : Player.State = Player.State.JUMP
+	var state_change_to : Player.State = Player.State.AIR
 	
 	if(P.is_on_floor()):
 		state_change_to = Player.State.GROUNDED
 	elif(P.is_on_wall_only() && true):  ##  find if also holding direction
 		state_change_to = Player.State.WALL
-	elif(!Input.is_action_pressed("JUMP") || velocity.y <= 0.0):
-		state_change_to = Player.State.AIR
 	
 	""" Actions """
 	var new_action = false
@@ -85,11 +83,13 @@ func update(delta : float):
 		""" Default Key : "Shift"
 			Swap to the "Dash" state, from_ground = false   """
 		
-		if(state_change_to == Player.State.AIR && (P.advanced_movenment || P.special_dash)):
+		""" Need to fix this dash for all potential dash states that could happen, and if it shouldn't happen """
+		
+		if(state_change_to == Player.State.GROUNDED && (P.advanced_movenment || P.special_dash)):
 			state_change_to = Player.State.DASH
 			$"../../Timers/DashFloorCooldown".start()
 			
-		elif(state_change_to != Player.State.AIR):
+		elif(state_change_to != Player.State.GROUNDED):
 			state_change_to = Player.State.DASH
 			$"../../Timers/DashFloorCooldown".start()
 	
