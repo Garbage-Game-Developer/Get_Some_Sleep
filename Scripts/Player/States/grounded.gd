@@ -42,6 +42,7 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 """ Internals """
 var ACTIVE_STATE : bool = false
 
+
 var movenment_curve_frame : float = 0
 var movenment_curve_max_frame : float = 0
 var last_velocity : Vector2 = Vector2.ZERO
@@ -54,13 +55,17 @@ var new_surface : bool = false
 var time : String
 
 
-func new_state(delta : float):
+var is_state_new : bool = true
+var last_state
+func new_state(delta : float, change_state):
+	print("          DEBUG - New GROUNDED state")
 	
 	##	Run set up code for animations and such
 	
 	ACTIVE_STATE = true
+	is_state_new = true
+	last_state = change_state
 	velocity = P.velocity / Global.time_speed
-	gen_movenment_curve(1.0 if (P.move_vector.x == 0.0 && velocity.x < 0.0) || P.move_vector.x > 0.0 else -1.0)
 	update(delta)
 
 
@@ -138,12 +143,12 @@ func update(delta : float):
 	
 	""" States (Post Change)"""
 	if(state_change_to != Player.State.GROUNDED):
-		#ACTIVE_STATE = false
+		print(time, " DEBUG - State changing to : ", state_change_to)
+		ACTIVE_STATE = false
 		match state_change_to:
 			Player.State.AIR:
-				#P.current_state = Player.State.AIR
-				#P.Air.new_state(delta)
-				pass
+				P.current_state = Player.State.AIR
+				P.Air.new_state(delta, P.State.GROUNDED)
 			Player.State.DASH:
 				#P.current_state = Player.State.DASH
 				#P.Dash.new_state(delta)
@@ -157,9 +162,8 @@ func update(delta : float):
 			Player.State.GHOST:
 				pass
 			Player.State.JUMP:
-				#P.current_state = Player.State.JUMP
-				#P.Jump.new_state(delta)
-				pass
+				P.current_state = Player.State.JUMP
+				P.Jump.new_state(delta, P.State.GROUNDED)
 			Player.State.KICK:
 				pass
 			Player.State.SLIDE:
@@ -188,7 +192,7 @@ func update(delta : float):
 	""" Movenement Vector """
 	var move_vector = P.move_vector
 	
-	if(P.just_switched_directions || new_surface):
+	if(P.just_switched_directions || new_surface || is_state_new):
 		P.interference = false
 		movenment_curve_frame = 0
 		gen_movenment_curve(move_vector.x)
@@ -220,6 +224,7 @@ func update(delta : float):
 		"""
 		pass
 	
+	is_state_new = false
 	
 	""" Physics """
 	velocity.x *= P.speed_boost
@@ -273,16 +278,6 @@ var time_scale_constant : float = 3.0 / 5.0	#	"C2", The constant that determines
 func gen_movenment_curve(direct : float):
 	
 	var to_zero = direct == 0.0
-	if(to_zero && velocity.x == 0.0):
-		
-		acceleration_time = 0.0
-		
-		
-		""" Figure this out, also need to figure out how disruptions and other stuff affect this, might keep it in the floating/dazed states """
-		
-		#print(time, " DEBUG - velocity at zero moving to zero")
-		return
-	
 	var temp_boolean : bool
 	var multiple : float
 	

@@ -28,11 +28,11 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 @export var AIR_MAX_DEC_TIME : int = 16			##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
 @export var AIR_MAX_OVER_DEC_TIME : int = 06	##	Ammount of time (frames/60) it takes for the player to decelerate to AIR_MAX_SPEED px*s from AIR_MAX_SPEED * 2 px*s
 
-@export var GROUND_INITIAL_VELOCITY : float = 100.0		##	Initial speed (px * s) the player gets if jumping from the ground
-@export var GROUND_DECELERATION_TIME : int = 120			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
+@export var GROUND_INITIAL_VELOCITY : float = -130.0		##	Initial speed (px * s) the player gets if jumping from the ground
+@export var GROUND_DECELERATION_TIME : int = 40			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
 
-@export var DOUBLE_INITIAL_VELOCITY : float = 80.0		##	Initial speed (px * s) the player gets if jumping from the air
-@export var DOUBLE_DECELERATION_TIME : int = 120			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
+@export var DOUBLE_INITIAL_VELOCITY : float = -110.0		##	Initial speed (px * s) the player gets if jumping from the air
+@export var DOUBLE_DECELERATION_TIME : int = 40			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
 
 """ Internals """
 var ACTIVE_STATE : bool = false
@@ -46,22 +46,26 @@ var velocity : Vector2 = Vector2.ZERO
 
 var ground_jump : bool = false
 
-
 """ DEBUG """
 var time : String
 
 
-func new_state(delta : float, from_ground : bool):
+var is_state_new : bool = true
+var last_state
+func new_state(delta : float, change_state):
+	print("          DEBUG - New JUMP state")
 	
 	##	Run set up code for animations and such
 	ACTIVE_STATE = true
 	velocity = P.velocity / Global.time_speed
-	#gen_movenment_curve(1.0 if (P.move_vector.x == 0.0 && velocity.x < 0.0) || P.move_vector.x > 0.0 else -1.0)
-	ground_jump = from_ground
-	initial_y_velocity = GROUND_INITIAL_VELOCITY if from_ground else DOUBLE_INITIAL_VELOCITY
+	is_state_new = true
+	gen_movenment_curve(P.move_vector.x)
+	last_state = change_state
+	initial_y_velocity = GROUND_INITIAL_VELOCITY if last_state == P.State.GROUNDED else DOUBLE_INITIAL_VELOCITY
 	velocity.y = initial_y_velocity
-	y_decceleration = y_decceleration * (GROUND_DECELERATION_TIME if from_ground else DOUBLE_DECELERATION_TIME)
+	y_decceleration = -initial_y_velocity / (GROUND_DECELERATION_TIME if last_state == P.State.GROUNDED else DOUBLE_DECELERATION_TIME)
 	update(delta)
+
 
 
 func update(delta : float):
@@ -71,11 +75,11 @@ func update(delta : float):
 	""" States (Pre Change) """
 	var state_change_to : Player.State = Player.State.JUMP
 	
-	if(P.is_on_floor()):
+	if(P.is_on_floor() && !is_state_new):
 		state_change_to = Player.State.GROUNDED
-	elif(P.is_on_wall_only() && true):  ##  find if also holding direction
+	elif(P.is_on_wall_only() && !is_state_new && true):  ##  find if also holding direction
 		state_change_to = Player.State.WALL
-	elif(!Input.is_action_pressed("JUMP") || velocity.y <= 0.0):
+	elif(!Input.is_action_pressed("JUMP") || velocity.y >= 0.0):
 		state_change_to = Player.State.AIR
 	
 	""" Actions """
@@ -115,13 +119,13 @@ func update(delta : float):
 	
 	
 	""" States (Post Change)"""
-	if(state_change_to != Player.State.AIR):
-		#ACTIVE_STATE = false
+	if(state_change_to != Player.State.JUMP):
+		print(time, " DEBUG - State changing to : ", state_change_to)
+		ACTIVE_STATE = false
 		match state_change_to:
 			Player.State.AIR:
-				#P.current_state = Player.State.AIR
-				#P.Air.new_state(delta)
-				pass
+				P.current_state = Player.State.AIR
+				P.Air.new_state(delta, Player.State.JUMP)
 			Player.State.DASH:
 				#P.current_state = Player.State.DASH
 				#P.Dash.new_state(delta)
@@ -134,10 +138,9 @@ func update(delta : float):
 				pass
 			Player.State.GHOST:
 				pass
-			Player.State.JUMP:
-				#P.current_state = Player.State.JUMP
-				#P.Jump.new_state(delta)
-				pass
+			Player.State.GROUNDED:
+				P.current_state = Player.State.GROUNDED
+				P.Grounded.new_state(delta, Player.State.JUMP)
 			Player.State.KICK:
 				pass
 			Player.State.SLIDE:
@@ -195,11 +198,12 @@ func update(delta : float):
 		"""
 		pass
 	
+	is_state_new = false
 	
 	""" Physics """
 	
 	##	Jump decceleration
-	velocity.y -= (y_decceleration)
+	velocity.y += (y_decceleration)
 	
 	velocity.x *= P.speed_boost
 	P.velocity = velocity #* delta
@@ -232,16 +236,6 @@ var time_scale_constant : float = 3.0 / 5.0	#	"C2", The constant that determines
 func gen_movenment_curve(direct : float):
 	
 	var to_zero = direct == 0.0
-	if(to_zero && velocity.x == 0.0):
-		
-		acceleration_time = 0.0
-		
-		
-		""" Figure this out, also need to figure out how disruptions and other stuff affect this, might keep it in the floating/dazed states """
-		
-		#print(time, " DEBUG - velocity at zero moving to zero")
-		return
-	
 	var temp_boolean : bool
 	var multiple : float
 	
