@@ -22,23 +22,25 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 
 
 """ Constants """
-##	These need to be the same for Air and Jump states
+##	Horizontal Movenment
 @export var AIR_MAX_X_SPEED : float = 250.0		##	Maximum speed (px * s) the player can move in the air
-@export var AIR_MAX_ACC_TIME : int = 60			##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
-@export var AIR_MAX_DEC_TIME : int = 30			##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
-@export var AIR_MAX_OVER_DEC_TIME : int = 20	##	Ammount of time (frames/60) it takes for the player to decelerate to AIR_MAX_SPEED px*s from AIR_MAX_SPEED * 2 px*s
+@export var AIR_MAX_ACC_TIME : int = 40			##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
+@export var AIR_MAX_DEC_TIME : int = 20			##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
+@export var AIR_MAX_OVER_DEC_TIME : int  = 20	##	Ammount of time (frames/60) it takes for the player to decelerate to AIR_MAX_SPEED px*s from AIR_MAX_SPEED * 2 px*s
 
-##	Jumping
-@export var GROUND_INITIAL_VELOCITY : float = -130.0		##	Initial speed (px * s) the player gets if jumping from the ground
-@export var GROUND_DECELERATION_TIME : int = 40			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
+##	Jumping (7.5)
+@export var GROUND_INITIAL_VELOCITY : float = -200		##	Initial speed (px * s) the player gets if jumping from the ground
+@export var GROUND_DECELERATION_TIME : int = 32			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
 
-@export var DOUBLE_INITIAL_VELOCITY : float = -110.0		##	Initial speed (px * s) the player gets if jumping from the air
-@export var DOUBLE_DECELERATION_TIME : int = 40			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
+@export var DOUBLE_INITIAL_VELOCITY : float = -170.0		##	Initial speed (px * s) the player gets if jumping from the air
+@export var DOUBLE_DECELERATION_TIME : int = 32			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
 
-##	Falling
+##	Falling (7.778)
 @export var FALLING_TERMINAL_VELOCITY : float = 700.0		##	Maximum downward y velocity (px * s)
-@export var FALLING_DECELERATION_TIME : int = 120			##	Ammount of time (frames/60) it takes for the player to go from 0 velocity to terminal
+@export var FALLING_DECELERATION_TIME : int = 90			##	Ammount of time (frames/60) it takes for the player to go from 0 velocity to terminal
+
 ##	Slope of final velocity over time will determine acceleration
+##	Falling should be greater than rising
 
 
 """ Internals """
@@ -89,6 +91,7 @@ func update(delta : float):
 		state_change_to = State.s.WALL
 	elif(!Input.is_action_pressed("JUMP") || velocity.y >= 0.0):
 		is_jumping = false
+		y_decceleration = FALLING_TERMINAL_VELOCITY / FALLING_DECELERATION_TIME
 	
 	""" Actions """
 	var new_action = false

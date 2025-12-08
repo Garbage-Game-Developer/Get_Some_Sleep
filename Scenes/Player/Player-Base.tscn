@@ -1,4 +1,4 @@
-[gd_scene load_steps=55 format=3 uid="uid://bl7tp660hpbgu"]
+[gd_scene load_steps=56 format=3 uid="uid://bl7tp660hpbgu"]
 
 [ext_resource type="Texture2D" uid="uid://32m0hhn4325y" path="res://Assets/Sprites/Actors/Player Spritesheets/player-base.png" id="1_4jfo0"]
 [ext_resource type="Script" uid="uid://coji8x5p1svqt" path="res://Scripts/Player/player_base.gd" id="1_pcxub"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://c4nwp7n3x8i0s" path="res://Assets/Effects/Shaders/64FadedCircle.png" id="2_ii8om"]
 [ext_resource type="Script" uid="uid://dqhex5uyycpmy" path="res://Scripts/Player/States/air.gd" id="3_erevo"]
 [ext_resource type="Script" uid="uid://bboq2wxo458qt" path="res://Scripts/Player/States/grounded.gd" id="3_gri1l"]
+[ext_resource type="Texture2D" uid="uid://b7mjsijv6cgit" path="res://Assets/Aseprite Files/player_type2_testing.png" id="8_erevo"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ii8om"]
 size = Vector2(12, 16)
@@ -651,6 +652,7 @@ material = SubResource("ShaderMaterial_hvnhq")
 script = ExtResource("1_sfkqq")
 
 [node name="Legs" type="AnimatedSprite2D" parent="C"]
+visible = false
 sprite_frames = SubResource("SpriteFrames_4jfo0")
 animation = &"R_Idle"
 autoplay = "R_Idle"
@@ -658,11 +660,16 @@ frame_progress = 1.0
 offset = Vector2(0, -9)
 
 [node name="Torso" type="AnimatedSprite2D" parent="C"]
+visible = false
 sprite_frames = SubResource("SpriteFrames_owj0k")
 animation = &"R_Idle"
 autoplay = "R_Idle"
 frame_progress = 1.0
 offset = Vector2(0, -9)
+
+[node name="Sprite2D" type="Sprite2D" parent="C"]
+texture = ExtResource("8_erevo")
+offset = Vector2(0, -8)
 
 [node name="InWater" type="Area2D" parent="."]
 collision_layer = 0
