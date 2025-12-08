@@ -1,4 +1,4 @@
-class_name AirState extends Node
+class_name AirState extends State
 
 """ 
 Description
@@ -24,21 +24,32 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 """ Constants """
 ##	These need to be the same for Air and Jump states
 @export var AIR_MAX_X_SPEED : float = 250.0		##	Maximum speed (px * s) the player can move in the air
-@export var AIR_MAX_ACC_TIME : int = 32			##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
-@export var AIR_MAX_DEC_TIME : int = 16			##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
-@export var AIR_MAX_OVER_DEC_TIME : int = 06	##	Ammount of time (frames/60) it takes for the player to decelerate to AIR_MAX_SPEED px*s from AIR_MAX_SPEED * 2 px*s
+@export var AIR_MAX_ACC_TIME : int = 60			##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
+@export var AIR_MAX_DEC_TIME : int = 30			##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
+@export var AIR_MAX_OVER_DEC_TIME : int = 20	##	Ammount of time (frames/60) it takes for the player to decelerate to AIR_MAX_SPEED px*s from AIR_MAX_SPEED * 2 px*s
 
+##	Jumping
+@export var GROUND_INITIAL_VELOCITY : float = -130.0		##	Initial speed (px * s) the player gets if jumping from the ground
+@export var GROUND_DECELERATION_TIME : int = 40			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
+
+@export var DOUBLE_INITIAL_VELOCITY : float = -110.0		##	Initial speed (px * s) the player gets if jumping from the air
+@export var DOUBLE_DECELERATION_TIME : int = 40			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
+
+##	Falling
 @export var FALLING_TERMINAL_VELOCITY : float = 700.0		##	Maximum downward y velocity (px * s)
 @export var FALLING_DECELERATION_TIME : int = 120			##	Ammount of time (frames/60) it takes for the player to go from 0 velocity to terminal
+##	Slope of final velocity over time will determine acceleration
+
 
 """ Internals """
 var ACTIVE_STATE : bool = false
+var is_jumping
 
 var movenment_curve_frame : float = 0.0
 var movenment_curve_max_frame : float = 0.0
 var last_velocity : Vector2 = Vector2.ZERO
 var initial_y_velocity : float = 0.0
-var y_decceleration : float = 0.0
+var y_decceleration : float = 0.0  ##  Gravity Value
 var velocity : Vector2 = Vector2.ZERO
 
 """ DEBUG """
@@ -47,15 +58,21 @@ var time : String
 
 var is_state_new : bool = true
 var last_state
-func new_state(delta : float, change_state):
+func new_state(delta : float, change_state, jumping : bool = false):
 	print("          DEBUG - New AIR state")
 	
 	##	Run set up code for animations and such
 	ACTIVE_STATE = true
+	is_state_new = true
+	last_state = change_state
+	
 	velocity = P.velocity / Global.time_speed
 	gen_movenment_curve(P.move_vector.x)
-	last_state = change_state
-	y_decceleration = FALLING_TERMINAL_VELOCITY / FALLING_DECELERATION_TIME
+	if(jumping):
+		jump()  
+	else:
+		y_decceleration = FALLING_TERMINAL_VELOCITY / FALLING_DECELERATION_TIME
+	
 	update(delta)
 
 
@@ -64,41 +81,43 @@ func update(delta : float):
 	time = "%9.3f" % (float(Time.get_ticks_msec()) / 1000.0)
 	
 	""" States (Pre Change) """
-	var state_change_to : Player.State = Player.State.AIR
+	var state_change_to : State.s = State.s.AIR
 	
-	if(P.is_on_floor()):
-		state_change_to = Player.State.GROUNDED
-	elif(P.is_on_wall_only() && true):  ##  find if also holding direction
-		state_change_to = Player.State.WALL
+	if(P.is_on_floor() && !is_state_new):
+		state_change_to = State.s.GROUNDED
+	elif(P.is_on_wall_only() && !is_state_new && true):  ##  find if also holding direction
+		state_change_to = State.s.WALL
+	elif(!Input.is_action_pressed("JUMP") || velocity.y >= 0.0):
+		is_jumping = false
 	
 	""" Actions """
 	var new_action = false
 	var action_is_punch = false
 	if(Input.is_action_just_pressed("DASH") && $"../../Timers/DashFloorCooldown".is_stopped()):
 		""" Default Key : "Shift"
-			Swap to the "Dash" state, from_ground = false   """
+			Swap to the "Dash" state """
 		
 		""" Need to fix this dash for all potential dash states that could happen, and if it shouldn't happen """
 		
-		if(state_change_to == Player.State.GROUNDED && (P.advanced_movenment || P.special_dash)):
-			state_change_to = Player.State.DASH
+		if(state_change_to == State.s.GROUNDED && (P.advanced_movenment || P.special_dash)):
+			state_change_to = State.s.DASH
 			$"../../Timers/DashFloorCooldown".start()
 			
-		elif(state_change_to != Player.State.GROUNDED):
-			state_change_to = Player.State.DASH
+		elif(state_change_to != State.s.GROUNDED):
+			state_change_to = State.s.DASH
 			$"../../Timers/DashFloorCooldown".start()
 	
-	elif(Input.is_action_just_pressed("JUMP")):
+	elif(Input.is_action_just_pressed("JUMP") && !is_jumping):
 		""" Default Key : "Space"
-			Swap to the "Jump" state, from_ground = false """
+			Swap to the "Air" state, from_ground = false """
 		
-		state_change_to = Player.State.JUMP
+		jump()
 	
 	elif(Input.is_action_just_pressed("SLIDE")):
 		""" Default Key : "C"
 			Swap to the "Slide" state, from_ground = false   """
 		
-		state_change_to = Player.State.SLIDE
+		state_change_to = State.s.SLIDE
 		
 		""" Rework KICK state into being in a slide and punching (this would allow punch to be mapped to V insead of F) """
 	
@@ -114,50 +133,48 @@ func update(delta : float):
 			action_is_punch = true
 	
 	
-	""" States (Post Change)"""
-	if(state_change_to != Player.State.AIR):
+	""" States (Post Change) """
+	#	I've thought about keeping this in the abstract class, but there's too much stuff to it like animation that can't be generalized
+	if(state_change_to != State.s.AIR):
 		print(time, " DEBUG - State changing to : ", state_change_to)
 		ACTIVE_STATE = false
 		match state_change_to:
-			Player.State.DASH:
-				#P.current_state = Player.State.DASH
+			State.s.DASH:
+				#P.current_state = State.s.DASH
 				#P.Dash.new_state(delta)
 				pass
-			Player.State.DAZED:
+			State.s.DAZED:
 				pass
-			Player.State.FLOATING:
+			State.s.FLOATING:
 				pass
-			Player.State.FROZEN:
+			State.s.FROZEN:
 				pass
-			Player.State.GHOST:
+			State.s.GHOST:
 				pass
-			Player.State.GROUNDED:
-				P.current_state = Player.State.GROUNDED
-				P.Grounded.new_state(delta, P.State.AIR)
-			Player.State.JUMP:
-				P.current_state = Player.State.JUMP
-				P.Jump.new_state(delta, P.State.AIR)
-			Player.State.KICK:
+			State.s.GROUNDED:
+				P.current_state = State.s.GROUNDED
+				P.Grounded.new_state(delta, State.s.AIR)
+			State.s.KICK:
 				pass
-			Player.State.SLIDE:
-				#P.current_state = Player.State.SLIDE
+			State.s.SLIDE:
+				#P.current_state = State.s.SLIDE
 				#P.Slide.new_state(delta)
 				pass
-			Player.State.SWIM:
-				#P.current_state = Player.State.SWIM
+			State.s.SWIM:
+				#P.current_state = State.s.SWIM
 				#P.Swim.new_state(delta)
 				pass
-			Player.State.SWING:
-				#P.current_state = Player.State.SWING
+			State.s.SWING:
+				#P.current_state = State.s.SWING
 				#P.Swing.new_state(delta)
 				pass
-			Player.State.WALL:
-				#P.current_state = Player.State.WALL
+			State.s.WALL:
+				#P.current_state = State.s.WALL
 				#P.Wall.new_state(delta)
 				pass
-			Player.State.DEAD:
+			State.s.DEAD:
 				pass
-			Player.State.CUTSCENE:
+			State.s.CUTSCENE:
 				pass
 		return
 	
@@ -204,6 +221,21 @@ func update(delta : float):
 	velocity.x *= P.speed_boost
 	P.velocity = velocity #* delta
 
+
+func jump():
+	is_jumping = true
+	match last_state:
+		State.s.GROUNDED:
+			initial_y_velocity = GROUND_INITIAL_VELOCITY
+			velocity.y = initial_y_velocity
+			y_decceleration = -initial_y_velocity / GROUND_DECELERATION_TIME
+		State.s.AIR:
+			initial_y_velocity = DOUBLE_INITIAL_VELOCITY
+			velocity.y = initial_y_velocity
+			y_decceleration = -initial_y_velocity / DOUBLE_DECELERATION_TIME
+		_:
+			pass
+	last_state = State.s.AIR
 
 
 """ Movenment Curve Functions """

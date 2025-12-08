@@ -2,24 +2,6 @@ class_name Player extends CharacterBody2D
 
 
 """ States """
-enum State {
-	AIR = 0, 
-	DASH = 1, 
-	DAZED = 2, 
-	FLOATING = 3, 
-	FROZEN = 4, 
-	GHOST = 5, 
-	GROUNDED = 6, 
-	JUMP = 7, 
-	KICK = 8, 
-	SLIDE = 9, 
-	SWIM = 10, 
-	SWING = 11, 
-	WALL = 12, 
-	DEAD = -1, 
-	CUTSCENE = -2, 
-	PAUSE = -3 
-}
 @onready var Air : AirState = $S/Air
 #@onready var Dash : DashState = $S/Dash
 #@onready var Dazed : DazedState = $S/Dazed
@@ -27,7 +9,6 @@ enum State {
 #@onready var Frozen : FrozenState = $S/Frozen
 #@onready var Ghost : GhostState = $S/Ghost
 @onready var Grounded : GroundedState = $S/Grounded
-@onready var Jump : JumpState = $S/Jump
 #@onready var Kick : KickState = $S/Kick
 #@onready var Slide : SlideState = $S/Slide
 #@onready var Swim : SwimState = $S/Swim
@@ -36,7 +17,7 @@ enum State {
 #@onready var Dead : DeadState = $S/Dead
 #@onready var Cutscene : CutsceneState = $S/Cutscene
 
-var current_state : State = State.GROUNDED
+var current_state : State.s = State.s.GROUNDED
 var walk_mode : bool = false  ##  A special grounded state and falling state where most actions are locked
 
 
@@ -162,35 +143,33 @@ func _physics_process(delta):
 	##	The state process
 	var new_state = false
 	match current_state:
-		State.AIR:
+		State.s.AIR:
 			Air.update(delta)		##	Unfinished - Working on
-		#State.DASH:
+		#State.s.DASH:
 			#Dash.update(delta)		##	Unfinished
-		#State.DAZED:
+		#State.s.DAZED:
 			#Dazed.update(delta)		##	Unfinished
-		#State.FLOATING:
+		#State.s.FLOATING:
 			#Floating.update(delta)		##	Unfinished
-		#State.FROZEN:
+		#State.s.FROZEN:
 			#Frozen.update(delta)		##	Unfinished
-		#State.GHOST:
+		#State.s.GHOST:
 			#Ghost.update(delta)		##	Unfinished
-		State.GROUNDED:
+		State.s.GROUNDED:
 			Grounded.update(delta)				##	Unfinished - Prototyped (Needs review)
-		State.JUMP:
-			Jump.update(delta)		##	Unfinished - Working on
-		#State.KICK:
+		#State.s.KICK:
 			#Kick.update(delta)		##	Unfinished
-		#State.SLIDE:
+		#State.s.SLIDE:
 			#Slide.update(delta)		##	Unfinished
-		#State.SWIM:
+		#State.s.SWIM:
 			#Swim.update(delta)		##	Unfinished
-		#State.SWING:
+		#State.s.SWING:
 			#Swing.update(delta)		##	Unfinished
-		#State.WALL:
+		#State.s.WALL:
 			#Wall.update(delta)		##	Unfinished
-		#State.DEAD:
+		#State.s.DEAD:
 			#Dead.update(delta)		##	Unfinished
-		#State.CUTSCENE:
+		#State.s.CUTSCENE:
 			#Cutscene.update(delta)		##	Unfinished
 	
 	""" End of process """
@@ -234,41 +213,36 @@ func _physics_process(delta):
 	
 	##	Check Velocity Rays (And call actions)
 	match current_state:
-		State.AIR:
+		State.s.AIR:
 			"""
 				Check if can clamber, over, or ceiling snap, also bounce pads on walls or floors
 			"""
 			pass	##	Unfinished
-		State.DASH:
+		State.s.DASH:
 			"""
 				Check if can clamber, over, or ceiling snap, also bounce pads on walls or floors
 			"""
 			pass	##	Unfinished
-		State.GROUNDED:
+		State.s.GROUNDED:
 			"""
 				Check if there's bounce pads on floors
 			"""
 			pass	##	Unfinished
-		State.JUMP:
-			"""
-				Check if can clamber, over, or ceiling snap, also bounce pads on walls
-			"""
-			pass	##	Unfinished
-		State.KICK:
+		State.s.KICK:
 			"""
 				Check if there's bounce pads on floors
 			"""
 			pass	##	Unfinished
-		State.SLIDE:
+		State.s.SLIDE:
 			"""
 				Check if can clamber, over, or ceiling snap, also bounce pads on walls and floors
 			"""
 			pass	##	Unfinished
-		State.SWIM:
+		State.s.SWIM:
 			pass	##	Unfinished
-		State.SWING:
+		State.s.SWING:
 			pass	##	Unfinished
-		State.WALL:
+		State.s.WALL:
 			"""
 				Check if there's bounce pads on walls and floors
 			"""

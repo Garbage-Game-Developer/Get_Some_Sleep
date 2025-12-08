@@ -1,4 +1,4 @@
-class_name GroundedState extends Node
+class_name GroundedState extends State
 
 """ 
 Description
@@ -75,10 +75,11 @@ func update(delta : float):
 	time = "%9.3f" % (float(Time.get_ticks_msec()) / 1000.0)
 	
 	""" States (Pre Change) """
-	var state_change_to : Player.State = Player.State.GROUNDED
+	var state_change_to : State.s = State.s.GROUNDED
+	var is_jumping : bool = false
 	
 	if(!P.is_on_floor()):
-		state_change_to = Player.State.AIR
+		state_change_to = State.s.AIR
 		$"../../Timers/CoyoteTimer".start()
 	else:
 		new_surface = determine_ground_type()
@@ -91,12 +92,12 @@ func update(delta : float):
 		""" Default Key : "Shift"
 			Swap to the "Dash" state, from_ground = true   """
 		
-		if(state_change_to == Player.State.AIR && (P.advanced_movenment || P.special_dash)):
-			state_change_to = Player.State.DASH
+		if(state_change_to == State.s.AIR && (P.advanced_movenment || P.special_dash)):
+			state_change_to = State.s.DASH
 			$"../../Timers/DashFloorCooldown".start()
 			
-		elif(state_change_to != Player.State.AIR):
-			state_change_to = Player.State.DASH
+		elif(state_change_to != State.s.AIR):
+			state_change_to = State.s.DASH
 			$"../../Timers/DashFloorCooldown".start()
 	
 	
@@ -104,14 +105,15 @@ func update(delta : float):
 		""" Default Key : "C"
 			Swap to the "Slide" state, from_ground = true   """
 		
-		state_change_to = Player.State.SLIDE
+		state_change_to = State.s.SLIDE
 	
 	
 	elif(Input.is_action_just_pressed("JUMP")):
 		""" Default Key : "Space"
 			Swap to the "Jump" state, from_ground = true   """
 		
-		state_change_to = Player.State.JUMP
+		state_change_to = State.s.AIR
+		is_jumping = true
 	
 	
 	else:
@@ -138,53 +140,50 @@ func update(delta : float):
 				1:
 					pass
 				2:
-					state_change_to = Player.State.SWING
+					state_change_to = State.s.SWING
 	
 	
 	""" States (Post Change)"""
-	if(state_change_to != Player.State.GROUNDED):
+	if(state_change_to != State.s.GROUNDED):
 		print(time, " DEBUG - State changing to : ", state_change_to)
 		ACTIVE_STATE = false
 		match state_change_to:
-			Player.State.AIR:
-				P.current_state = Player.State.AIR
-				P.Air.new_state(delta, P.State.GROUNDED)
-			Player.State.DASH:
-				#P.current_state = Player.State.DASH
+			State.s.AIR:
+				P.current_state = State.s.AIR
+				P.Air.new_state(delta, State.s.GROUNDED, is_jumping)
+			State.s.DASH:
+				#P.current_state = State.s.DASH
 				#P.Dash.new_state(delta)
 				pass
-			Player.State.DAZED:
+			State.s.DAZED:
 				pass
-			Player.State.FLOATING:
+			State.s.FLOATING:
 				pass
-			Player.State.FROZEN:
+			State.s.FROZEN:
 				pass
-			Player.State.GHOST:
+			State.s.GHOST:
 				pass
-			Player.State.JUMP:
-				P.current_state = Player.State.JUMP
-				P.Jump.new_state(delta, P.State.GROUNDED)
-			Player.State.KICK:
+			State.s.KICK:
 				pass
-			Player.State.SLIDE:
-				#P.current_state = Player.State.SLIDE
+			State.s.SLIDE:
+				#P.current_state = State.s.SLIDE
 				#P.Slide.new_state(delta)
 				pass
-			Player.State.SWIM:
-				#P.current_state = Player.State.SWIM
+			State.s.SWIM:
+				#P.current_state = State.s.SWIM
 				#P.Swim.new_state(delta)
 				pass
-			Player.State.SWING:
-				#P.current_state = Player.State.SWING
+			State.s.SWING:
+				#P.current_state = State.s.SWING
 				#P.Swing.new_state(delta)
 				pass
-			Player.State.WALL:
-				#P.current_state = Player.State.WALL
+			State.s.WALL:
+				#P.current_state = State.s.WALL
 				#P.Wall.new_state(delta)
 				pass
-			Player.State.DEAD:
+			State.s.DEAD:
 				pass
-			Player.State.CUTSCENE:
+			State.s.CUTSCENE:
 				pass
 		return
 	
