@@ -19,5 +19,7 @@ enum s {
 	PAUSE = -3 
 }
 
-@abstract func new_state(delta : float, change_state)
+@abstract func new_state(delta : float, change_state : State.s, movenment_package : Array[float])
 @abstract func update(delta : float)
+##	[starting_velocity, velocity.x, velocity.y, movenment_curve_max_frame, movenment_curve_frame]
+@abstract func generate_movenment_package() -> Array[float]

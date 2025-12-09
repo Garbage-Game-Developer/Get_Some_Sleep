@@ -112,6 +112,8 @@ INTERACT={
 2d_physics/layer_9="Hazard"
 2d_physics/layer_10="Jump Pad"
 2d_physics/layer_11="Water"
+2d_physics/layer_12="Special Zone"
+2d_physics/layer_13="Player Hitbox"
 
 [rendering]
 

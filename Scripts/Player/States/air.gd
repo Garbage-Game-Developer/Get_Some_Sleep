@@ -46,6 +46,7 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 """ Internals """
 var ACTIVE_STATE : bool = false
 var is_jumping
+@onready var double_jump_bool = (P.able_special || P.free_double_jump || P.item_double_jump)
 
 var movenment_curve_frame : float = 0.0
 var movenment_curve_max_frame : float = 0.0
@@ -60,7 +61,7 @@ var time : String
 
 var is_state_new : bool = true
 var last_state
-func new_state(delta : float, change_state, jumping : bool = false):
+func new_state(delta : float, change_state : State.s, movenment_package : Array[float], jumping : bool = false):
 	print("          DEBUG - New AIR state")
 	
 	##	Run set up code for animations and such
@@ -71,7 +72,7 @@ func new_state(delta : float, change_state, jumping : bool = false):
 	velocity = P.velocity / Global.time_speed
 	gen_movenment_curve(P.move_vector.x)
 	if(jumping):
-		jump()  
+		jump()
 	else:
 		y_decceleration = FALLING_TERMINAL_VELOCITY / FALLING_DECELERATION_TIME
 	
@@ -110,11 +111,23 @@ func update(delta : float):
 			state_change_to = State.s.DASH
 			$"../../Timers/DashFloorCooldown".start()
 	
-	elif(Input.is_action_just_pressed("JUMP") && !is_jumping):
+	
+	elif(Input.is_action_just_pressed("JUMP") && !is_jumping && (double_jump_bool && P.special_available)):
 		""" Default Key : "Space"
 			Swap to the "Air" state, from_ground = false """
 		
-		jump()
+		if(P.item_double_jump):
+			if(P.special_areas > 0):
+				Global.emit_signal("player_special_used", P.player_id)
+				P.special_available = false
+				jump()
+			else:
+				pass
+		else:
+			P.special_available = false
+			jump()
+		
+		
 	
 	elif(Input.is_action_just_pressed("SLIDE")):
 		""" Default Key : "C"
@@ -156,7 +169,7 @@ func update(delta : float):
 				pass
 			State.s.GROUNDED:
 				P.current_state = State.s.GROUNDED
-				P.Grounded.new_state(delta, State.s.AIR)
+				P.Grounded.new_state(delta, State.s.AIR, generate_movenment_package())
 			State.s.KICK:
 				pass
 			State.s.SLIDE:
@@ -239,6 +252,10 @@ func jump():
 		_:
 			pass
 	last_state = State.s.AIR
+
+
+func generate_movenment_package() -> Array[float]:
+	return [starting_velocity, velocity.x, velocity.y, movenment_curve_max_frame, movenment_curve_frame]
 
 
 """ Movenment Curve Functions """

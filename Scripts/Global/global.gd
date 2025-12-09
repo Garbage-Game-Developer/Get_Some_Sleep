@@ -5,6 +5,7 @@ extends Node
 ##	Core components
 var game_controller : GameController
 #var level : Level
+var players : Array[Player]
 var player : Player
 var camera : Camera
 
@@ -13,6 +14,7 @@ var camera_lock : Node2D
 
 
 """	External signals """
+signal player_special_used(player_value : int)
 
 
 """	Global variables """

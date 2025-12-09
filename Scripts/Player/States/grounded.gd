@@ -57,13 +57,14 @@ var time : String
 
 var is_state_new : bool = true
 var last_state
-func new_state(delta : float, change_state):
+func new_state(delta : float, change_state : State.s, movenment_package : Array[float]):
 	print("          DEBUG - New GROUNDED state")
 	
 	##	Run set up code for animations and such
 	
 	ACTIVE_STATE = true
 	is_state_new = true
+	P.special_available = true
 	last_state = change_state
 	velocity = P.velocity / Global.time_speed
 	update(delta)
@@ -150,7 +151,7 @@ func update(delta : float):
 		match state_change_to:
 			State.s.AIR:
 				P.current_state = State.s.AIR
-				P.Air.new_state(delta, State.s.GROUNDED, is_jumping)
+				P.Air.new_state(delta, State.s.GROUNDED, generate_movenment_package(), is_jumping)
 			State.s.DASH:
 				#P.current_state = State.s.DASH
 				#P.Dash.new_state(delta)
@@ -228,6 +229,10 @@ func update(delta : float):
 	""" Physics """
 	velocity.x *= P.speed_boost
 	P.velocity = velocity #* delta
+
+
+func generate_movenment_package() -> Array[float]:
+	return [starting_velocity, velocity.x, velocity.y, movenment_curve_max_frame, movenment_curve_frame]
 
 
 var ground_type : int = 1	##	1 - Normal, 2 - Slow, 3 - Ice

@@ -1,4 +1,4 @@
-[gd_scene load_steps=56 format=3 uid="uid://bl7tp660hpbgu"]
+[gd_scene load_steps=57 format=3 uid="uid://bl7tp660hpbgu"]
 
 [ext_resource type="Texture2D" uid="uid://32m0hhn4325y" path="res://Assets/Sprites/Actors/Player Spritesheets/player-base.png" id="1_4jfo0"]
 [ext_resource type="Script" uid="uid://coji8x5p1svqt" path="res://Scripts/Player/player_base.gd" id="1_pcxub"]
@@ -14,6 +14,9 @@ size = Vector2(12, 16)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_4jfo0"]
 size = Vector2(10, 14)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_erevo"]
+size = Vector2(12, 16)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_hvnhq"]
 shader = ExtResource("2_7oum1")
@@ -394,12 +397,15 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2u4vx"]
 size = Vector2(1, 4)
 
-[node name="PlayerBase" type="CharacterBody2D"]
+[node name="PlayerBase" type="CharacterBody2D" groups=["Player"]]
 z_index = 2
 collision_layer = 0
 collision_mask = 7
 platform_floor_layers = 4294901783
 script = ExtResource("1_pcxub")
+basic_movenment = true
+advanced_movenment = true
+free_double_jump = true
 
 [node name="PlayerCollisions" type="CollisionShape2D" parent="."]
 position = Vector2(0, -8)
@@ -495,11 +501,22 @@ wait_time = 0.1
 one_shot = true
 
 [node name="HitBox" type="Area2D" parent="."]
+collision_layer = 4096
+collision_mask = 256
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox"]
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_4jfo0")
 debug_color = Color(0.99, 0, 0.31349993, 0)
+
+[node name="SpecialZone" type="Area2D" parent="."]
+collision_layer = 128
+collision_mask = 2048
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SpecialZone"]
+position = Vector2(0, -8)
+shape = SubResource("RectangleShape2D_erevo")
+debug_color = Color(0, 1, 0, 0)
 
 [node name="ConvenienceRays" type="Node2D" parent="."]
 
@@ -667,7 +684,8 @@ autoplay = "R_Idle"
 frame_progress = 1.0
 offset = Vector2(0, -9)
 
-[node name="Sprite2D" type="Sprite2D" parent="C"]
+[node name="Right" type="Sprite2D" parent="C"]
+use_parent_material = true
 texture = ExtResource("8_erevo")
 offset = Vector2(0, -8)
 
@@ -679,3 +697,6 @@ collision_mask = 1024
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_2u4vx")
 debug_color = Color(0.62699986, 0, 0.99, 0)
+
+[connection signal="area_entered" from="SpecialZone" to="." method="_on_special_zone_area_entered"]
+[connection signal="area_exited" from="SpecialZone" to="." method="_on_special_zone_area_exited"]

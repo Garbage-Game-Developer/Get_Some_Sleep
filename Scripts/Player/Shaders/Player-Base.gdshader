@@ -6,6 +6,9 @@ void vertex() {
 
 void fragment() {
 	// Called for every pixel the material is visible on.
+	//if(COLOR == vec4(0.0,0.0,0.0,1.0)){
+		//COLOR = vec4(0.0,0.0,0.0,1.0);
+	//}
 }
 
 //void light() {

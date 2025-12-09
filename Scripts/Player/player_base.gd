@@ -26,37 +26,38 @@ var walk_mode : bool = false  ##  A special grounded state and falling state whe
 
 ##	Unique Player Variables
 #  Player can swim
-@export var can_swim : bool = true
+@export var can_swim : bool = false
 
 #  Player can punch and air kick, sliding does half damage (rounded up) and upward knockback, dash does half damage (rounded up) and forward knockback
-@export var combat_skills : bool = true
+@export var combat_skills : bool = false
 @export var combat_power : int = 5  #  Damage done by attacks
 
 #  Allows for ground dash, wall dash, and swinging
-@export var basic_movenment : bool = true
+@export var basic_movenment : bool = false
 
 #  Allows for air normal dash, swinging dash, and advanced climbing
-@export var advanced_movenment : bool = true
+@export var advanced_movenment : bool = false
 
 #  Allows for air double jump under a condition
-@export var item_double_jump : bool = true  
+@export var item_double_jump : bool = false  
 
 #  Allows for air double jump with no conditional
-@export var free_double_jump : bool = true
+@export var free_double_jump : bool = false
 
 #  Allows for special dash variation on ground, air, and water
-@export var special_dash : bool = true
+@export var special_dash : bool = false
 
 
-@export var able_special : bool = true  ##  Can double jump and dash in air, can consume more pills
-@export var able_swing : bool = true  ##  Can use swingables
-@export var able_attack : bool = true  ##  Can punch and kick
-@export var able_expert_wall : bool = true  ##  Can no slide down wall grab (Won't matter on ice), and free dash off of wall
-@export var able_fast_swim : bool = true  ##  Move quickly in water, and can water dash
+@export var able_special : bool = false  ##  Can double jump and dash in air, can consume more pills
+@export var able_swing : bool = false  ##  Can use swingables
+@export var able_attack : bool = false  ##  Can punch and kick
+@export var able_expert_wall : bool = false  ##  Can no slide down wall grab (Won't matter on ice), and free dash off of wall
+@export var able_fast_swim : bool = false  ##  Move quickly in water, and can water dash
 
 
 """ Variables """
 ##	External Variables
+var player_id : int = 0  ##  This will be used when there are multiple player characters instantiated, and we want to check who is who
 
 
 ##	Constants
@@ -311,6 +312,15 @@ func knockback(applied_force: Vector2, freeze_time: float = 0.0, freeze_intensit
 	velocity += applied_force
 	if(freeze_time != 0.0):
 		Global.time_freeze(freeze_time, freeze_intensity)
+
+
+""" Signals """
+var special_areas : int = 0
+func _on_special_zone_area_entered(_area: Area2D) -> void:
+	special_areas += 1
+func _on_special_zone_area_exited(_area: Area2D) -> void:
+	special_areas -= 1
+
 
 
 """ Signal Connections """
