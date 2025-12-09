@@ -25,19 +25,22 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 @export var WALK_MAX_SPEED : float = 50.0	##	Maximum speed (px * s) the player can move
 @export var WALK_MAX_ACC_TIME : int = 12	##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
 @export var WALK_MAX_DEC_TIME : int = 06	##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
+@export var WALK_CURVE_CONSTANT : float = 1.0 / 2.0	##	Eccential part of the curve function
 
 @export var GROUND_MAX_SPEED : float = 200.0	##	Maximum speed (px * s) the player can move
 @export var GROUND_MAX_ACC_TIME : int = 24		##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
 @export var GROUND_MAX_DEC_TIME : int = 12		##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
+@export var GROUND_CURVE_CONSTANT : float = 1.0 / 2.0	##	Eccential part of the curve function
 
 @export var SLOW_GROUND_MAX_SPEED : float = 120.0	##	Maximum speed (px * s) the player can move
 @export var SLOW_GROUND_MAX_ACC_TIME : int = 48		##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
 @export var SLOW_GROUND_MAX_DEC_TIME : int = 10		##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
+@export var SLOW_CURVE_CONSTANT : float = 1.0 / 2.0	##	Eccential part of the curve function
 
 @export var ICE_GROUND_MAX_SPEED : float = 300.0	##	Maximum speed (px * s) the player can move
 @export var ICE_GROUND_MAX_ACC_TIME : int = 60		##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
 @export var ICE_GROUND_MAX_DEC_TIME : int = 30		##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
-
+@export var ICE_CURVE_CONSTANT : float = 4.0 / 7.0	##	Eccential part of the curve function
 
 """ Internals """
 var ACTIVE_STATE : bool = false
@@ -55,17 +58,22 @@ var new_surface : bool = false
 var time : String
 
 
+var mid_curve : bool = false
+var starting_movenment_package : Array
 var is_state_new : bool = true
 var last_state
-func new_state(delta : float, change_state : State.s, movenment_package : Array[float]):
+func new_state(delta : float, change_state : State.s, movenment_package : Array):
 	print("          DEBUG - New GROUNDED state")
 	
 	##	Run set up code for animations and such
 	
 	ACTIVE_STATE = true
 	is_state_new = true
-	P.special_available = true
+	mid_curve = movenment_package[0]
+	starting_velocity = movenment_package[1]
 	last_state = change_state
+	
+	P.special_available = true
 	velocity = P.velocity / Global.time_speed
 	update(delta)
 
@@ -231,8 +239,9 @@ func update(delta : float):
 	P.velocity = velocity #* delta
 
 
-func generate_movenment_package() -> Array[float]:
-	return [starting_velocity, velocity.x, velocity.y, movenment_curve_max_frame, movenment_curve_frame]
+func generate_movenment_package() -> Array:
+	##	Intended starting velocity of the curve (if there is one), is moving allong the curve still
+	return [movenment_curve_max_frame <= movenment_curve_frame, starting_velocity]
 
 
 var ground_type : int = 1	##	1 - Normal, 2 - Slow, 3 - Ice
@@ -285,10 +294,15 @@ func gen_movenment_curve(direct : float):
 	var temp_boolean : bool
 	var multiple : float
 	
+	if(!is_state_new || !mid_curve):
+		starting_velocity = velocity.x
+	
+	""" Remember walking, idk if I'll implement tho, might be fine for injured characters, or carrying stuff """
+	
 	match ground_type:
 		1:  ##  Normal Ground
 			
-			starting_velocity = velocity.x
+			curve_constant = GROUND_CURVE_CONSTANT
 			#	This boolean works as so : (velocity is negative and direct is positive)
 			temp_boolean = (sign(starting_velocity) != sign(direct) && direct > 0.0)
 			#	This boolean works as so : not moving towards zero and (both velocity and direct are different signs) and (not yet calculated) target_speed > velocity
@@ -306,7 +320,7 @@ func gen_movenment_curve(direct : float):
 		
 		2:  ##  Slow Ground
 			
-			starting_velocity = velocity.x
+			curve_constant = SLOW_CURVE_CONSTANT
 			#	This boolean works as so : (velocity is negative and direct is positive)
 			temp_boolean = (sign(starting_velocity) != sign(direct) && direct > 0.0)
 			#	This boolean works as so : (both velocity and direct are different signs) and (not yet calculated) target_speed > velocity
@@ -324,7 +338,7 @@ func gen_movenment_curve(direct : float):
 			
 		3:  ##  Ice Ground
 			
-			starting_velocity = velocity.x
+			curve_constant = ICE_CURVE_CONSTANT
 			#	This boolean works as so : (velocity is negative and direct is positive)
 			temp_boolean = (sign(starting_velocity) != sign(direct) && direct > 0.0)
 			#	This boolean works as so : (both velocity and direct are different signs) and (not yet calculated) target_speed > velocity
@@ -341,6 +355,8 @@ func gen_movenment_curve(direct : float):
 			
 	
 	movenment_curve_max_frame = acceleration_time
+	if(is_state_new && mid_curve):
+		movenment_curve_frame = pow((velocity.x - starting_velocity) / temp_variable, 1 / (curve_constant))
 	
 	"""  Set the printf time thing to a variable in the beggining of the process and use it  """
 	

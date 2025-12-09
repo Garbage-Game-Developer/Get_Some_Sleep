@@ -24,19 +24,18 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 """ Constants """
 ##	Horizontal Movenment
 @export var AIR_MAX_X_SPEED : float = 250.0		##	Maximum speed (px * s) the player can move in the air
-@export var AIR_MAX_ACC_TIME : int = 40			##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
-@export var AIR_MAX_DEC_TIME : int = 20			##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
-@export var AIR_MAX_OVER_DEC_TIME : int  = 20	##	Ammount of time (frames/60) it takes for the player to decelerate to AIR_MAX_SPEED px*s from AIR_MAX_SPEED * 2 px*s
+@export var AIR_MAX_ACC_TIME : int = 48			##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
+@export var AIR_MAX_DEC_TIME : int = 24			##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
+@export var AIR_MAX_OVER_DEC_TIME : int  = 32	##	Ammount of time (frames/60) it takes for the player to decelerate to AIR_MAX_SPEED px*s from AIR_MAX_SPEED * 2 px*s
 
-##	Jumping (7.5)
+##	Jumping (-6.25)
 @export var GROUND_INITIAL_VELOCITY : float = -200		##	Initial speed (px * s) the player gets if jumping from the ground
 @export var GROUND_DECELERATION_TIME : int = 32			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
-
+#	(-5.313)
 @export var DOUBLE_INITIAL_VELOCITY : float = -170.0		##	Initial speed (px * s) the player gets if jumping from the air
 @export var DOUBLE_DECELERATION_TIME : int = 32			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
-
-##	Falling (7.778)
-@export var FALLING_TERMINAL_VELOCITY : float = 700.0		##	Maximum downward y velocity (px * s)
+##	Falling (8.889)
+@export var FALLING_TERMINAL_VELOCITY : float = 800.0		##	Maximum downward y velocity (px * s)
 @export var FALLING_DECELERATION_TIME : int = 90			##	Ammount of time (frames/60) it takes for the player to go from 0 velocity to terminal
 
 ##	Slope of final velocity over time will determine acceleration
@@ -59,18 +58,20 @@ var velocity : Vector2 = Vector2.ZERO
 var time : String
 
 
+var mid_curve : bool = false
 var is_state_new : bool = true
-var last_state
-func new_state(delta : float, change_state : State.s, movenment_package : Array[float], jumping : bool = false):
+var last_state : State.s
+func new_state(delta : float, change_state : State.s, movenment_package : Array, jumping : bool = false):
 	print("          DEBUG - New AIR state")
 	
 	##	Run set up code for animations and such
 	ACTIVE_STATE = true
 	is_state_new = true
 	last_state = change_state
+	mid_curve = movenment_package[0]
+	starting_velocity = movenment_package[1]
 	
 	velocity = P.velocity / Global.time_speed
-	gen_movenment_curve(P.move_vector.x)
 	if(jumping):
 		jump()
 	else:
@@ -198,7 +199,7 @@ func update(delta : float):
 	""" Movenement Vector (velocity.x) """
 	var move_vector = P.move_vector
 	
-	if(P.just_switched_directions):
+	if(P.just_switched_directions || is_state_new):
 		P.interference = false
 		movenment_curve_frame = 0
 		gen_movenment_curve(move_vector.x)
@@ -232,7 +233,7 @@ func update(delta : float):
 	""" Physics """
 	
 	##	Jump decceleration
-	velocity.y += (y_decceleration)
+	velocity.y = min(velocity.y + y_decceleration, FALLING_TERMINAL_VELOCITY)
 	
 	velocity.x *= P.speed_boost
 	P.velocity = velocity #* delta
@@ -254,8 +255,9 @@ func jump():
 	last_state = State.s.AIR
 
 
-func generate_movenment_package() -> Array[float]:
-	return [starting_velocity, velocity.x, velocity.y, movenment_curve_max_frame, movenment_curve_frame]
+func generate_movenment_package() -> Array:
+	##	Intended starting velocity of the curve (if there is one), is moving allong the curve still
+	return [starting_velocity, movenment_curve_max_frame <= movenment_curve_frame]
 
 
 """ Movenment Curve Functions """
@@ -287,7 +289,8 @@ func gen_movenment_curve(direct : float):
 	var temp_boolean : bool
 	var multiple : float
 	
-	starting_velocity = velocity.x
+	if(!is_state_new || !mid_curve):
+		starting_velocity = velocity.x
 	#	This boolean works as so : (velocity is negative and direct is positive)
 	temp_boolean = (sign(starting_velocity) != sign(direct) && direct > 0.0)
 	#	This boolean works as so : not moving towards zero and (both velocity and direct are different signs) and (not yet calculated) target_speed > velocity
@@ -304,6 +307,8 @@ func gen_movenment_curve(direct : float):
 	temp_variable = (target_velocity - starting_velocity) / pow(acceleration_time, curve_constant)
 	
 	movenment_curve_max_frame = acceleration_time
+	if(is_state_new && mid_curve):
+		movenment_curve_frame = pow((velocity.x - starting_velocity) / temp_variable, 1 / (curve_constant))
 	
 	"""  Set the printf time thing to a variable in the beggining of the process and use it  """
 	

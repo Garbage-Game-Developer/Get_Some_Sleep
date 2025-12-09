@@ -6,14 +6,14 @@
 [ext_resource type="Texture2D" uid="uid://dggb8fb5vq6y3" path="res://Assets/Sprites/Maps/DEBUG Tilemap/transparant-ground.png" id="4_svo4i"]
 [ext_resource type="Script" uid="uid://b6rqql6fvy80f" path="res://Scripts/Levels/0-Testing/camera_track.gd" id="5_8jhkx"]
 
-[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_lion2"]
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_8jhkx"]
 polygon = PackedVector2Array(-16, -16, 16, -16, 16, 16, -16, 16)
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_v08m3"]
 texture = ExtResource("1_2jv5e")
 texture_region_size = Vector2i(32, 32)
 0:0/0 = 0
-0:0/0/occlusion_layer_0/polygon_0/polygon = SubResource("OccluderPolygon2D_lion2")
+0:0/0/occlusion_layer_0/polygon_0/polygon = SubResource("OccluderPolygon2D_8jhkx")
 0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-16, -16, 16, -16, 16, 16, -16, 16)
 1:0/0 = 0
 0:1/0 = 0
@@ -22,6 +22,7 @@ texture_region_size = Vector2i(32, 32)
 [sub_resource type="TileSet" id="TileSet_lion2"]
 tile_size = Vector2i(32, 32)
 occlusion_layer_0/light_mask = 1
+occlusion_layer_0/sdf_collision = true
 physics_layer_0/collision_layer = 1
 physics_layer_0/collision_mask = 0
 sources/0 = SubResource("TileSetAtlasSource_v08m3")
