@@ -24,9 +24,9 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 """ Constants """
 ##	Horizontal Movenment
 @export var AIR_MAX_X_SPEED : float = 250.0		##	Maximum speed (px * s) the player can move in the air
-@export var AIR_MAX_ACC_TIME : int = 48			##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
-@export var AIR_MAX_DEC_TIME : int = 24			##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
-@export var AIR_MAX_OVER_DEC_TIME : int  = 32	##	Ammount of time (frames/60) it takes for the player to decelerate to AIR_MAX_SPEED px*s from AIR_MAX_SPEED * 2 px*s
+@export var AIR_MAX_ACC_TIME : int = 42			##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
+@export var AIR_MAX_DEC_TIME : int = 18			##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
+@export var AIR_MAX_OVER_DEC_TIME : int  = 48	##	Ammount of time (frames/60) it takes for the player to decelerate to AIR_MAX_SPEED px*s from AIR_MAX_SPEED * 2 px*s
 
 ##	Jumping (-6.25)
 @export var GROUND_INITIAL_VELOCITY : float = -200		##	Initial speed (px * s) the player gets if jumping from the ground
@@ -247,7 +247,7 @@ func update(delta : float):
 	velocity.y = min(velocity.y + y_decceleration, FALLING_TERMINAL_VELOCITY)
 	
 	velocity.x *= P.speed_boost
-	P.velocity = velocity #* delta
+	P.velocity = velocity * 60.0 * delta
 
 
 func generate_movenment_package() -> Array:

@@ -1,4 +1,4 @@
-class_name GroundedState extends State
+class_name WallState extends State
 
 """ 
 Description

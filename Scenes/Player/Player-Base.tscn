@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://bl7tp660hpbgu"]
+[gd_scene load_steps=15 format=3 uid="uid://bl7tp660hpbgu"]
 
 [ext_resource type="Script" uid="uid://coji8x5p1svqt" path="res://Scripts/Player/player_base.gd" id="1_pcxub"]
 [ext_resource type="Script" uid="uid://ivfkaytss4d5" path="res://Scripts/Player/Internal/character.gd" id="1_sfkqq"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://c4nwp7n3x8i0s" path="res://Assets/Effects/Shaders/64FadedCircle.png" id="2_ii8om"]
 [ext_resource type="Script" uid="uid://dqhex5uyycpmy" path="res://Scripts/Player/States/air.gd" id="3_erevo"]
 [ext_resource type="Script" uid="uid://bboq2wxo458qt" path="res://Scripts/Player/States/grounded.gd" id="3_gri1l"]
+[ext_resource type="Script" uid="uid://cd8xjopapxhmk" path="res://Scripts/Player/States/wall.gd" id="5_2gvn5"]
 [ext_resource type="SpriteFrames" uid="uid://brf7fl6y2cs63" path="res://Assets/Sprites/Actors/Animated Sprites Base/BaseRight.tres" id="8_2gvn5"]
 [ext_resource type="SpriteFrames" uid="uid://bu3gd73sgmrj7" path="res://Assets/Sprites/Actors/Animated Sprites Base/BaseLeft.tres" id="9_sixxt"]
 
@@ -84,6 +85,7 @@ script = ExtResource("3_gri1l")
 [node name="Swing" type="Node" parent="S"]
 
 [node name="Wall" type="Node" parent="S"]
+script = ExtResource("5_2gvn5")
 
 [node name="Dead" type="Node" parent="S"]
 

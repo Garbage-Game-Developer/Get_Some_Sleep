@@ -13,7 +13,7 @@ class_name Player extends CharacterBody2D
 #@onready var Slide : SlideState = $S/Slide
 #@onready var Swim : SwimState = $S/Swim
 #@onready var Swing : SwingState = $S/Swing
-#@onready var Wall : WallState = $S/Wall
+@onready var Wall : WallState = $S/Wall
 #@onready var Dead : DeadState = $S/Dead
 #@onready var Cutscene : CutsceneState = $S/Cutscene
 
@@ -61,16 +61,7 @@ var player_id : int = 0  ##  This will be used when there are multiple player ch
 
 
 ##	Constants
-# Gravity
-const BASE_GRAVITY : Vector2 = Vector2(0.0, -900)
-
-# Jump force
-const JUMP_FORCE : float = -600
-const DOUBLE_JUMP_FORCE : float = -500
-const WATER_JUMP_FORCE : float = -900  ##  Force upon jumping out of water while surfaced
-
 # Movenment speed
-const AIR_SPEED : float = 125  ##  Pixel acceleration in air (px/s)
 const SWIM_SPEED_BASE : float = 250  ##  Pixel acceleration in water (px/s)
 
 # Slide
@@ -78,16 +69,6 @@ const SLIDE_SPEED_BOOST : float = 100  ##  Extra velocity added when sliding, in
 const SLIDE_GROUND_REQ_TIME : float = 0.4  ##  Time required to slide for until you can leave (seconds)
 const SLIDE_AIR_REQ_TIME : float = 0.2  ##  Time required to slide for until you can leave (seconds)
 const SLIDE_VELOCITY_CUTOFF : float = 150  ##  lowest velocity until you're kicked out of sliding animation
-
-# Max speed and friction
-## Little note here, NO friction in air, but also very slow air accelerations
-const AIR_MAX_SPEED : float = 2400  ##  Max speed in the air (horizontal vector)
-const AIR_MAX_FALL_SPEED : float = 1200  ##  Max speed in air (vertical vector)
-const SURFACE_MAX_SPEED : float = 300  ##  Max speed on normal surfaces
-const SURFACE_FRICTION : float = 0.2  ##  Friction coefficient (Not quite sure how to use this yet \: )
-const WALK_MAX_SPEED : float = 150  ##  Max speed while in walk state
-const WATER_FRICTION : float = 0.3  ##  Coefficient of friction
-
 
 # Dash
 const GROUND_DASH_SPEED : float = 600  ##  Speed gained when dashing
@@ -145,9 +126,10 @@ func _physics_process(delta):
 	var new_state = false
 	match current_state:
 		State.s.AIR:
-			Air.update(delta)		##	Unfinished - Working on
+			##	Call the velocity ray checks first
+			Air.update(delta)			##	Unfinished - Working on
 		#State.s.DASH:
-			#Dash.update(delta)		##	Unfinished
+			#Dash.update(delta)			##	Unfinished
 		#State.s.DAZED:
 			#Dazed.update(delta)		##	Unfinished
 		#State.s.FLOATING:
@@ -157,19 +139,21 @@ func _physics_process(delta):
 		#State.s.GHOST:
 			#Ghost.update(delta)		##	Unfinished
 		State.s.GROUNDED:
-			Grounded.update(delta)				##	Unfinished - Prototyped (Needs review)
+			##	Call the velocity ray checks first
+			Grounded.update(delta)		##	Unfinished - Prototyped (Needs review)
 		#State.s.KICK:
-			#Kick.update(delta)		##	Unfinished
+			#Kick.update(delta)			##	Unfinished
 		#State.s.SLIDE:
 			#Slide.update(delta)		##	Unfinished
 		#State.s.SWIM:
-			#Swim.update(delta)		##	Unfinished
+			#Swim.update(delta)			##	Unfinished
 		#State.s.SWING:
 			#Swing.update(delta)		##	Unfinished
-		#State.s.WALL:
-			#Wall.update(delta)		##	Unfinished
+		State.s.WALL:
+			##	Call the velocity ray checks first
+			Wall.update(delta)			##	Unfinished
 		#State.s.DEAD:
-			#Dead.update(delta)		##	Unfinished
+			#Dead.update(delta)			##	Unfinished
 		#State.s.CUTSCENE:
 			#Cutscene.update(delta)		##	Unfinished
 	
@@ -211,43 +195,6 @@ func _physics_process(delta):
 	$ConvenienceRays/VelocityCeilingSnapRight.force_raycast_update()
 	$ConvenienceRays/VelocityCeilingLeft.force_raycast_update()
 	$ConvenienceRays/VelocityCeilingRight.force_raycast_update()
-	
-	##	Check Velocity Rays (And call actions)
-	match current_state:
-		State.s.AIR:
-			"""
-				Check if can clamber, over, or ceiling snap, also bounce pads on walls or floors
-			"""
-			pass	##	Unfinished
-		State.s.DASH:
-			"""
-				Check if can clamber, over, or ceiling snap, also bounce pads on walls or floors
-			"""
-			pass	##	Unfinished
-		State.s.GROUNDED:
-			"""
-				Check if there's bounce pads on floors
-			"""
-			pass	##	Unfinished
-		State.s.KICK:
-			"""
-				Check if there's bounce pads on floors
-			"""
-			pass	##	Unfinished
-		State.s.SLIDE:
-			"""
-				Check if can clamber, over, or ceiling snap, also bounce pads on walls and floors
-			"""
-			pass	##	Unfinished
-		State.s.SWIM:
-			pass	##	Unfinished
-		State.s.SWING:
-			pass	##	Unfinished
-		State.s.WALL:
-			"""
-				Check if there's bounce pads on walls and floors
-			"""
-			pass	##	Unfinished
 	
 	#pingpong()
 	move_and_slide() # Might do this first, idk
