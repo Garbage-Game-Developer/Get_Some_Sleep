@@ -19,6 +19,7 @@ texture = ExtResource("2_gm471")
 [node name="BaseLevel" parent="Levels" instance=ExtResource("1_mt78q")]
 
 [node name="Player" type="Node2D" parent="."]
+position = Vector2(-200, -128)
 
 [node name="Camera" parent="Player" instance=ExtResource("2_6qo1b")]
 

@@ -8,10 +8,10 @@ This state considers horizontal movenment, and uses a complex movenment curve
 This state does not consider vertical movenment
 
 Actions available
-o Jump			Swap to the "Jump" state, from_ground = false
 o Dash			Swap to the "Dash" state, from_ground = false
 - Slide			Swap to the "Slide" state, from_ground = false
 o Kick			Swap to the "Kick" state, 
+o (Jump)		Sub action that adds y velocity using the jump() functions
 o (Punch)		Sub action that calls the parent's Punch function, and plays an animation
 """
 
@@ -47,12 +47,16 @@ var ACTIVE_STATE : bool = false
 var is_jumping
 @onready var double_jump_bool = (P.able_special || P.free_double_jump || P.item_double_jump)
 
+var triggered_jump : bool = false
+
 var movenment_curve_frame : float = 0.0
 var movenment_curve_max_frame : float = 0.0
+
 var last_velocity : Vector2 = Vector2.ZERO
 var initial_y_velocity : float = 0.0
 var y_decceleration : float = 0.0  ##  Gravity Value
 var velocity : Vector2 = Vector2.ZERO
+
 
 """ DEBUG """
 var time : String
@@ -86,6 +90,7 @@ func update(delta : float):
 	
 	""" States (Pre Change) """
 	var state_change_to : State.s = State.s.AIR
+	triggered_jump = false
 	
 	if(P.is_on_floor() && !is_state_new):
 		state_change_to = State.s.GROUNDED
@@ -113,22 +118,23 @@ func update(delta : float):
 			$"../../Timers/DashFloorCooldown".start()
 	
 	
-	elif(Input.is_action_just_pressed("JUMP") && !is_jumping && (double_jump_bool && P.special_available)):
+	elif(Input.is_action_just_pressed("JUMP") && !is_jumping && (!$"../../Timers/CoyoteTimer".is_stopped() || (double_jump_bool && P.special_available))):
 		""" Default Key : "Space"
 			Swap to the "Air" state, from_ground = false """
 		
-		if(P.item_double_jump):
+		if(P.item_double_jump && $"../../Timers/CoyoteTimer".is_stopped()):
 			if(P.special_areas > 0):
 				Global.emit_signal("player_special_used", P.player_id)
 				P.special_available = false
 				jump()
 			else:
 				pass
+		elif(!$"../../Timers/CoyoteTimer".is_stopped()):
+			$"../../Timers/CoyoteTimer".stop()
+			jump()
 		else:
 			P.special_available = false
 			jump()
-		
-		
 	
 	elif(Input.is_action_just_pressed("SLIDE")):
 		""" Default Key : "C"
@@ -148,6 +154,11 @@ func update(delta : float):
 			#P.Punch()
 			new_action = true
 			action_is_punch = true
+	
+	
+	##	Precision Jump
+	if(Input.is_action_just_pressed("JUMP") && !is_jumping && !triggered_jump):
+		$"../../Timers/PrecisionJumpTimer".start()
 	
 	
 	""" States (Post Change) """
@@ -239,8 +250,14 @@ func update(delta : float):
 	P.velocity = velocity #* delta
 
 
+func generate_movenment_package() -> Array:
+	##	Intended starting velocity of the curve (if there is one), is moving allong the curve still
+	return [movenment_curve_max_frame > movenment_curve_frame, starting_velocity]
+
+
 func jump():
 	is_jumping = true
+	triggered_jump = true
 	match last_state:
 		State.s.GROUNDED:
 			initial_y_velocity = GROUND_INITIAL_VELOCITY
@@ -253,11 +270,6 @@ func jump():
 		_:
 			pass
 	last_state = State.s.AIR
-
-
-func generate_movenment_package() -> Array:
-	##	Intended starting velocity of the curve (if there is one), is moving allong the curve still
-	return [starting_velocity, movenment_curve_max_frame <= movenment_curve_frame]
 
 
 """ Movenment Curve Functions """
@@ -291,6 +303,7 @@ func gen_movenment_curve(direct : float):
 	
 	if(!is_state_new || !mid_curve):
 		starting_velocity = velocity.x
+	
 	#	This boolean works as so : (velocity is negative and direct is positive)
 	temp_boolean = (sign(starting_velocity) != sign(direct) && direct > 0.0)
 	#	This boolean works as so : not moving towards zero and (both velocity and direct are different signs) and (not yet calculated) target_speed > velocity
@@ -319,8 +332,9 @@ func gen_movenment_curve(direct : float):
 	 , ", T=%9.3f"  % target_velocity
 	 , ", S=%9.3f"  % starting_velocity
 	 , ", V=%9.3f"  % velocity.x
-	 , ", A=%6.3f"  % acceleration_time
-	 , ", AA=%6.3f" % movenment_curve_max_frame
+	 , ", A=%5.2f"  % acceleration_time
+	 , ", AA=%5.2f" % movenment_curve_max_frame
+	 , ", F=%5.2f"  % movenment_curve_frame
 	 , ", TV=%8.3f" % temp_variable)
 
 

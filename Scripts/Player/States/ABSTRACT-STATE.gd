@@ -21,4 +21,4 @@ enum s {
 
 @abstract func new_state(delta : float, change_state : State.s, movenment_package : Array[float])
 @abstract func update(delta : float)
-@abstract func generate_movenment_package() -> Array  ##  [movenment_curve_max_frame <= movenment_curve_frame, starting_velocity]
+@abstract func generate_movenment_package() -> Array  ##  [movenment_curve_max_frame > movenment_curve_frame, starting_velocity]

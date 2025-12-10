@@ -8,7 +8,7 @@ This state considers horizontal movenment, and uses a complex movenment curve
 This state does not consider vertical movenment
 
 Actions available
-- Jump			Swap to the "Jump" state, from_ground = true
+- Jump			Swap to the "Air" state, from_ground = true
 + Dash			Swap to the "Dash" state, from_ground = true
 - Slide			Swap to the "Slide" state, from_ground = true
 o (Punch)		Sub action that calls the parent's Punch function, and plays an animation
@@ -117,9 +117,12 @@ func update(delta : float):
 		state_change_to = State.s.SLIDE
 	
 	
-	elif(Input.is_action_just_pressed("JUMP")):
+	elif(Input.is_action_just_pressed("JUMP") || !$"../../Timers/PrecisionJumpTimer".is_stopped()):
 		""" Default Key : "Space"
 			Swap to the "Jump" state, from_ground = true   """
+		
+		if(!$"../../Timers/PrecisionJumpTimer".is_stopped()):
+			$"../../Timers/PrecisionJumpTimer".stop()
 		
 		state_change_to = State.s.AIR
 		is_jumping = true
@@ -241,7 +244,7 @@ func update(delta : float):
 
 func generate_movenment_package() -> Array:
 	##	Intended starting velocity of the curve (if there is one), is moving allong the curve still
-	return [movenment_curve_max_frame <= movenment_curve_frame, starting_velocity]
+	return [movenment_curve_max_frame > movenment_curve_frame, starting_velocity]
 
 
 var ground_type : int = 1	##	1 - Normal, 2 - Slow, 3 - Ice
@@ -367,8 +370,9 @@ func gen_movenment_curve(direct : float):
 	 , ", T=%9.3f"  % target_velocity
 	 , ", S=%9.3f"  % starting_velocity
 	 , ", V=%9.3f"  % velocity.x
-	 , ", A=%6.3f"  % acceleration_time
-	 , ", AA=%6.3f" % movenment_curve_max_frame
+	 , ", A=%5.2f"  % acceleration_time
+	 , ", AA=%5.2f" % movenment_curve_max_frame
+	 , ", F=%5.2f"  % movenment_curve_frame
 	 , ", TV=%8.3f" % temp_variable)
 
 
