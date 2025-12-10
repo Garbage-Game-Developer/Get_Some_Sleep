@@ -58,6 +58,14 @@ func _ready():
 
 
 """	Externally called functions """
+func get_saved_data(KEY : String):
+	pass
+
+
+func update_player_saved_data(KEY : String, index : int, value):
+	pass
+
+
 ## Used for immediatly freezing time
 func time_freeze(time_value: float, intensity: float = 0.0, permanent : bool = false):
 	time_speed = intensity

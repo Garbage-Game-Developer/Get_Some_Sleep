@@ -1,25 +1,18 @@
-[gd_scene load_steps=6 format=3 uid="uid://bt73e02l1b1xk"]
+[gd_scene load_steps=5 format=3 uid="uid://bt73e02l1b1xk"]
 
 [ext_resource type="PackedScene" uid="uid://dmml5hkomdplf" path="res://Scenes/Levels/0-Testing/BaseLevel.tscn" id="1_mt78q"]
 [ext_resource type="Script" uid="uid://ctr7oiega7sdq" path="res://Scripts/Levels/0-Testing/level_handler.gd" id="1_xauhi"]
 [ext_resource type="PackedScene" uid="uid://cocx3qj5cxwri" path="res://Scenes/Levels/Camera/Camera.tscn" id="2_6qo1b"]
-[ext_resource type="Texture2D" uid="uid://o77eyoioih0h" path="res://Assets/Aseprite Files/BG.PNG" id="2_gm471"]
 [ext_resource type="PackedScene" uid="uid://bl7tp660hpbgu" path="res://Scenes/Player/Player-Base.tscn" id="3_xauhi"]
 
 [node name="LevelHandler" type="Node2D"]
 script = ExtResource("1_xauhi")
-
-[node name="Bg" type="Sprite2D" parent="."]
-position = Vector2(436.0001, -481.50006)
-scale = Vector2(1.7656249, 1.5435184)
-texture = ExtResource("2_gm471")
 
 [node name="Levels" type="Node2D" parent="."]
 
 [node name="BaseLevel" parent="Levels" instance=ExtResource("1_mt78q")]
 
 [node name="Player" type="Node2D" parent="."]
-position = Vector2(-200, -128)
 
 [node name="Camera" parent="Player" instance=ExtResource("2_6qo1b")]
 

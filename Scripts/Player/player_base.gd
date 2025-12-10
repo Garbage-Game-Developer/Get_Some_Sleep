@@ -22,36 +22,45 @@ var walk_mode : bool = false  ##  A special grounded state and falling state whe
 
 
 """ Exports """
-##	
+@export var DEBUG : bool = false
 
 ##	Unique Player Variables
+@export_group("Player Spacific Variables")
+@export var PLAYER_NAME  : String = "'"
+
 #  Player can swim
 @export var can_swim : bool = false
 
-#  Player can punch and air kick, sliding does half damage (rounded up) and upward knockback, dash does half damage (rounded up) and forward knockback
+#	Player can punch and air kick, sliding does half damage (rounded up) and upward knockback, dash does half damage (rounded up) and forward knockback
 @export var combat_skills : bool = false
 @export var combat_power : int = 5  #  Damage done by attacks
 
-#  Allows for ground dash, wall dash, and swinging
+#	Allows for ground dash, wall dash, and swinging
 @export var basic_movenment : bool = false
 
-#  Allows for air normal dash, swinging dash, and advanced climbing
+#	Allows for air normal dash, swinging dash, and advanced climbing
 @export var advanced_movenment : bool = false
 
-#  Allows for air double jump under a condition
-@export var item_double_jump : bool = false  
+#	Allows for air double jump under a condition
+@export var item_double_jump : bool = false
 
-#  Allows for air double jump with no conditional
+#	Allows for air double jump with no conditional
 @export var free_double_jump : bool = false
 
-#  Allows for special dash variation on ground, air, and water
+#	Allows for special dash variation on ground, air, and water
 @export var special_dash : bool = false
 
+#	Allows for the player to climb on slow surfaces
+@export var slow_climb : bool = false
 
-@export var able_special : bool = false  ##  Can double jump and dash in air, can consume more pills
+#	Allows for the player to climb on normal surfaces
+@export var advanced_climb : bool = false
+
+#	Allows for the player to climb on ice surfaces
+@export var ice_climb : bool = false
+
+
 @export var able_swing : bool = false  ##  Can use swingables
-@export var able_attack : bool = false  ##  Can punch and kick
-@export var able_expert_wall : bool = false  ##  Can no slide down wall grab (Won't matter on ice), and free dash off of wall
 @export var able_fast_swim : bool = false  ##  Move quickly in water, and can water dash
 
 
@@ -102,7 +111,9 @@ var move_vector : Vector2 = Vector2.ZERO
 """ Godot Built-In Functions """
 func _ready():
 	""" Check for global prefrences for controls and set the corresponding internal variables """
-	pass
+	if(!DEBUG):
+		load_player_stats()
+	
 
 
 func _physics_process(delta):
@@ -159,45 +170,54 @@ func _physics_process(delta):
 	
 	""" End of process """
 	
-	#velocity *= Global.time_speed  ##  Sets it to the speed of the game
+	velocity *= Global.time_speed  ##  Sets it to the speed of the game
 	
 	##	Set Velocity Rays
-	$GroundTypeRays/VelocityBouncePad.target_position = velocity
-	$WallTypeRays/VelocityBouncePadHigh.target_position = velocity + (Vector2(6.0, 0.0) if velocity.x > 0.0 else Vector2(-6.0, 0.0))
-	$WallTypeRays/VelocityBouncePadLow.target_position = velocity + (Vector2(6.0, 0.0) if velocity.x > 0.0 else Vector2(-6.0, 0.0))
-	$ConvenienceRays/VelocityClamber.target_position = velocity
-	$ConvenienceRays/VelocityOver.target_position = velocity
-	$ConvenienceRays/VelocityNextPosition.target_position = velocity
-	$ConvenienceRays/VelocityCeilingSnapLeft.target_position.y = minf(0, velocity.y)
-	$ConvenienceRays/VelocityCeilingSnapRight.target_position.y = minf(0, velocity.y)
-	$ConvenienceRays/VelocityCeilingLeft.target_position.y = minf(0, velocity.y)
-	$ConvenienceRays/VelocityCeilingRight.target_position.y = minf(0, velocity.y)
+	var temp_velocity = velocity / 60
+	$GroundTypeRays/VelocityBouncePad.target_position = temp_velocity
+	$WallTypeRays/VelocityBouncePadHigh.target_position = temp_velocity + (Vector2(6.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-6.0, 0.0))
+	$WallTypeRays/VelocityBouncePadLow.target_position = temp_velocity + (Vector2(6.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-6.0, 0.0))
+	$ConvenienceRays/VelocityClamber.target_position = temp_velocity
+	$ConvenienceRays/VelocityOver.target_position = temp_velocity
+	$ConvenienceRays/VelocityNextPosition.target_position = temp_velocity
+	$ConvenienceRays/VelocityCeilingSnapLeft.target_position.y = minf(0, temp_velocity.y)
+	$ConvenienceRays/VelocityCeilingSnapRight.target_position.y = minf(0, temp_velocity.y)
+	$ConvenienceRays/VelocityCeilingLeft.target_position.y = minf(0, temp_velocity.y)
+	$ConvenienceRays/VelocityCeilingRight.target_position.y = minf(0, temp_velocity.y)
 	
 	
-	$GroundTypeRays/VelocityBouncePad.force_update_transform()			##	Checks if the next frame will interact with a bouncepad on the ground
-	$WallTypeRays/VelocityBouncePadHigh.force_update_transform()		##	Checks if the next frame will interact with a bouncepad on the wall
-	$WallTypeRays/VelocityBouncePadLow.force_update_transform()			##	Checks if the next frame will interact with a bouncepad on the wall
-	$ConvenienceRays/VelocityClamber.force_update_transform()			##	Checks if you can't clamber over a ledge next frame
-	$ConvenienceRays/VelocityOver.force_update_transform()				##	Checks if you can't snap over a ledge next fram
-	$ConvenienceRays/VelocityNextPosition.force_update_transform()		##	Checks if you're colliding with a surface or the ground next frame
-	$ConvenienceRays/VelocityCeilingSnapLeft.force_update_transform()	##	Checks if you can't snap around the ceiling next frame
-	$ConvenienceRays/VelocityCeilingSnapRight.force_update_transform()	##	Checks if you can't snap around the ceiling next frame
-	$ConvenienceRays/VelocityCeilingLeft.force_update_transform()		##	Checks if you're colliding with the ceiling next frame
-	$ConvenienceRays/VelocityCeilingRight.force_update_transform()		##	Checks if you're colliding with the ceiling next frame
-	
-	$GroundTypeRays/VelocityBouncePad.force_raycast_update()
-	$WallTypeRays/VelocityBouncePadHigh.force_raycast_update()
-	$WallTypeRays/VelocityBouncePadLow.force_raycast_update()
-	$ConvenienceRays/VelocityClamber.force_raycast_update()
-	$ConvenienceRays/VelocityOver.force_raycast_update()
-	$ConvenienceRays/VelocityNextPosition.force_raycast_update()
-	$ConvenienceRays/VelocityCeilingSnapLeft.force_raycast_update()
-	$ConvenienceRays/VelocityCeilingSnapRight.force_raycast_update()
-	$ConvenienceRays/VelocityCeilingLeft.force_raycast_update()
-	$ConvenienceRays/VelocityCeilingRight.force_raycast_update()
+	#$GroundTypeRays/VelocityBouncePad.force_update_transform()			##	Checks if the next frame will interact with a bouncepad on the ground
+	#$WallTypeRays/VelocityBouncePadHigh.force_update_transform()		##	Checks if the next frame will interact with a bouncepad on the wall
+	#$WallTypeRays/VelocityBouncePadLow.force_update_transform()			##	Checks if the next frame will interact with a bouncepad on the wall
+	#$ConvenienceRays/VelocityClamber.force_update_transform()			##	Checks if you can't clamber over a ledge next frame
+	#$ConvenienceRays/VelocityOver.force_update_transform()				##	Checks if you can't snap over a ledge next fram
+	#$ConvenienceRays/VelocityNextPosition.force_update_transform()		##	Checks if you're colliding with a surface or the ground next frame
+	#$ConvenienceRays/VelocityCeilingSnapLeft.force_update_transform()	##	Checks if you can't snap around the ceiling next frame
+	#$ConvenienceRays/VelocityCeilingSnapRight.force_update_transform()	##	Checks if you can't snap around the ceiling next frame
+	#$ConvenienceRays/VelocityCeilingLeft.force_update_transform()		##	Checks if you're colliding with the ceiling next frame
+	#$ConvenienceRays/VelocityCeilingRight.force_update_transform()		##	Checks if you're colliding with the ceiling next frame
+	#
+	#$GroundTypeRays/VelocityBouncePad.force_raycast_update()
+	#$WallTypeRays/VelocityBouncePadHigh.force_raycast_update()
+	#$WallTypeRays/VelocityBouncePadLow.force_raycast_update()
+	#$ConvenienceRays/VelocityClamber.force_raycast_update()
+	#$ConvenienceRays/VelocityOver.force_raycast_update()
+	#$ConvenienceRays/VelocityNextPosition.force_raycast_update()
+	#$ConvenienceRays/VelocityCeilingSnapLeft.force_raycast_update()
+	#$ConvenienceRays/VelocityCeilingSnapRight.force_raycast_update()
+	#$ConvenienceRays/VelocityCeilingLeft.force_raycast_update()
+	#$ConvenienceRays/VelocityCeilingRight.force_raycast_update()
 	
 	#pingpong()
 	move_and_slide() # Might do this first, idk
+
+
+##	Sets the player's movenment speeds, abilities, etc. to what they should be based on the player and their level
+func load_player_stats():
+	""" Might want to move movenment speed things into THIS class instead of the states themselves """
+	
+	""" Pull from the saved data what the abilities should be, or if you get an upgrade """
+	pass
 
 
 

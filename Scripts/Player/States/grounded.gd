@@ -190,11 +190,8 @@ func update(delta : float):
 				#P.Swing.new_state(delta)
 				pass
 			State.s.WALL:
-				#P.current_state = State.s.WALL
-				#P.Wall.new_state(delta)
-				pass
-			State.s.DEAD:
-				pass
+				P.current_state = State.s.WALL
+				P.Wall.new_state(delta, State.s.GROUNDED, generate_movenment_package())
 			State.s.CUTSCENE:
 				pass
 		return

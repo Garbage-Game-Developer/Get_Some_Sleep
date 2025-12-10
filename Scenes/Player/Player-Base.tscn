@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://bl7tp660hpbgu"]
+[gd_scene load_steps=16 format=3 uid="uid://bl7tp660hpbgu"]
 
 [ext_resource type="Script" uid="uid://coji8x5p1svqt" path="res://Scripts/Player/player_base.gd" id="1_pcxub"]
 [ext_resource type="Script" uid="uid://ivfkaytss4d5" path="res://Scripts/Player/Internal/character.gd" id="1_sfkqq"]
@@ -10,11 +10,14 @@
 [ext_resource type="SpriteFrames" uid="uid://brf7fl6y2cs63" path="res://Assets/Sprites/Actors/Animated Sprites Base/BaseRight.tres" id="8_2gvn5"]
 [ext_resource type="SpriteFrames" uid="uid://bu3gd73sgmrj7" path="res://Assets/Sprites/Actors/Animated Sprites Base/BaseLeft.tres" id="9_sixxt"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2gvn5"]
+size = Vector2(10, 15)
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ii8om"]
 size = Vector2(10, 15)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_4jfo0"]
-size = Vector2(10, 14)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sixxt"]
+size = Vector2(8, 13)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_erevo"]
 size = Vector2(12, 16)
@@ -26,18 +29,19 @@ shader = ExtResource("2_7oum1")
 size = Vector2(1, 4)
 
 [node name="PlayerBase" type="CharacterBody2D" groups=["Player"]]
-z_index = 2
 collision_layer = 0
 collision_mask = 7
-platform_floor_layers = 4294901783
+platform_floor_layers = 4294901767
+platform_wall_layers = 7
 script = ExtResource("1_pcxub")
+DEBUG = true
 basic_movenment = true
 advanced_movenment = true
 free_double_jump = true
 
 [node name="PlayerCollisions" type="CollisionShape2D" parent="."]
 position = Vector2(0, -7.5)
-shape = SubResource("RectangleShape2D_ii8om")
+shape = SubResource("RectangleShape2D_2gvn5")
 debug_color = Color(0, 0.5950001, 0.7, 0.13725491)
 
 [node name="GhostBoxDetector" type="Area2D" parent="."]
@@ -54,7 +58,15 @@ debug_color = Color(0, 0.5950001, 0.7, 0.13725491)
 z_index = -1
 color = Color(1, 0.9916667, 0.75, 1)
 energy = 0.2
-range_z_max = 1
+range_z_max = -1
+texture = ExtResource("2_ii8om")
+offset = Vector2(0, -8)
+
+[node name="FrontLight" type="PointLight2D" parent="."]
+z_index = -1
+color = Color(1, 0.9916667, 0.75, 1)
+energy = 0.2
+range_z_min = 1
 texture = ExtResource("2_ii8om")
 offset = Vector2(0, -8)
 
@@ -136,8 +148,8 @@ collision_layer = 4096
 collision_mask = 256
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox"]
-position = Vector2(0, -8)
-shape = SubResource("RectangleShape2D_4jfo0")
+position = Vector2(0, -7.5)
+shape = SubResource("RectangleShape2D_sixxt")
 debug_color = Color(0.99, 0, 0.31349993, 0)
 
 [node name="SpecialZone" type="Area2D" parent="."]
@@ -152,7 +164,7 @@ debug_color = Color(0, 1, 0, 0)
 [node name="ConvenienceRays" type="Node2D" parent="."]
 
 [node name="VelocityClamber" type="RayCast2D" parent="ConvenienceRays"]
-position = Vector2(0, -6)
+position = Vector2(0, -5)
 target_position = Vector2(10, 0)
 collision_mask = 7
 hit_from_inside = true
@@ -169,25 +181,25 @@ collision_mask = 7
 hit_from_inside = true
 
 [node name="VelocityCeilingSnapLeft" type="RayCast2D" parent="ConvenienceRays"]
-position = Vector2(-4, -15.999999)
+position = Vector2(-3, -15)
 target_position = Vector2(0, -10)
 collision_mask = 7
 hit_from_inside = true
 
 [node name="VelocityCeilingSnapRight" type="RayCast2D" parent="ConvenienceRays"]
-position = Vector2(4, -16)
+position = Vector2(3, -15)
 target_position = Vector2(0, -10)
 collision_mask = 7
 hit_from_inside = true
 
 [node name="VelocityCeilingLeft" type="RayCast2D" parent="ConvenienceRays"]
-position = Vector2(-6, -16)
+position = Vector2(-5, -15)
 target_position = Vector2(0, -10)
 collision_mask = 7
 hit_from_inside = true
 
 [node name="VelocityCeilingRight" type="RayCast2D" parent="ConvenienceRays"]
-position = Vector2(6, -16)
+position = Vector2(5, -15)
 target_position = Vector2(0, -10)
 collision_mask = 7
 hit_from_inside = true
@@ -195,48 +207,48 @@ hit_from_inside = true
 [node name="WallTypeRays" type="Node2D" parent="."]
 
 [node name="WallRight" type="RayCast2D" parent="WallTypeRays"]
-position = Vector2(0, -8)
-target_position = Vector2(6, 0)
+position = Vector2(6, -15)
+target_position = Vector2(0, 15)
 collision_mask = 7
 hit_from_inside = true
 
 [node name="WallLeft" type="RayCast2D" parent="WallTypeRays"]
-position = Vector2(0, -7.9999995)
-target_position = Vector2(-6, 0)
+position = Vector2(-6, -15)
+target_position = Vector2(0, 15)
 collision_mask = 7
 hit_from_inside = true
 
 [node name="NormalWallRight" type="RayCast2D" parent="WallTypeRays"]
-position = Vector2(0, -8)
-target_position = Vector2(6, 0)
+position = Vector2(6, -11)
+target_position = Vector2(0, 11)
 hit_from_inside = true
 
 [node name="NormalWallLeft" type="RayCast2D" parent="WallTypeRays"]
-position = Vector2(0, -7.9999995)
-target_position = Vector2(-6, 0)
+position = Vector2(-6, -11)
+target_position = Vector2(0, 11)
 hit_from_inside = true
 
 [node name="SlowWallRight" type="RayCast2D" parent="WallTypeRays"]
-position = Vector2(0, -8)
-target_position = Vector2(6, 0)
+position = Vector2(6, -11)
+target_position = Vector2(0, 11)
 collision_mask = 2
 hit_from_inside = true
 
 [node name="SlowWallLeft" type="RayCast2D" parent="WallTypeRays"]
-position = Vector2(0, -8)
-target_position = Vector2(-6, 0)
+position = Vector2(-6, -11)
+target_position = Vector2(0, 11)
 collision_mask = 2
 hit_from_inside = true
 
 [node name="IceWallRight" type="RayCast2D" parent="WallTypeRays"]
-position = Vector2(0, -8)
-target_position = Vector2(6, 0)
+position = Vector2(6, -11)
+target_position = Vector2(0, 11)
 collision_mask = 4
 hit_from_inside = true
 
 [node name="IceWallLeft" type="RayCast2D" parent="WallTypeRays"]
-position = Vector2(0, -8)
-target_position = Vector2(-6, 0)
+position = Vector2(-6, -11)
+target_position = Vector2(0, 11)
 collision_mask = 4
 hit_from_inside = true
 
@@ -255,7 +267,7 @@ hit_from_inside = true
 [node name="GroundTypeRays" type="Node2D" parent="."]
 
 [node name="NormalGroundLeft" type="RayCast2D" parent="GroundTypeRays"]
-position = Vector2(-6, 0)
+position = Vector2(-5, 0)
 target_position = Vector2(0, 2)
 hit_from_inside = true
 
@@ -264,12 +276,12 @@ target_position = Vector2(0, 2)
 hit_from_inside = true
 
 [node name="NormalGroundRight" type="RayCast2D" parent="GroundTypeRays"]
-position = Vector2(6, 0)
+position = Vector2(5, 0)
 target_position = Vector2(0, 2)
 hit_from_inside = true
 
 [node name="SlowGroundLeft" type="RayCast2D" parent="GroundTypeRays"]
-position = Vector2(-6, 0)
+position = Vector2(-5, 0)
 target_position = Vector2(0, 2)
 collision_mask = 2
 hit_from_inside = true
@@ -280,13 +292,13 @@ collision_mask = 2
 hit_from_inside = true
 
 [node name="SlowGroundRight" type="RayCast2D" parent="GroundTypeRays"]
-position = Vector2(6, 0)
+position = Vector2(5, 0)
 target_position = Vector2(0, 2)
 collision_mask = 2
 hit_from_inside = true
 
 [node name="IceGroundLeft" type="RayCast2D" parent="GroundTypeRays"]
-position = Vector2(-6, 0)
+position = Vector2(-5, 0)
 target_position = Vector2(0, 2)
 collision_mask = 4
 hit_from_inside = true
@@ -297,7 +309,7 @@ collision_mask = 4
 hit_from_inside = true
 
 [node name="IceGroundRight" type="RayCast2D" parent="GroundTypeRays"]
-position = Vector2(6, 0)
+position = Vector2(5, 0)
 target_position = Vector2(0, 2)
 collision_mask = 4
 hit_from_inside = true
@@ -314,14 +326,14 @@ script = ExtResource("1_sfkqq")
 [node name="Right" type="AnimatedSprite2D" parent="C"]
 sprite_frames = ExtResource("8_2gvn5")
 animation = &"Idle"
-frame_progress = 0.91231906
+frame_progress = 0.3014281
 offset = Vector2(0, -8)
 
 [node name="Left" type="AnimatedSprite2D" parent="C"]
 visible = false
 sprite_frames = ExtResource("9_sixxt")
 animation = &"Idle"
-frame_progress = 0.91231906
+frame_progress = 0.3014281
 offset = Vector2(0, -8)
 
 [node name="InWater" type="Area2D" parent="."]

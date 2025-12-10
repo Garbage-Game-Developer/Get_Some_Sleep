@@ -45,7 +45,7 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 """ Internals """
 var ACTIVE_STATE : bool = false
 var is_jumping
-@onready var double_jump_bool = (P.able_special || P.free_double_jump || P.item_double_jump)
+@onready var double_jump_bool = (P.free_double_jump || P.item_double_jump)
 
 var triggered_jump : bool = false
 
@@ -197,9 +197,8 @@ func update(delta : float):
 				#P.Swing.new_state(delta)
 				pass
 			State.s.WALL:
-				#P.current_state = State.s.WALL
-				#P.Wall.new_state(delta)
-				pass
+				P.current_state = State.s.WALL
+				P.Wall.new_state(delta, State.s.AIR, generate_movenment_package())
 			State.s.DEAD:
 				pass
 			State.s.CUTSCENE:
