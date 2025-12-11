@@ -106,6 +106,7 @@ var left_or_right : bool = false  ## false for left, true for right
 
 # Simple internals
 var move_vector : Vector2 = Vector2.ZERO
+var wall_direction : int = 1
 
 
 """ Godot Built-In Functions """
@@ -121,24 +122,16 @@ func _physics_process(delta):
 	##	Check velocity rays and other state related stuff
 	move_vector = left_right_priority(Input.is_action_pressed("LEFT"), Input.is_action_pressed("RIGHT"))
 	
-	"""
+	wall_direction = 1 if $WallTypeRays/WallRight.is_colliding() else (-1 if $WallTypeRays/WallLeft.is_colliding() else 0)
 	
-		The current error is a dividing by 0 error, and I need to find a solution for decceleration/acceleration top zero in that case
-		
-		One idea is to have height = starting velocity, and then get the velocity of frame + max frames up to the max point, because that
-		will end on zero, but the problem with this is that I lose all scaling for the varying starting velocities in time, so they'll always take
-		the same time to decelerate to zero
-	
-	"""
 	
 	""" State Machine """
 	
 	##	The state process
-	var new_state = false
 	match current_state:
 		State.s.AIR:
 			##	Call the velocity ray checks first
-			Air.update(delta)			##	Unfinished - Working on
+			Air.update(delta)			##	Unfinished - Prototyped (Needs review)
 		#State.s.DASH:
 			#Dash.update(delta)			##	Unfinished
 		#State.s.DAZED:
@@ -162,7 +155,7 @@ func _physics_process(delta):
 			#Swing.update(delta)		##	Unfinished
 		State.s.WALL:
 			##	Call the velocity ray checks first
-			Wall.update(delta)			##	Unfinished
+			Wall.update(delta)			##	Unfinished - Working on
 		#State.s.DEAD:
 			#Dead.update(delta)			##	Unfinished
 		#State.s.CUTSCENE:

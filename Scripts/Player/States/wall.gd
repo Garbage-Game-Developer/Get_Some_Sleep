@@ -1,4 +1,5 @@
 class_name WallState extends State
+var this_state : State.s = State.s.WALL
 
 """ 
 Description
@@ -8,6 +9,7 @@ This state considers vertical movenment, and uses a simple movenment curve
 This state does not consider horizontal movenment
 
 Actions available
+- Release		Swap to the "Air" state, from_ground = true
 - Jump			Swap to the "Air" state, from_ground = true
 + Dash			Swap to the "Dash" state, from_ground = true
 o (Punch)		Sub action that calls the parent's Punch function, and plays an animation
@@ -25,13 +27,15 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 @export var NORMAL_MAX_SLIDE_SPEED : float = -120.0	##	Terminal speed (px * s) the player can slide down the wall
 @export var NORMAL_MAX_SPEED_TIME : int = 30		##	Time (Frames) the player takes to reach max slide speed
 
-@export var SLOW_CLIMB_SPEED : float = 70.0		##	Maximum speed (px * s) the player can climb
+@export var SLOW_CLIMB_SPEED : float = 70.0			##	Maximum speed (px * s) the player can climb
 @export var SLOW_MAX_SLIDE_SPEED : float = -80.0	##	Terminal speed (px * s) the player can slide down the wall
-@export var SLOW_MAX_SPEED_TIME : int = 60		##	Time (Frames) the player takes to reach max slide speed
+@export var SLOW_MAX_SPEED_TIME : int = 60			##	Time (Frames) the player takes to reach max slide speed
 
-@export var ICE_CLIMB_SPEED : float = 70.0		##	Maximum speed (px * s) the player can climb
+@export var ICE_CLIMB_SPEED : float = 70.0			##	Maximum speed (px * s) the player can climb
 @export var ICE_MAX_SLIDE_SPEED : float = -180.0	##	Terminal speed (px * s) the player can slide down the wall
-@export var ICE_MAX_SPEED_TIME : int = 20		##	Time (Frames) the player takes to reach max slide speed
+@export var ICE_MAX_SPEED_TIME : int = 20			##	Time (Frames) the player takes to reach max slide speed
+
+@export var KICK_OFF_VELOCITY : float = 100.0		##	The x velocity (px * s) applied to the player when jumping off a wall
 
 
 """ Internals """
@@ -50,12 +54,10 @@ var new_surface : bool = false
 var time : String
 
 
-var mid_curve : bool = false
-var starting_movenment_package : Array
 var is_state_new : bool = true
-var last_state
+var last_state : State.s
 func new_state(delta : float, change_state : State.s, _movenment_package : Array):
-	print("          DEBUG - New GROUNDED state")
+	print("          DEBUG - New WALL state")
 	
 	##	Run set up code for animations and such
 	
@@ -64,7 +66,8 @@ func new_state(delta : float, change_state : State.s, _movenment_package : Array
 	last_state = change_state
 	
 	P.special_available = true
-	velocity = P.velocity / Global.time_speed
+	last_velocity = P.velocity / Global.time_speed
+	velocity = Vector2.ZERO
 	update(delta)
 
 
@@ -74,12 +77,16 @@ func update(delta : float):
 	time = "%9.3f" % (float(Time.get_ticks_msec()) / 1000.0)
 	
 	""" States (Pre Change) """
-	var state_change_to : State.s = State.s.GROUNDED
+	var state_change_to : State.s = this_state
 	var is_jumping : bool = false
 	
 	if(P.is_on_floor()):
+		print(time, " DEBUG - Grounded")
 		state_change_to = State.s.GROUNDED
-	elif(P.is_on_wall()):
+	elif(P.is_on_wall() && P.move_vector.x == float(P.wall_direction)):
+		
+		""" Maybe make it so not holding makes you slide, even if you can climb, because that should always be preffereable """
+		
 		new_surface = determine_wall_type()
 	else:
 		state_change_to = State.s.AIR
@@ -112,8 +119,6 @@ func update(delta : float):
 		""" Default Key : "Space"
 			Swap to the "Jump" state, from_ground = true   """
 		
-		if(!$"../../Timers/PrecisionJumpTimer".is_stopped()):
-			$"../../Timers/PrecisionJumpTimer".stop()
 		
 		state_change_to = State.s.AIR
 		is_jumping = true
@@ -147,13 +152,14 @@ func update(delta : float):
 	
 	
 	""" States (Post Change)"""
-	if(state_change_to != State.s.GROUNDED):
+	if(state_change_to != this_state):
 		print(time, " DEBUG - State changing to : ", state_change_to)
 		ACTIVE_STATE = false
 		match state_change_to:
 			State.s.AIR:
 				P.current_state = State.s.AIR
-				P.Air.new_state(delta, State.s.WALL, generate_movenment_package(), is_jumping)
+				kick_off(is_jumping)
+				P.Air.new_state(delta, this_state, generate_movenment_package(), is_jumping)
 			State.s.DASH:
 				#P.current_state = State.s.DASH
 				#P.Dash.new_state(delta)
@@ -168,7 +174,7 @@ func update(delta : float):
 				pass
 			State.s.GROUNDED:
 				P.current_state = State.s.GROUNDED
-				P.Grounded.new_state(delta, State.s.WALL, generate_movenment_package())
+				P.Grounded.new_state(delta, this_state, generate_movenment_package())
 			State.s.KICK:
 				pass
 			State.s.SLIDE:
@@ -225,6 +231,18 @@ func update(delta : float):
 	P.velocity = velocity * 60.0 * delta
 
 
+func deterine_if_swap_state() -> bool:
+	var temp_bool = P.move_vector.x == float(P.wall_direction)
+	return temp_bool
+
+
+func kick_off(jump : bool):
+	if(jump):
+		P.velocity.x = KICK_OFF_VELOCITY * (2.0 if P.move_vector.x == float(P.wall_direction) else 1.0) * -P.wall_direction
+	else:
+		P.velocity.x = (KICK_OFF_VELOCITY / 10.0) * -P.wall_direction
+
+
 func generate_movenment_package() -> Array:
 	##	Intended starting velocity of the curve (if there is one), is moving allong the curve still
 	return [true, 0.0]
@@ -240,11 +258,4 @@ func determine_wall_type():
 		ground_type = 2
 	elif($"../../GroundTypeRays/IceGroundMiddle".is_colliding()):
 		ground_type = 3
-	else:
-		if($"../../GroundTypeRays/NormalGroundLeft".is_colliding() || $"../../GroundTypeRays/NormalGroundRight".is_colliding()):
-			ground_type = 1
-		elif($"../../GroundTypeRays/SlowGroundLeft".is_colliding() || $"../../GroundTypeRays/SlowGroundRight".is_colliding()):
-			ground_type = 2
-		elif($"../../GroundTypeRays/IceGroundLeft".is_colliding() || $"../../GroundTypeRays/IceGroundRight".is_colliding()):
-			ground_type = 3
 	return ground_type != last_ground_type

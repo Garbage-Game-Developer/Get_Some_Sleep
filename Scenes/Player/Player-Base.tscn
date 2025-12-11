@@ -252,6 +252,40 @@ target_position = Vector2(0, 11)
 collision_mask = 4
 hit_from_inside = true
 
+[node name="NormalWallRightHigh" type="RayCast2D" parent="WallTypeRays"]
+position = Vector2(6, -15)
+target_position = Vector2(0, 4)
+hit_from_inside = true
+
+[node name="NormalWallLeftHigh" type="RayCast2D" parent="WallTypeRays"]
+position = Vector2(-6, -15)
+target_position = Vector2(0, 4)
+hit_from_inside = true
+
+[node name="SlowWallRightHigh" type="RayCast2D" parent="WallTypeRays"]
+position = Vector2(6, -15)
+target_position = Vector2(0, 4)
+collision_mask = 2
+hit_from_inside = true
+
+[node name="SlowWallLeftHigh" type="RayCast2D" parent="WallTypeRays"]
+position = Vector2(-6, -15)
+target_position = Vector2(0, 4)
+collision_mask = 2
+hit_from_inside = true
+
+[node name="IceWallRightHigh" type="RayCast2D" parent="WallTypeRays"]
+position = Vector2(6, -15)
+target_position = Vector2(0, 4)
+collision_mask = 4
+hit_from_inside = true
+
+[node name="IceWallLeftHigh" type="RayCast2D" parent="WallTypeRays"]
+position = Vector2(-6, -15)
+target_position = Vector2(0, 4)
+collision_mask = 4
+hit_from_inside = true
+
 [node name="VelocityBouncePadHigh" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(0, -11)
 target_position = Vector2(6, 0)

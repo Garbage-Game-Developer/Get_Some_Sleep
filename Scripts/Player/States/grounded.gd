@@ -1,4 +1,5 @@
 class_name GroundedState extends State
+var this_state : State.s = State.s.GROUNDED
 
 """ 
 Description
@@ -61,7 +62,7 @@ var time : String
 var mid_curve : bool = false
 var starting_movenment_package : Array
 var is_state_new : bool = true
-var last_state
+var last_state : State.s
 func new_state(delta : float, change_state : State.s, movenment_package : Array):
 	print("          DEBUG - New GROUNDED state")
 	
@@ -84,7 +85,7 @@ func update(delta : float):
 	time = "%9.3f" % (float(Time.get_ticks_msec()) / 1000.0)
 	
 	""" States (Pre Change) """
-	var state_change_to : State.s = State.s.GROUNDED
+	var state_change_to : State.s = this_state
 	var is_jumping : bool = false
 	
 	if(!P.is_on_floor()):
@@ -156,13 +157,13 @@ func update(delta : float):
 	
 	
 	""" States (Post Change)"""
-	if(state_change_to != State.s.GROUNDED):
+	if(state_change_to != this_state):
 		print(time, " DEBUG - State changing to : ", state_change_to)
 		ACTIVE_STATE = false
 		match state_change_to:
 			State.s.AIR:
 				P.current_state = State.s.AIR
-				P.Air.new_state(delta, State.s.GROUNDED, generate_movenment_package(), is_jumping)
+				P.Air.new_state(delta, this_state, generate_movenment_package(), is_jumping)
 			State.s.DASH:
 				#P.current_state = State.s.DASH
 				#P.Dash.new_state(delta)
@@ -191,10 +192,11 @@ func update(delta : float):
 				pass
 			State.s.WALL:
 				P.current_state = State.s.WALL
-				P.Wall.new_state(delta, State.s.GROUNDED, generate_movenment_package())
+				P.Wall.new_state(delta, this_state, generate_movenment_package())
 			State.s.CUTSCENE:
 				pass
-		return
+		if(P.current_state != this_state):
+			return
 	
 	
 	""" Movenement Vector """

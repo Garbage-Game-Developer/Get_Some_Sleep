@@ -1,4 +1,5 @@
 class_name AirState extends State
+var this_state : State.s = State.s.AIR
 
 """ 
 Description
@@ -45,7 +46,7 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 """ Internals """
 var ACTIVE_STATE : bool = false
 var is_jumping
-@onready var double_jump_bool = (P.free_double_jump || P.item_double_jump)
+var double_jump_bool : bool
 
 var triggered_jump : bool = false
 
@@ -71,6 +72,7 @@ func new_state(delta : float, change_state : State.s, movenment_package : Array,
 	##	Run set up code for animations and such
 	ACTIVE_STATE = true
 	is_state_new = true
+	double_jump_bool = P.free_double_jump || P.item_double_jump
 	last_state = change_state
 	mid_curve = movenment_package[0]
 	starting_velocity = movenment_package[1]
@@ -89,16 +91,19 @@ func update(delta : float):
 	time = "%9.3f" % (float(Time.get_ticks_msec()) / 1000.0)
 	
 	""" States (Pre Change) """
-	var state_change_to : State.s = State.s.AIR
+	var state_change_to : State.s = this_state
 	triggered_jump = false
 	
 	if(P.is_on_floor() && !is_state_new):
 		state_change_to = State.s.GROUNDED
-	elif(P.is_on_wall_only() && !is_state_new && true):  ##  find if also holding direction
+	elif(P.is_on_wall_only() && !is_state_new && P.Wall.deterine_if_swap_state()):  ##  find if also holding direction
 		state_change_to = State.s.WALL
-	elif(!Input.is_action_pressed("JUMP") || velocity.y >= 0.0):
-		is_jumping = false
+	elif(!Input.is_action_pressed("JUMP") || velocity.y >= 0.0 || P.is_on_ceiling()):
 		y_decceleration = FALLING_TERMINAL_VELOCITY / FALLING_DECELERATION_TIME
+		if(P.is_on_ceiling() && is_jumping):
+			velocity.y = -y_decceleration
+		is_jumping = false
+		
 	
 	""" Actions """
 	var new_action = false
@@ -163,7 +168,7 @@ func update(delta : float):
 	
 	""" States (Post Change) """
 	#	I've thought about keeping this in the abstract class, but there's too much stuff to it like animation that can't be generalized
-	if(state_change_to != State.s.AIR):
+	if(state_change_to != this_state):
 		print(time, " DEBUG - State changing to : ", state_change_to)
 		ACTIVE_STATE = false
 		match state_change_to:
@@ -181,7 +186,7 @@ func update(delta : float):
 				pass
 			State.s.GROUNDED:
 				P.current_state = State.s.GROUNDED
-				P.Grounded.new_state(delta, State.s.AIR, generate_movenment_package())
+				P.Grounded.new_state(delta, this_state, generate_movenment_package())
 			State.s.KICK:
 				pass
 			State.s.SLIDE:
@@ -198,7 +203,7 @@ func update(delta : float):
 				pass
 			State.s.WALL:
 				P.current_state = State.s.WALL
-				P.Wall.new_state(delta, State.s.AIR, generate_movenment_package())
+				P.Wall.new_state(delta, this_state, generate_movenment_package())
 			State.s.DEAD:
 				pass
 			State.s.CUTSCENE:
@@ -239,6 +244,7 @@ func update(delta : float):
 		pass
 	
 	is_state_new = false
+	was_on_wall = false
 	
 	""" Physics """
 	
@@ -254,6 +260,7 @@ func generate_movenment_package() -> Array:
 	return [movenment_curve_max_frame > movenment_curve_frame, starting_velocity]
 
 
+var was_on_wall = false
 func jump():
 	is_jumping = true
 	triggered_jump = true
@@ -262,13 +269,18 @@ func jump():
 			initial_y_velocity = GROUND_INITIAL_VELOCITY
 			velocity.y = initial_y_velocity
 			y_decceleration = -initial_y_velocity / GROUND_DECELERATION_TIME
-		State.s.AIR:
+		State.s.WALL:
+			was_on_wall = true
+			initial_y_velocity = GROUND_INITIAL_VELOCITY
+			velocity.y = initial_y_velocity
+			y_decceleration = -initial_y_velocity / GROUND_DECELERATION_TIME
+		this_state:
 			initial_y_velocity = DOUBLE_INITIAL_VELOCITY
 			velocity.y = initial_y_velocity
 			y_decceleration = -initial_y_velocity / DOUBLE_DECELERATION_TIME
 		_:
 			pass
-	last_state = State.s.AIR
+	last_state = this_state
 
 
 """ Movenment Curve Functions """
@@ -300,7 +312,7 @@ func gen_movenment_curve(direct : float):
 	var temp_boolean : bool
 	var multiple : float
 	
-	if(!is_state_new || !mid_curve):
+	if(!is_state_new || !mid_curve || was_on_wall):
 		starting_velocity = velocity.x
 	
 	#	This boolean works as so : (velocity is negative and direct is positive)
@@ -319,7 +331,7 @@ func gen_movenment_curve(direct : float):
 	temp_variable = (target_velocity - starting_velocity) / pow(acceleration_time, curve_constant)
 	
 	movenment_curve_max_frame = acceleration_time
-	if(is_state_new && mid_curve):
+	if(is_state_new && mid_curve && last_state != State.s.WALL):
 		movenment_curve_frame = pow((velocity.x - starting_velocity) / temp_variable, 1 / (curve_constant))
 	
 	"""  Set the printf time thing to a variable in the beggining of the process and use it  """
