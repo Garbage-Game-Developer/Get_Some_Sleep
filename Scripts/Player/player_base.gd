@@ -46,7 +46,7 @@ var walk_mode : bool = false  ##  A special grounded state and falling state whe
 @export var special_dash : bool = false  #  Allows for special dash variation on ground, air, and water
 
 @export var slow_climb : bool = false  #  Allows for the player to climb on slow surfaces
-@export var advanced_climb : bool = false  #  Allows for the player to climb on normal surfaces
+@export var normal_climb : bool = false  #  Allows for the player to climb on normal surfaces
 @export var ice_slide : bool = false  #  Allows for the player to slide down on ice surfaces
 
 
@@ -111,10 +111,13 @@ func _ready():
 func _physics_process(delta):
 	
 	##	Check velocity rays and other state related stuff
-	move_vector = left_right_priority(Input.is_action_pressed("LEFT"), Input.is_action_pressed("RIGHT"))
+	move_vector.x = left_right_priority(Input.is_action_pressed("LEFT"), Input.is_action_pressed("RIGHT")).x
+	move_vector.y = down_up_priority(Input.is_action_pressed("DOWN"), Input.is_action_pressed("UP")).y
 	
 	wall_direction = 1 if $WallTypeRays/WallRight.is_colliding() else (-1 if $WallTypeRays/WallLeft.is_colliding() else 0)
+	determine_wall_type()
 	
+	determine_ground_type()
 	
 	""" State Machine """
 	
@@ -217,8 +220,11 @@ func player_interference(int_vector : Vector2, int_location : Vector2, do_rotati
 		interference_vector = int_vector
 
 
-
 """ Internal Functions """
+func on_wall() -> bool:
+	return wall_direction != 0
+
+
 var just_switched_directions : bool = false
 var left_hold : bool = false  ##  LEFT been pressed for longer than a frame
 var right_hold : bool = false  ##  RIGHT been pressed for longer than a frame
@@ -255,6 +261,90 @@ func left_right_priority(left_pressed : bool, right_pressed : bool) -> Vector2:
 	left_hold = false
 	right_hold = false
 	return Vector2.ZERO
+
+
+
+var down_or_up : bool = false  ##  false for down, true for up
+var h_just_switched_directions : bool = false
+var down_hold : bool = false  ##  down been pressed for longer than a frame
+var up_hold : bool = false  ##  up been pressed for longer than a frame
+func down_up_priority(down_pressed : bool, up_pressed : bool) -> Vector2:
+	if(up_pressed):
+		if(!down_pressed):  ##  up is the 'only' button pressed
+			h_just_switched_directions = !down_or_up || !up_hold ##  if was down, switch directions
+			down_hold = false
+			down_or_up = true
+			up_hold = true
+			return Vector2.UP
+		else:
+			if(!up_hold):  ##  up was 'just' pressed and down is down
+				h_just_switched_directions = !down_or_up  ##  if was down, switch directions
+				down_or_up = true
+				up_hold = true
+				return Vector2.UP
+			else:
+				if(!down_hold):  ##  down was 'just' pressed and up is down
+					h_just_switched_directions = down_or_up  ##  if was up, switch directions
+					down_or_up = false
+					down_hold = true
+					return Vector2.DOWN
+				if(down_or_up):  ##  up was 'most recently' pressed and down is down
+					h_just_switched_directions = false
+					return Vector2.UP
+	if(down_pressed):  ##  down is the 'only' button pressed, 'or' down was 'most recently' pressed and up is down
+		h_just_switched_directions = down_or_up || !down_hold  ##  if was up, switch directions
+		up_hold = up_pressed
+		down_or_up = false
+		down_hold = true
+		return Vector2.DOWN
+	h_just_switched_directions = down_hold || up_hold
+	down_hold = false
+	up_hold = false
+	return Vector2.ZERO
+
+
+
+var wall_type : int = 1	##	1 - Normal, 2 - Slow, 3 - Ice, -1 - Non Wall
+var last_wall_type : int = 1
+var new_wall_surface
+func determine_wall_type():
+	last_wall_type = wall_type
+	if($WallTypeRays/NormalWallRight.is_colliding() || $WallTypeRays/NormalWallLeft.is_colliding()):
+		wall_type = 1
+		Wall.kick_power = Wall.NORMAL_KICK_POWER
+	elif($"WallTypeRays/SlowWallRight".is_colliding() || $"WallTypeRays/SlowWallLeft".is_colliding()):
+		wall_type = 2
+		Wall.kick_power = Wall.SLOW_KICK_POWER
+	elif($"WallTypeRays/IceWallRight".is_colliding() || $"WallTypeRays/IceWallLeft".is_colliding()):
+		wall_type = 3
+		Wall.kick_power = Wall.ICE_KICK_POWER
+	elif($"WallTypeRays/NonWallRight".is_colliding() || $"WallTypeRays/NonWallLeft".is_colliding()):
+		wall_type = -1
+	else:
+		wall_type = 0
+	new_wall_surface = wall_type != last_wall_type
+
+
+
+var ground_type : int = 1	##	1 - Normal, 2 - Slow, 3 - Ice
+var last_ground_type : int = 1
+var new_ground_surface : bool = false
+func determine_ground_type():
+	last_ground_type = ground_type
+	if($"GroundTypeRays/NormalGroundMiddle".is_colliding()):
+		ground_type = 1
+	elif($"GroundTypeRays/SlowGroundMiddle".is_colliding()):
+		ground_type = 2
+	elif($"GroundTypeRays/IceGroundMiddle".is_colliding()):
+		ground_type = 3
+	else:
+		if($"GroundTypeRays/NormalGroundLeft".is_colliding() || $"GroundTypeRays/NormalGroundRight".is_colliding()):
+			ground_type = 1
+		elif($"GroundTypeRays/SlowGroundLeft".is_colliding() || $"GroundTypeRays/SlowGroundRight".is_colliding()):
+			ground_type = 2
+		elif($"GroundTypeRays/IceGroundLeft".is_colliding() || $"GroundTypeRays/IceGroundRight".is_colliding()):
+			ground_type = 3
+	new_ground_surface = ground_type != last_ground_type
 
 
 """ External Functions """

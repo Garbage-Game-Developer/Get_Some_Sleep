@@ -53,6 +53,9 @@ var double_jump_bool : bool
 
 var triggered_jump : bool = false
 
+var last_on_wall : bool = false
+var interferience : bool = false
+
 var movenment_curve_frame : float = 0.0
 var movenment_curve_max_frame : float = 0.0
 
@@ -79,6 +82,7 @@ func new_state(delta : float, change_state : State.s, movenment_package : Array,
 	double_jump_bool = P.free_double_jump || P.item_double_jump
 	last_state = change_state
 	kick_power = power
+	last_on_wall = false
 	
 	mid_curve = movenment_package[0]
 	starting_velocity = movenment_package[1]
@@ -109,7 +113,14 @@ func update(delta : float):
 		if(P.is_on_ceiling() && is_jumping):
 			velocity.y = -y_decceleration
 		is_jumping = false
-		
+	
+	if(P.is_on_wall_only() && state_change_to != State.s.WALL && velocity.x != 0.0):
+		target_velocity = 0.0
+		movenment_curve_frame = 1000
+		last_on_wall = true
+	if(last_on_wall && !P.on_wall()):
+		interferience = true
+		last_on_wall = false
 	
 	""" Actions """
 	var new_action = false
@@ -131,7 +142,7 @@ func update(delta : float):
 	
 	elif(Input.is_action_just_pressed("JUMP") && !is_jumping && (!$"../../Timers/CoyoteTimer".is_stopped() || (double_jump_bool && P.special_available))):
 		""" Default Key : "Space"
-			Swap to the "Air" state, from_ground = false """
+			run the jump() function """
 		
 		if(P.item_double_jump && $"../../Timers/CoyoteTimer".is_stopped()):
 			if(P.special_areas > 0):
@@ -220,8 +231,9 @@ func update(delta : float):
 	""" Movenement Vector (velocity.x) """
 	var move_vector = P.move_vector
 	
-	if(P.just_switched_directions || is_state_new):
+	if(P.just_switched_directions || is_state_new || interferience):
 		P.interference = false
+		interferience = false
 		movenment_curve_frame = 0
 		gen_movenment_curve(move_vector.x)
 	movenment_curve_frame = minf(movenment_curve_frame + 1.0 * P.speed_boost, movenment_curve_max_frame)

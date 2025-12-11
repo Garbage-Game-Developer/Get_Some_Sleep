@@ -105,9 +105,9 @@ func update(delta : float):
 		state_change_to = State.s.AIR
 		$"../../Timers/CoyoteTimer".start(COYOTE_TIME)
 	else:
-		new_surface = determine_ground_type()
+		new_surface = P.new_ground_surface
 	
-	if(P.is_on_wall()):
+	if(P.on_wall()):
 		velocity.x = 0.0
 	
 	
@@ -262,26 +262,6 @@ func generate_movenment_package() -> Array:
 	return [movenment_curve_max_frame > movenment_curve_frame, starting_velocity]
 
 
-var ground_type : int = 1	##	1 - Normal, 2 - Slow, 3 - Ice
-var last_ground_type : int = 1
-func determine_ground_type():
-	last_ground_type = ground_type
-	if($"../../GroundTypeRays/NormalGroundMiddle".is_colliding()):
-		ground_type = 1
-	elif($"../../GroundTypeRays/SlowGroundMiddle".is_colliding()):
-		ground_type = 2
-	elif($"../../GroundTypeRays/IceGroundMiddle".is_colliding()):
-		ground_type = 3
-	else:
-		if($"../../GroundTypeRays/NormalGroundLeft".is_colliding() || $"../../GroundTypeRays/NormalGroundRight".is_colliding()):
-			ground_type = 1
-		elif($"../../GroundTypeRays/SlowGroundLeft".is_colliding() || $"../../GroundTypeRays/SlowGroundRight".is_colliding()):
-			ground_type = 2
-		elif($"../../GroundTypeRays/IceGroundLeft".is_colliding() || $"../../GroundTypeRays/IceGroundRight".is_colliding()):
-			ground_type = 3
-	return ground_type != last_ground_type
-
-
 
 """ Movenment Curve Functions """
 
@@ -317,7 +297,7 @@ func gen_movenment_curve(direct : float):
 	
 	""" Remember walking, idk if I'll implement tho, might be fine for injured characters, or carrying stuff """
 	
-	match ground_type:
+	match P.ground_type:
 		1:  ##  Normal Ground
 			
 			curve_constant = GROUND_CURVE_CONSTANT

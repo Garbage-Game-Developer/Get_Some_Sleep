@@ -28,37 +28,43 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 @export var COYOTE_TIME : float = 0.25
 
 @export_group("Climbing or Sliding")
-@export_subgroup("Normal Wall")
+
+@export var KICK_OFF_VELOCITY : float = 100.0		##	The x velocity (px * s) applied to the player when jumping off a wall
+
+@export_subgroup("Normal Wall") # -4.0
 @export var NORMAL_CLIMB_SPEED : float = 70.0		##	Maximum speed (px * s) the player can climb
 @export var NORMAL_MAX_SLIDE_SPEED : float = -120.0	##	Terminal speed (px * s) the player can slide down the wall
 @export var NORMAL_MAX_SPEED_TIME : int = 30		##	Time (Frames) the player takes to reach max slide speed
 @export var NORMAL_KICK_POWER : float = 0.9			##	The multiple for how high the player's kick off jump should be
 
-@export_subgroup("Slow Wall")
+@export_subgroup("Slow Wall") # -1.333
 @export var SLOW_CLIMB_SPEED : float = 70.0			##	Maximum speed (px * s) the player can climb
 @export var SLOW_MAX_SLIDE_SPEED : float = -80.0	##	Terminal speed (px * s) the player can slide down the wall
 @export var SLOW_MAX_SPEED_TIME : int = 60			##	Time (Frames) the player takes to reach max slide speed
 @export var SLOW_KICK_POWER : float = 0.9			##	The multiple for how high the player's kick off jump should be
 
-@export_subgroup("Ice Wall")
+@export_subgroup("Ice Wall") # -9.0
 @export var ICE_CLIMB_SPEED : float = 70.0			##	Maximum speed (px * s) the player can climb
 @export var ICE_MAX_SLIDE_SPEED : float = -180.0	##	Terminal speed (px * s) the player can slide down the wall
 @export var ICE_MAX_SPEED_TIME : int = 20			##	Time (Frames) the player takes to reach max slide speed
 @export var ICE_KICK_POWER : float = 0.5			##	The multiple for how high the player's kick off jump should be
 
-@export var KICK_OFF_VELOCITY : float = 100.0		##	The x velocity (px * s) applied to the player when jumping off a wall
 
 
 """ Internals """
 var ACTIVE_STATE : bool = false
-
 
 var movenment_curve_frame : float = 0
 var movenment_curve_max_frame : float = 0
 var last_velocity : Vector2 = Vector2.ZERO
 var velocity : Vector2 = Vector2.ZERO
 
+var decceleration : float = 0.0	##	Decceleration slope
+var max_decc : float = 0.0		##	Maximum decceleration
+
 var grabbing : bool = false
+var climbing : bool = false
+var was_climbing : bool = false
 var new_surface : bool = false
 
 
@@ -93,15 +99,25 @@ func update(delta : float):
 	var state_change_to : State.s = this_state
 	var is_jumping : bool = false
 	
+	if(!P.on_wall()):
+		print(time, " ERROR - What the fuck is going on : ", P.move_vector.x, " ", P.wall_direction)
+	
+	was_climbing = climbing
 	grabbing = P.move_vector.x == float(P.wall_direction)
 	if(P.is_on_floor()):
-		print(time, " DEBUG - Grounded")
 		state_change_to = State.s.GROUNDED
-	elif(P.is_on_wall() && grabbing):
+	elif(P.on_wall()):
+		new_surface = P.new_wall_surface
+		if(-P.move_vector.x == float(P.wall_direction) || P.wall_type < 1):
+			climbing = false
+			state_change_to = State.s.AIR
+			$"../../Timers/CoyoteTimer".start(COYOTE_TIME)
+		if(grabbing && ((P.wall_type == 1 && P.normal_climb) || (P.wall_type == 2 && P.slow_climb))):
+			climbing = true
+		else:
+			climbing = false
 		
 		""" Maybe make it so not holding makes you slide, even if you can climb, because that should always be preffereable """
-		
-		new_surface = determine_wall_type()
 	else:
 		state_change_to = State.s.AIR
 		$"../../Timers/CoyoteTimer".start(COYOTE_TIME)
@@ -214,6 +230,18 @@ func update(delta : float):
 	""" Movenement Vector """
 	
 	
+	if(climbing):
+		##	When grabbing, need to consider vertical inputs to climb up and down
+		velocity.y = get_propper_velocity(true)
+		velocity.y *= P.speed_boost
+	else:
+		##	When not grabbing, need to slide down slowly
+		if(is_state_new || new_surface || was_climbing != climbing):
+			max_decc = NORMAL_MAX_SLIDE_SPEED if P.wall_type == 1 else (SLOW_MAX_SLIDE_SPEED if P.wall_type == 2 else ICE_MAX_SLIDE_SPEED)
+			decceleration = get_propper_velocity(false)
+			was_climbing = false
+		velocity.y = max(velocity.y - decceleration, max_decc)
+	
 	#print(time, " DEBUG velocity : V=%8.3f" % velocity.x)
 	
 	
@@ -242,14 +270,12 @@ func update(delta : float):
 	is_state_new = false
 	
 	""" Physics """
-	velocity.x *= P.speed_boost
 	P.velocity = velocity * 60.0 * delta
 
 
 func deterine_if_swap_state() -> bool:
 	var temp_bool = P.move_vector.x == float(P.wall_direction)
-	determine_wall_type()
-	temp_bool = temp_bool && (ground_type > 0 && (P.ice_slide || ground_type != 3))
+	temp_bool = temp_bool && (P.wall_type > 0 && (P.ice_slide || P.wall_type != 3))
 	return temp_bool
 
 
@@ -257,7 +283,7 @@ func kick_off(jump : bool):
 	if(jump):
 		P.velocity.x = KICK_OFF_VELOCITY * (2.0 if P.move_vector.x == float(P.wall_direction) else 1.0) * -P.wall_direction
 	else:
-		P.velocity.x = (KICK_OFF_VELOCITY / 10.0) * -P.wall_direction
+		P.velocity.x = (KICK_OFF_VELOCITY / 20.0) * -P.wall_direction
 
 
 func generate_movenment_package() -> Array:
@@ -265,21 +291,41 @@ func generate_movenment_package() -> Array:
 	return [true, 0.0]
 
 
-var ground_type : int = 1	##	1 - Normal, 2 - Slow, 3 - Ice, -1 - Non Wall
-var last_ground_type : int = 1
-func determine_wall_type():
-	last_ground_type = ground_type
-	if($"../../WallTypeRays/NormalWallRight".is_colliding() || $"../../WallTypeRays/NormalWallLeft".is_colliding()):
-		ground_type = 1
-		kick_power = NORMAL_KICK_POWER
-	elif($"../../WallTypeRays/SlowWallRight".is_colliding() || $"../../WallTypeRays/SlowWallLeft".is_colliding()):
-		ground_type = 2
-		kick_power = SLOW_KICK_POWER
-	elif($"../../WallTypeRays/IceWallRight".is_colliding() || $"../../WallTypeRays/IceWallLeft".is_colliding()):
-		ground_type = 3
-		kick_power = ICE_KICK_POWER
-	elif($"../../WallTypeRays/NonWallRight".is_colliding() || $"../../WallTypeRays/NonWallLeft".is_colliding()):
-		ground_type = -1
+##	Gets the y velocity when you're climbing
+func get_propper_velocity(grab) -> float:
+	
+	var multiplier : float = P.move_vector.y
+	var temp_velocity : float  = 0.0
+	if(grab):
+		match P.wall_type:
+			
+			1:	##	Normal Surface
+				temp_velocity = NORMAL_CLIMB_SPEED
+			
+			2:	##	Slow Surface
+				temp_velocity = SLOW_CLIMB_SPEED
+			
+			3:	##	Ice Surface
+				temp_velocity = ICE_CLIMB_SPEED
+			
+			0:	##	No Proper Contact
+				temp_velocity = 100
+		
+		temp_velocity *= multiplier
+		
 	else:
-		ground_type = 0
-	return ground_type != last_ground_type
+		match P.wall_type:
+			
+			1:	##	Normal Surface
+				temp_velocity = NORMAL_MAX_SLIDE_SPEED / NORMAL_MAX_SPEED_TIME
+			
+			2:	##	Slow Surface
+				temp_velocity = SLOW_MAX_SLIDE_SPEED / SLOW_MAX_SPEED_TIME
+			
+			3:	##	Ice Surface
+				temp_velocity = ICE_MAX_SLIDE_SPEED / ICE_MAX_SPEED_TIME
+			
+			0:	##	No Proper Contact
+				temp_velocity = 100
+	
+	return temp_velocity
