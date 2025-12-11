@@ -23,17 +23,28 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 
 
 """ Constants """
+@export_group("Into Air")
+@export_subgroup("Coyote Time")
+@export var COYOTE_TIME : float = 0.25
+
+@export_group("Climbing or Sliding")
+@export_subgroup("Normal Wall")
 @export var NORMAL_CLIMB_SPEED : float = 70.0		##	Maximum speed (px * s) the player can climb
 @export var NORMAL_MAX_SLIDE_SPEED : float = -120.0	##	Terminal speed (px * s) the player can slide down the wall
 @export var NORMAL_MAX_SPEED_TIME : int = 30		##	Time (Frames) the player takes to reach max slide speed
+@export var NORMAL_KICK_POWER : float = 0.9			##	The multiple for how high the player's kick off jump should be
 
+@export_subgroup("Slow Wall")
 @export var SLOW_CLIMB_SPEED : float = 70.0			##	Maximum speed (px * s) the player can climb
 @export var SLOW_MAX_SLIDE_SPEED : float = -80.0	##	Terminal speed (px * s) the player can slide down the wall
 @export var SLOW_MAX_SPEED_TIME : int = 60			##	Time (Frames) the player takes to reach max slide speed
+@export var SLOW_KICK_POWER : float = 0.9			##	The multiple for how high the player's kick off jump should be
 
+@export_subgroup("Ice Wall")
 @export var ICE_CLIMB_SPEED : float = 70.0			##	Maximum speed (px * s) the player can climb
 @export var ICE_MAX_SLIDE_SPEED : float = -180.0	##	Terminal speed (px * s) the player can slide down the wall
 @export var ICE_MAX_SPEED_TIME : int = 20			##	Time (Frames) the player takes to reach max slide speed
+@export var ICE_KICK_POWER : float = 0.5			##	The multiple for how high the player's kick off jump should be
 
 @export var KICK_OFF_VELOCITY : float = 100.0		##	The x velocity (px * s) applied to the player when jumping off a wall
 
@@ -47,6 +58,7 @@ var movenment_curve_max_frame : float = 0
 var last_velocity : Vector2 = Vector2.ZERO
 var velocity : Vector2 = Vector2.ZERO
 
+var grabbing : bool = false
 var new_surface : bool = false
 
 
@@ -54,6 +66,7 @@ var new_surface : bool = false
 var time : String
 
 
+var kick_power
 var is_state_new : bool = true
 var last_state : State.s
 func new_state(delta : float, change_state : State.s, _movenment_package : Array):
@@ -80,16 +93,18 @@ func update(delta : float):
 	var state_change_to : State.s = this_state
 	var is_jumping : bool = false
 	
+	grabbing = P.move_vector.x == float(P.wall_direction)
 	if(P.is_on_floor()):
 		print(time, " DEBUG - Grounded")
 		state_change_to = State.s.GROUNDED
-	elif(P.is_on_wall() && P.move_vector.x == float(P.wall_direction)):
+	elif(P.is_on_wall() && grabbing):
 		
 		""" Maybe make it so not holding makes you slide, even if you can climb, because that should always be preffereable """
 		
 		new_surface = determine_wall_type()
 	else:
 		state_change_to = State.s.AIR
+		$"../../Timers/CoyoteTimer".start(COYOTE_TIME)
 	
 	
 	""" Actions """
@@ -159,7 +174,7 @@ func update(delta : float):
 			State.s.AIR:
 				P.current_state = State.s.AIR
 				kick_off(is_jumping)
-				P.Air.new_state(delta, this_state, generate_movenment_package(), is_jumping)
+				P.Air.new_state(delta, this_state, generate_movenment_package(), is_jumping, kick_power)
 			State.s.DASH:
 				#P.current_state = State.s.DASH
 				#P.Dash.new_state(delta)
@@ -233,6 +248,8 @@ func update(delta : float):
 
 func deterine_if_swap_state() -> bool:
 	var temp_bool = P.move_vector.x == float(P.wall_direction)
+	determine_wall_type()
+	temp_bool = temp_bool && (ground_type > 0 && (P.ice_slide || ground_type != 3))
 	return temp_bool
 
 
@@ -248,14 +265,21 @@ func generate_movenment_package() -> Array:
 	return [true, 0.0]
 
 
-var ground_type : int = 1	##	1 - Normal, 2 - Slow, 3 - Ice
+var ground_type : int = 1	##	1 - Normal, 2 - Slow, 3 - Ice, -1 - Non Wall
 var last_ground_type : int = 1
 func determine_wall_type():
 	last_ground_type = ground_type
-	if($"../../GroundTypeRays/NormalGroundMiddle".is_colliding()):
+	if($"../../WallTypeRays/NormalWallRight".is_colliding() || $"../../WallTypeRays/NormalWallLeft".is_colliding()):
 		ground_type = 1
-	elif($"../../GroundTypeRays/SlowGroundMiddle".is_colliding()):
+		kick_power = NORMAL_KICK_POWER
+	elif($"../../WallTypeRays/SlowWallRight".is_colliding() || $"../../WallTypeRays/SlowWallLeft".is_colliding()):
 		ground_type = 2
-	elif($"../../GroundTypeRays/IceGroundMiddle".is_colliding()):
+		kick_power = SLOW_KICK_POWER
+	elif($"../../WallTypeRays/IceWallRight".is_colliding() || $"../../WallTypeRays/IceWallLeft".is_colliding()):
 		ground_type = 3
+		kick_power = ICE_KICK_POWER
+	elif($"../../WallTypeRays/NonWallRight".is_colliding() || $"../../WallTypeRays/NonWallLeft".is_colliding()):
+		ground_type = -1
+	else:
+		ground_type = 0
 	return ground_type != last_ground_type

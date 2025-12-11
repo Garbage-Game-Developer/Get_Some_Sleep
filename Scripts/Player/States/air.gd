@@ -35,6 +35,9 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 #	(-5.313)
 @export var DOUBLE_INITIAL_VELOCITY : float = -170.0		##	Initial speed (px * s) the player gets if jumping from the air
 @export var DOUBLE_DECELERATION_TIME : int = 32			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
+##	Wall (-6.25)
+@export var WALL_INITIAL_VELOCITY : float = -200		##	Initial speed (px * s) the player gets if jumping off a wall
+@export var WALL_DECELERATION_TIME : int = 32			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
 ##	Falling (8.889)
 @export var FALLING_TERMINAL_VELOCITY : float = 800.0		##	Maximum downward y velocity (px * s)
 @export var FALLING_DECELERATION_TIME : int = 90			##	Ammount of time (frames/60) it takes for the player to go from 0 velocity to terminal
@@ -63,10 +66,11 @@ var velocity : Vector2 = Vector2.ZERO
 var time : String
 
 
+var kick_power : float
 var mid_curve : bool = false
 var is_state_new : bool = true
 var last_state : State.s
-func new_state(delta : float, change_state : State.s, movenment_package : Array, jumping : bool = false):
+func new_state(delta : float, change_state : State.s, movenment_package : Array, jumping : bool = false, power : float = 1.0):
 	print("          DEBUG - New AIR state")
 	
 	##	Run set up code for animations and such
@@ -74,6 +78,8 @@ func new_state(delta : float, change_state : State.s, movenment_package : Array,
 	is_state_new = true
 	double_jump_bool = P.free_double_jump || P.item_double_jump
 	last_state = change_state
+	kick_power = power
+	
 	mid_curve = movenment_package[0]
 	starting_velocity = movenment_package[1]
 	
@@ -271,9 +277,9 @@ func jump():
 			y_decceleration = -initial_y_velocity / GROUND_DECELERATION_TIME
 		State.s.WALL:
 			was_on_wall = true
-			initial_y_velocity = GROUND_INITIAL_VELOCITY
-			velocity.y = initial_y_velocity
-			y_decceleration = -initial_y_velocity / GROUND_DECELERATION_TIME
+			initial_y_velocity = WALL_INITIAL_VELOCITY * kick_power
+			velocity.y = initial_y_velocity * kick_power
+			y_decceleration = -initial_y_velocity / WALL_DECELERATION_TIME
 		this_state:
 			initial_y_velocity = DOUBLE_INITIAL_VELOCITY
 			velocity.y = initial_y_velocity

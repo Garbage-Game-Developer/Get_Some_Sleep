@@ -115,6 +115,7 @@ INTERACT={
 2d_physics/layer_12="Special Zone"
 2d_physics/layer_13="Player Hitbox"
 2d_physics/layer_14="Ladder"
+2d_physics/layer_15="Non Wall"
 
 [rendering]
 

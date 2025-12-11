@@ -23,21 +23,30 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 
 
 """ Constants """
+@export_group("Into Air")
+@export_subgroup("Coyote Time")
+@export var COYOTE_TIME : float = 0.1
+
+@export_group("Moving")
+@export_subgroup("Walk")
 @export var WALK_MAX_SPEED : float = 50.0	##	Maximum speed (px * s) the player can move
 @export var WALK_MAX_ACC_TIME : int = 12	##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
 @export var WALK_MAX_DEC_TIME : int = 06	##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
 @export var WALK_CURVE_CONSTANT : float = 1.0 / 2.0	##	Eccential part of the curve function
 
+@export_subgroup("Normal Ground")
 @export var GROUND_MAX_SPEED : float = 230.0	##	Maximum speed (px * s) the player can move
 @export var GROUND_MAX_ACC_TIME : int = 24		##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
 @export var GROUND_MAX_DEC_TIME : int = 12		##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
 @export var GROUND_CURVE_CONSTANT : float = 1.0 / 2.0	##	Eccential part of the curve function
 
+@export_subgroup("Slow Ground")
 @export var SLOW_GROUND_MAX_SPEED : float = 180.0	##	Maximum speed (px * s) the player can move
 @export var SLOW_GROUND_MAX_ACC_TIME : int = 48		##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
 @export var SLOW_GROUND_MAX_DEC_TIME : int = 10		##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
 @export var SLOW_CURVE_CONSTANT : float = 1.0 / 2.0	##	Eccential part of the curve function
 
+@export_subgroup("Ice Ground")
 @export var ICE_GROUND_MAX_SPEED : float = 300.0	##	Maximum speed (px * s) the player can move
 @export var ICE_GROUND_MAX_ACC_TIME : int = 60		##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
 @export var ICE_GROUND_MAX_DEC_TIME : int = 30		##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
@@ -88,11 +97,18 @@ func update(delta : float):
 	var state_change_to : State.s = this_state
 	var is_jumping : bool = false
 	
+	
+	"""  Stop velocity when on a wall, then add some knockback and potential stun if too fast (in the far future)  """
+	"""  DO NEXT  :  Move detect wall and floor type functions into player_parent function (for ease of reuse)  """
+	
 	if(!P.is_on_floor()):
 		state_change_to = State.s.AIR
-		$"../../Timers/CoyoteTimer".start()
+		$"../../Timers/CoyoteTimer".start(COYOTE_TIME)
 	else:
 		new_surface = determine_ground_type()
+	
+	if(P.is_on_wall()):
+		velocity.x = 0.0
 	
 	
 	""" Actions """

@@ -28,38 +28,29 @@ var walk_mode : bool = false  ##  A special grounded state and falling state whe
 @export_group("Player Spacific Variables")
 @export var PLAYER_NAME  : String = "'"
 
-#  Player can swim
-@export var can_swim : bool = false
+
+@export_subgroup("Player Capabilities")
+
+@export var can_swim : bool = false  #  Player can swim
 
 #	Player can punch and air kick, sliding does half damage (rounded up) and upward knockback, dash does half damage (rounded up) and forward knockback
 @export var combat_skills : bool = false
 @export var combat_power : int = 5  #  Damage done by attacks
 
-#	Allows for ground dash, wall dash, and swinging
-@export var basic_movenment : bool = false
+@export var basic_movenment : bool = false  #  Allows for ground dash, wall dash, and swinging
+@export var advanced_movenment : bool = false  #  Allows for air normal dash, swinging dash, and advanced climbing
 
-#	Allows for air normal dash, swinging dash, and advanced climbing
-@export var advanced_movenment : bool = false
+@export var item_double_jump : bool = false  #  Allows for air double jump under a condition
+@export var free_double_jump : bool = false  #  Allows for air double jump with no conditional
 
-#	Allows for air double jump under a condition
-@export var item_double_jump : bool = false
+@export var special_dash : bool = false  #  Allows for special dash variation on ground, air, and water
 
-#	Allows for air double jump with no conditional
-@export var free_double_jump : bool = false
-
-#	Allows for special dash variation on ground, air, and water
-@export var special_dash : bool = false
-
-#	Allows for the player to climb on slow surfaces
-@export var slow_climb : bool = false
-
-#	Allows for the player to climb on normal surfaces
-@export var advanced_climb : bool = false
-
-#	Allows for the player to climb on ice surfaces
-@export var ice_climb : bool = false
+@export var slow_climb : bool = false  #  Allows for the player to climb on slow surfaces
+@export var advanced_climb : bool = false  #  Allows for the player to climb on normal surfaces
+@export var ice_slide : bool = false  #  Allows for the player to slide down on ice surfaces
 
 
+##	Still working on / haven't started
 @export var able_swing : bool = false  ##  Can use swingables
 @export var able_fast_swim : bool = false  ##  Move quickly in water, and can water dash
 
