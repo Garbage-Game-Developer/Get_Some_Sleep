@@ -106,8 +106,19 @@ func update(delta : float):
 	
 	if(P.is_on_floor() && !is_state_new):
 		state_change_to = State.s.GROUNDED
-	elif(P.is_on_wall_only() && !is_state_new && P.Wall.deterine_if_swap_state()):  ##  find if also holding direction
-		state_change_to = State.s.WALL
+	elif(P.on_wall() && !P.is_on_floor() && !is_state_new && P.Wall.deterine_if_swap_state()):  ##  find if also holding direction
+		##	Seemlessly cut over
+		var temp_check : int = cut_clamber_hang()
+		if(temp_check == 1):
+			pass
+		##	Cut over
+		elif(temp_check == 2):
+			pass
+		##	Change to wall
+		elif(temp_check == 3):
+			pass
+		else:
+			state_change_to = State.s.WALL
 	elif(!Input.is_action_pressed("JUMP") || velocity.y >= 0.0 || P.is_on_ceiling()):
 		y_decceleration = FALLING_TERMINAL_VELOCITY / FALLING_DECELERATION_TIME
 		if(P.is_on_ceiling() && is_jumping):
@@ -299,6 +310,15 @@ func jump():
 		_:
 			pass
 	last_state = this_state
+
+
+func cut_clamber_hang() -> int:
+	var top_true : bool = $"../../WallTypeRays/WallRightHigh".is_colliding() if P.wall_direction > 0 else $"../../WallTypeRays/WallLeftHigh".is_colliding()
+	#if():
+	#	pass
+	#elif():
+	#	pass
+	return 0
 
 
 """ Movenment Curve Functions """

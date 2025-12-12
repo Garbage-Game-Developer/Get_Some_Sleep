@@ -29,30 +29,37 @@ var walk_mode : bool = false  ##  A special grounded state and falling state whe
 @export var PLAYER_NAME  : String = "'"
 
 
-@export_subgroup("Player Capabilities")
-
+@export_subgroup("Swiming")
 @export var can_swim : bool = false  #  Player can swim
 
+@export_subgroup("Combat")
 #	Player can punch and air kick, sliding does half damage (rounded up) and upward knockback, dash does half damage (rounded up) and forward knockback
 @export var combat_skills : bool = false
 @export var combat_power : int = 5  #  Damage done by attacks
 
+@export_subgroup("Basic Movenment")
 @export var basic_movenment : bool = false  #  Allows for ground dash, wall dash, and swinging
 @export var advanced_movenment : bool = false  #  Allows for air normal dash, swinging dash, and advanced climbing
 
+@export_subgroup("Double Jump")
 @export var item_double_jump : bool = false  #  Allows for air double jump under a condition
 @export var free_double_jump : bool = false  #  Allows for air double jump with no conditional
 
+@export_subgroup("Dash")
 @export var special_dash : bool = false  #  Allows for special dash variation on ground, air, and water
 
-@export var slow_climb : bool = false  #  Allows for the player to climb on slow surfaces
+@export_subgroup("Climbing")
 @export var normal_climb : bool = false  #  Allows for the player to climb on normal surfaces
+@export var normal_corner_swing : bool = false  #  Allows the player to swing when on the lower corner of a normal surface
+@export var slow_climb : bool = false  #  Allows for the player to climb on slow surfaces
+@export var slow_corner_swing : bool = false  #  Allows the player to swing when on the lower corner of a slow surface
 @export var ice_slide : bool = false  #  Allows for the player to slide down on ice surfaces
+@export var ice_corner_swing : bool = false  #  Allows the player to swing when on the lower corner of an ice surface
 
 
+@export_subgroup("Not implemented yet")
 ##	Still working on / haven't started
 @export var able_swing : bool = false  ##  Can use swingables
-@export var able_fast_swim : bool = false  ##  Move quickly in water, and can water dash
 
 
 """ Variables """
@@ -97,7 +104,7 @@ var left_or_right : bool = false  ## false for left, true for right
 
 # Simple internals
 var move_vector : Vector2 = Vector2.ZERO
-var wall_direction : int = 1
+var wall_direction : int = 1  ##  -1 is left, 0 is no wall, 1 is right
 
 
 """ Godot Built-In Functions """
@@ -162,38 +169,42 @@ func _physics_process(delta):
 	##	Set Velocity Rays
 	var temp_velocity = velocity / 60
 	$GroundTypeRays/VelocityBouncePad.target_position = temp_velocity
-	$WallTypeRays/VelocityBouncePadHigh.target_position = temp_velocity + (Vector2(6.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-6.0, 0.0))
-	$WallTypeRays/VelocityBouncePadLow.target_position = temp_velocity + (Vector2(6.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-6.0, 0.0))
-	$ConvenienceRays/VelocityClamber.target_position = temp_velocity
-	$ConvenienceRays/VelocityOver.target_position = temp_velocity
-	$ConvenienceRays/VelocityNextPosition.target_position = temp_velocity
+	$WallTypeRays/VelocityBouncePadHigh.target_position = temp_velocity + (Vector2(5.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-5.0, 0.0))
+	$WallTypeRays/VelocityBouncePadLow.target_position = temp_velocity + (Vector2(5.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-5.0, 0.0))
+	$ConvenienceRays/VelocityOver.target_position = temp_velocity + (Vector2(5.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-5.0, 0.0))
+	$ConvenienceRays/VelocityNextPosition.target_position = temp_velocity + (Vector2(5.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-5.0, 0.0))
+	$ConvenienceRays/VelocityNextTOPPosition.target_position = temp_velocity
 	$ConvenienceRays/VelocityCeilingSnapLeft.target_position.y = minf(0, temp_velocity.y)
 	$ConvenienceRays/VelocityCeilingSnapRight.target_position.y = minf(0, temp_velocity.y)
 	$ConvenienceRays/VelocityCeilingLeft.target_position.y = minf(0, temp_velocity.y)
 	$ConvenienceRays/VelocityCeilingRight.target_position.y = minf(0, temp_velocity.y)
 	
 	
-	#$GroundTypeRays/VelocityBouncePad.force_update_transform()			##	Checks if the next frame will interact with a bouncepad on the ground
-	#$WallTypeRays/VelocityBouncePadHigh.force_update_transform()		##	Checks if the next frame will interact with a bouncepad on the wall
-	#$WallTypeRays/VelocityBouncePadLow.force_update_transform()			##	Checks if the next frame will interact with a bouncepad on the wall
-	#$ConvenienceRays/VelocityClamber.force_update_transform()			##	Checks if you can't clamber over a ledge next frame
-	#$ConvenienceRays/VelocityOver.force_update_transform()				##	Checks if you can't snap over a ledge next fram
-	#$ConvenienceRays/VelocityNextPosition.force_update_transform()		##	Checks if you're colliding with a surface or the ground next frame
-	#$ConvenienceRays/VelocityCeilingSnapLeft.force_update_transform()	##	Checks if you can't snap around the ceiling next frame
-	#$ConvenienceRays/VelocityCeilingSnapRight.force_update_transform()	##	Checks if you can't snap around the ceiling next frame
-	#$ConvenienceRays/VelocityCeilingLeft.force_update_transform()		##	Checks if you're colliding with the ceiling next frame
-	#$ConvenienceRays/VelocityCeilingRight.force_update_transform()		##	Checks if you're colliding with the ceiling next frame
-	#
-	#$GroundTypeRays/VelocityBouncePad.force_raycast_update()
-	#$WallTypeRays/VelocityBouncePadHigh.force_raycast_update()
-	#$WallTypeRays/VelocityBouncePadLow.force_raycast_update()
-	#$ConvenienceRays/VelocityClamber.force_raycast_update()
-	#$ConvenienceRays/VelocityOver.force_raycast_update()
-	#$ConvenienceRays/VelocityNextPosition.force_raycast_update()
-	#$ConvenienceRays/VelocityCeilingSnapLeft.force_raycast_update()
-	#$ConvenienceRays/VelocityCeilingSnapRight.force_raycast_update()
-	#$ConvenienceRays/VelocityCeilingLeft.force_raycast_update()
-	#$ConvenienceRays/VelocityCeilingRight.force_raycast_update()
+	$GroundTypeRays/VelocityBouncePad.force_update_transform()			##	Checks if the next frame will interact with a bouncepad on the ground
+	$WallTypeRays/VelocityBouncePadHigh.force_update_transform()		##	Checks if the next frame will interact with a bouncepad on the wall
+	$WallTypeRays/VelocityBouncePadLow.force_update_transform()			##	Checks if the next frame will interact with a bouncepad on the wall
+	$ConvenienceRays/VelocityOver.force_update_transform()				##	Checks if you can't snap over a ledge next fram
+	$ConvenienceRays/VelocityNextPosition.force_update_transform()		##	Checks if you're colliding with a surface or the ground next frame
+	$ConvenienceRays/VelocityCeilingSnapLeft.force_update_transform()	##	Checks if you can't snap around the ceiling next frame
+	$ConvenienceRays/VelocityCeilingSnapRight.force_update_transform()	##	Checks if you can't snap around the ceiling next frame
+	$ConvenienceRays/VelocityCeilingLeft.force_update_transform()		##	Checks if you're colliding with the ceiling next frame
+	$ConvenienceRays/VelocityCeilingRight.force_update_transform()		##	Checks if you're colliding with the ceiling next frame
+	
+	$GroundTypeRays/VelocityBouncePad.force_raycast_update()
+	$WallTypeRays/VelocityBouncePadHigh.force_raycast_update()
+	$WallTypeRays/VelocityBouncePadLow.force_raycast_update()
+	$ConvenienceRays/VelocityOver.force_raycast_update()
+	$ConvenienceRays/VelocityNextPosition.force_raycast_update()
+	$ConvenienceRays/VelocityCeilingSnapLeft.force_raycast_update()
+	$ConvenienceRays/VelocityCeilingSnapRight.force_raycast_update()
+	$ConvenienceRays/VelocityCeilingLeft.force_raycast_update()
+	$ConvenienceRays/VelocityCeilingRight.force_raycast_update()
+	
+	if(cut_over()):
+		var temp_x : float = $ConvenienceRays/VelocityNextPosition.get_collision_point().x
+		var temp_y : float = $ConvenienceRays/VelocityNextPosition.target_position.y / 
+		$ConvenienceRays/VelocityFindNewHeight.position = Vector2(temp_x, temp_y)
+		$ConvenienceRays/VelocityFindNewHeight.position = Vector2(temp_x, temp_y)
 	
 	#pingpong()
 	move_and_slide() # Might do this first, idk
@@ -223,6 +234,10 @@ func player_interference(int_vector : Vector2, int_location : Vector2, do_rotati
 """ Internal Functions """
 func on_wall() -> bool:
 	return wall_direction != 0
+
+
+func cut_over() -> bool:
+	return $ConvenienceRays/VelocityOver.is_colliding() && !$ConvenienceRays/VelocityNextTopPosition.is_colliding() && !$ConvenienceRays/VelocityOver.is_colliding()
 
 
 var just_switched_directions : bool = false
