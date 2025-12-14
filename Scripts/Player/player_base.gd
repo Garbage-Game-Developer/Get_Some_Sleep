@@ -56,6 +56,9 @@ var walk_mode : bool = false  ##  A special grounded state and falling state whe
 @export var ice_slide : bool = false  #  Allows for the player to slide down on ice surfaces
 @export var ice_corner_swing : bool = false  #  Allows the player to swing when on the lower corner of an ice surface
 
+@export_subgroup("Convenience")
+@export_range(-15.0, -1.0) var cutting_value : float = -2.0
+
 
 @export_subgroup("Not implemented yet")
 ##	Still working on / haven't started
@@ -171,9 +174,8 @@ func _physics_process(delta):
 	$GroundTypeRays/VelocityBouncePad.target_position = temp_velocity
 	$WallTypeRays/VelocityBouncePadHigh.target_position = temp_velocity + (Vector2(5.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-5.0, 0.0))
 	$WallTypeRays/VelocityBouncePadLow.target_position = temp_velocity + (Vector2(5.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-5.0, 0.0))
-	$ConvenienceRays/VelocityOver.target_position = temp_velocity + (Vector2(5.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-5.0, 0.0))
 	$ConvenienceRays/VelocityNextPosition.target_position = temp_velocity + (Vector2(5.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-5.0, 0.0))
-	$ConvenienceRays/VelocityNextTOPPosition.target_position = temp_velocity
+	$ConvenienceRays/VelocityNextTopPosition.target_position = temp_velocity + (Vector2(5.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-5.0, 0.0))
 	$ConvenienceRays/VelocityCeilingSnapLeft.target_position.y = minf(0, temp_velocity.y)
 	$ConvenienceRays/VelocityCeilingSnapRight.target_position.y = minf(0, temp_velocity.y)
 	$ConvenienceRays/VelocityCeilingLeft.target_position.y = minf(0, temp_velocity.y)
@@ -183,7 +185,6 @@ func _physics_process(delta):
 	$GroundTypeRays/VelocityBouncePad.force_update_transform()			##	Checks if the next frame will interact with a bouncepad on the ground
 	$WallTypeRays/VelocityBouncePadHigh.force_update_transform()		##	Checks if the next frame will interact with a bouncepad on the wall
 	$WallTypeRays/VelocityBouncePadLow.force_update_transform()			##	Checks if the next frame will interact with a bouncepad on the wall
-	$ConvenienceRays/VelocityOver.force_update_transform()				##	Checks if you can't snap over a ledge next fram
 	$ConvenienceRays/VelocityNextPosition.force_update_transform()		##	Checks if you're colliding with a surface or the ground next frame
 	$ConvenienceRays/VelocityCeilingSnapLeft.force_update_transform()	##	Checks if you can't snap around the ceiling next frame
 	$ConvenienceRays/VelocityCeilingSnapRight.force_update_transform()	##	Checks if you can't snap around the ceiling next frame
@@ -193,18 +194,11 @@ func _physics_process(delta):
 	$GroundTypeRays/VelocityBouncePad.force_raycast_update()
 	$WallTypeRays/VelocityBouncePadHigh.force_raycast_update()
 	$WallTypeRays/VelocityBouncePadLow.force_raycast_update()
-	$ConvenienceRays/VelocityOver.force_raycast_update()
 	$ConvenienceRays/VelocityNextPosition.force_raycast_update()
 	$ConvenienceRays/VelocityCeilingSnapLeft.force_raycast_update()
 	$ConvenienceRays/VelocityCeilingSnapRight.force_raycast_update()
 	$ConvenienceRays/VelocityCeilingLeft.force_raycast_update()
 	$ConvenienceRays/VelocityCeilingRight.force_raycast_update()
-	
-	if(cut_over()):
-		var temp_x : float = $ConvenienceRays/VelocityNextPosition.get_collision_point().x
-		var temp_y : float = $ConvenienceRays/VelocityNextPosition.target_position.y / 
-		$ConvenienceRays/VelocityFindNewHeight.position = Vector2(temp_x, temp_y)
-		$ConvenienceRays/VelocityFindNewHeight.position = Vector2(temp_x, temp_y)
 	
 	#pingpong()
 	move_and_slide() # Might do this first, idk
@@ -234,10 +228,6 @@ func player_interference(int_vector : Vector2, int_location : Vector2, do_rotati
 """ Internal Functions """
 func on_wall() -> bool:
 	return wall_direction != 0
-
-
-func cut_over() -> bool:
-	return $ConvenienceRays/VelocityOver.is_colliding() && !$ConvenienceRays/VelocityNextTopPosition.is_colliding() && !$ConvenienceRays/VelocityOver.is_colliding()
 
 
 var just_switched_directions : bool = false

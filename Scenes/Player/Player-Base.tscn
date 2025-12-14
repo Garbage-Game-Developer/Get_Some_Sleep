@@ -35,22 +35,11 @@ platform_floor_layers = 4294901767
 platform_wall_layers = 7
 script = ExtResource("1_pcxub")
 DEBUG = true
-PLAYER_NAME = null
-can_swim = null
-combat_skills = null
-combat_power = null
 basic_movenment = true
 advanced_movenment = true
-item_double_jump = null
 free_double_jump = true
-special_dash = null
 normal_climb = true
-normal_corner_swing = null
-slow_climb = null
-slow_corner_swing = null
-ice_slide = null
-ice_corner_swing = null
-able_swing = null
+cutting_value = -10.0
 
 [node name="PlayerCollisions" type="CollisionShape2D" parent="."]
 position = Vector2(0, -7.5)
@@ -176,20 +165,10 @@ debug_color = Color(0, 1, 0, 0)
 
 [node name="ConvenienceRays" type="Node2D" parent="."]
 
-[node name="VelocityOver" type="RayCast2D" parent="ConvenienceRays"]
-position = Vector2(0, -2.0000002)
-target_position = Vector2(10, 0)
-collision_mask = 7
-hit_from_inside = true
-
 [node name="VelocityNextPosition" type="RayCast2D" parent="ConvenienceRays"]
 target_position = Vector2(10, 0)
 collision_mask = 7
 hit_from_inside = true
-
-[node name="VelocityFindNewHeight" type="RayCast2D" parent="ConvenienceRays"]
-position = Vector2(5, -2)
-target_position = Vector2(0, 2)
 
 [node name="VelocityNextTopPosition" type="RayCast2D" parent="ConvenienceRays"]
 position = Vector2(0, -15)
