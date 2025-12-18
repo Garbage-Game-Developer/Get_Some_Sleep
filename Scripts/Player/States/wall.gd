@@ -19,7 +19,7 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 
 """ Externals """
 @onready var P : Player = $"../.."
-@onready var Animation_Controller : Node2D = $"../../C"
+@onready var C : Node2D = $"../../C"
 
 
 """ Constants """
@@ -249,7 +249,7 @@ func update(delta : float):
 	if(!new_action):
 		
 		if(P.just_switched_directions):
-			Animation_Controller.left_or_right = (1 if P.left_or_right else 0)
+			C.left_or_right = (1 if P.left_or_right else 0)
 		
 		pass
 		

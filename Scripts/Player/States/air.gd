@@ -19,12 +19,12 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 
 """ Externals """
 @onready var P : Player = $"../.."
-@onready var Animation_Controller : Node2D = $"../../C"
+@onready var C : Node2D = $"../../C"
 
 
 """ Constants """
 ##	Horizontal Movenment
-@export var AIR_MAX_X_SPEED : float = 250.0		##	Maximum speed (px * s) the player can move in the air
+@export var AIR_MAX_X_SPEED : float = 210.0		##	Maximum speed (px * s) the player can move in the air
 @export var AIR_MAX_ACC_TIME : int = 42			##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
 @export var AIR_MAX_DEC_TIME : int = 18			##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
 @export var AIR_MAX_OVER_DEC_TIME : int  = 48	##	Ammount of time (frames/60) it takes for the player to decelerate to AIR_MAX_SPEED px*s from AIR_MAX_SPEED * 2 px*s
@@ -33,10 +33,10 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 @export var GROUND_INITIAL_VELOCITY : float = -200		##	Initial speed (px * s) the player gets if jumping from the ground
 @export var GROUND_DECELERATION_TIME : int = 32			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
 #	(-5.313)
-@export var DOUBLE_INITIAL_VELOCITY : float = -170.0		##	Initial speed (px * s) the player gets if jumping from the air
+@export var DOUBLE_INITIAL_VELOCITY : float = -180.0	##	Initial speed (px * s) the player gets if jumping from the air
 @export var DOUBLE_DECELERATION_TIME : int = 32			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
 ##	Wall (-6.25)
-@export var WALL_INITIAL_VELOCITY : float = -200		##	Initial speed (px * s) the player gets if jumping off a wall
+@export var WALL_INITIAL_VELOCITY : float = -180		##	Initial speed (px * s) the player gets if jumping off a wall
 @export var WALL_DECELERATION_TIME : int = 32			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
 ##	Falling (8.889)
 @export var FALLING_TERMINAL_VELOCITY : float = 800.0		##	Maximum downward y velocity (px * s)
@@ -257,7 +257,7 @@ func update(delta : float):
 	if(!new_action):
 		
 		if(P.just_switched_directions):
-			Animation_Controller.left_or_right = (1 if P.left_or_right else 0)
+			C.left_or_right = (1 if P.left_or_right else 0)
 		
 		pass
 		

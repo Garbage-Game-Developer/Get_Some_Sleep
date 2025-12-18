@@ -21,6 +21,9 @@ var current_state : State.s = State.s.GROUNDED
 var walk_mode : bool = false  ##  A special grounded state and falling state where most actions are locked
 
 
+@onready var C : Node2D = $C
+
+
 """ Exports """
 @export var DEBUG : bool = false
 
@@ -313,6 +316,9 @@ var wall_type : int = 1	##	1 - Normal, 2 - Slow, 3 - Ice, -1 - Non Wall
 var last_wall_type : int = 1
 var new_wall_surface
 func determine_wall_type():
+	
+	"""  When determining height priority, avoid multiple high low rays, instead, simply find the height of the intersection for the ray  """
+	
 	last_wall_type = wall_type
 	if($WallTypeRays/NormalWallRight.is_colliding() || $WallTypeRays/NormalWallLeft.is_colliding()):
 		wall_type = 1

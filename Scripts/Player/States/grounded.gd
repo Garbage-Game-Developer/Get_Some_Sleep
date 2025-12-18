@@ -19,7 +19,7 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 
 """ Externals """
 @onready var P : Player = $"../.."
-@onready var Animation_Controller : Node2D = $"../../C"
+@onready var C : Node2D = $"../../C"
 
 
 """ Constants """
@@ -35,20 +35,20 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 @export var WALK_CURVE_CONSTANT : float = 1.0 / 2.0	##	Eccential part of the curve function
 
 @export_subgroup("Normal Ground")
-@export var GROUND_MAX_SPEED : float = 230.0	##	Maximum speed (px * s) the player can move
+@export var GROUND_MAX_SPEED : float = 180.0	##	Maximum speed (px * s) the player can move
 @export var GROUND_MAX_ACC_TIME : int = 24		##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
 @export var GROUND_MAX_DEC_TIME : int = 12		##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
 @export var GROUND_CURVE_CONSTANT : float = 1.0 / 2.0	##	Eccential part of the curve function
 
 @export_subgroup("Slow Ground")
-@export var SLOW_GROUND_MAX_SPEED : float = 180.0	##	Maximum speed (px * s) the player can move
-@export var SLOW_GROUND_MAX_ACC_TIME : int = 48		##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
-@export var SLOW_GROUND_MAX_DEC_TIME : int = 10		##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
+@export var SLOW_GROUND_MAX_SPEED : float = 140.0	##	Maximum speed (px * s) the player can move
+@export var SLOW_GROUND_MAX_ACC_TIME : int = 36		##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
+@export var SLOW_GROUND_MAX_DEC_TIME : int = 8		##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
 @export var SLOW_CURVE_CONSTANT : float = 1.0 / 2.0	##	Eccential part of the curve function
 
 @export_subgroup("Ice Ground")
-@export var ICE_GROUND_MAX_SPEED : float = 300.0	##	Maximum speed (px * s) the player can move
-@export var ICE_GROUND_MAX_ACC_TIME : int = 60		##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
+@export var ICE_GROUND_MAX_SPEED : float = 250.0	##	Maximum speed (px * s) the player can move
+@export var ICE_GROUND_MAX_ACC_TIME : int = 48		##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
 @export var ICE_GROUND_MAX_DEC_TIME : int = 30		##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
 @export var ICE_CURVE_CONSTANT : float = 4.0 / 7.0	##	Eccential part of the curve function
 
@@ -232,7 +232,7 @@ func update(delta : float):
 	if(!new_action):
 		
 		if(P.just_switched_directions):
-			Animation_Controller.left_or_right = (1 if P.left_or_right else 0)
+			C.left_or_right = (1 if P.left_or_right else 0)
 		
 		pass
 		
@@ -304,7 +304,6 @@ func gen_movenment_curve(direct : float):
 			#	This boolean works as so : (velocity is negative and direct is positive)
 			temp_boolean = (sign(starting_velocity) != sign(direct) && direct > 0.0)
 			#	This boolean works as so : not moving towards zero and (both velocity and direct are different signs) and (not yet calculated) target_speed > velocity
-			##temp_boolean = temp_boolean || (sign(starting_velocity) == sign(direct) && ((direct > 0.0 && GROUND_MAX_SPEED > starting_velocity) || (direct < 0.0 && -GROUND_MAX_SPEED > starting_velocity)))
 			temp_boolean = temp_boolean || (sign(starting_velocity) == sign(direct) && direct > 0.0)
 			multiple = 1.0 if temp_boolean else -1.0 # This multiple is used for 
 			target_velocity = GROUND_MAX_SPEED * multiple if !to_zero else 0.0
@@ -322,7 +321,6 @@ func gen_movenment_curve(direct : float):
 			#	This boolean works as so : (velocity is negative and direct is positive)
 			temp_boolean = (sign(starting_velocity) != sign(direct) && direct > 0.0)
 			#	This boolean works as so : (both velocity and direct are different signs) and (not yet calculated) target_speed > velocity
-			##temp_boolean = temp_boolean || (sign(starting_velocity) == sign(direct) && ((direct > 0.0 && SLOW_GROUND_MAX_SPEED > starting_velocity) || (direct < 0.0 && -SLOW_GROUND_MAX_SPEED > starting_velocity)))
 			temp_boolean = temp_boolean || (sign(starting_velocity) == sign(direct) && direct > 0.0)
 			multiple = 1.0 if temp_boolean else -1.0 # This multiple is used for 
 			target_velocity = SLOW_GROUND_MAX_SPEED * multiple if !to_zero else 0.0
@@ -340,7 +338,7 @@ func gen_movenment_curve(direct : float):
 			#	This boolean works as so : (velocity is negative and direct is positive)
 			temp_boolean = (sign(starting_velocity) != sign(direct) && direct > 0.0)
 			#	This boolean works as so : (both velocity and direct are different signs) and (not yet calculated) target_speed > velocity
-			temp_boolean = temp_boolean || (sign(starting_velocity) == sign(direct) && ((direct > 0.0 && ICE_GROUND_MAX_SPEED > starting_velocity) || (direct < 0.0 && -ICE_GROUND_MAX_SPEED > starting_velocity)))
+			temp_boolean = temp_boolean || (sign(starting_velocity) == sign(direct) && direct > 0.0)
 			multiple = 1.0 if temp_boolean else -1.0 # This multiple is used for 
 			target_velocity = ICE_GROUND_MAX_SPEED * multiple if !to_zero else 0.0
 			
