@@ -93,6 +93,10 @@ func new_state(delta : float, change_state : State.s, _movenment_package : Array
 
 func update(delta : float):
 	
+	
+	"""  There are 2 sub states of this state, thats down hanging and ledge hanging, and they each have swap to animation sequences that are sub-sub states  """
+	
+	
 	time = "%9.3f" % (float(Time.get_ticks_msec()) / 1000.0)
 	
 	""" States (Pre Change) """

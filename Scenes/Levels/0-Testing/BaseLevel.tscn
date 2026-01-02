@@ -48,6 +48,7 @@ sources/0 = SubResource("TileSetAtlasSource_bbt6b")
 [node name="Level" type="Node2D" parent="."]
 
 [node name="Bg" type="Sprite2D" parent="Level"]
+z_index = -10
 position = Vector2(436.0001, -481.50006)
 scale = Vector2(1.7656249, 1.5435184)
 texture = ExtResource("1_bbt6b")

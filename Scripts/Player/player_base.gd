@@ -314,26 +314,68 @@ func down_up_priority(down_pressed : bool, up_pressed : bool) -> Vector2:
 
 var wall_type : int = 1	##	1 - Normal, 2 - Slow, 3 - Ice, -1 - Non Wall
 var last_wall_type : int = 1
-var new_wall_surface
+var new_wall_surface : bool
 func determine_wall_type():
 	
 	"""  When determining height priority, avoid multiple high low rays, instead, simply find the height of the intersection for the ray  """
 	
-	last_wall_type = wall_type
-	if($WallTypeRays/NormalWallRight.is_colliding() || $WallTypeRays/NormalWallLeft.is_colliding()):
-		wall_type = 1
-		Wall.kick_power = Wall.NORMAL_KICK_POWER
-	elif($"WallTypeRays/SlowWallRight".is_colliding() || $"WallTypeRays/SlowWallLeft".is_colliding()):
-		wall_type = 2
-		Wall.kick_power = Wall.SLOW_KICK_POWER
-	elif($"WallTypeRays/IceWallRight".is_colliding() || $"WallTypeRays/IceWallLeft".is_colliding()):
-		wall_type = 3
-		Wall.kick_power = Wall.ICE_KICK_POWER
-	elif($"WallTypeRays/NonWallRight".is_colliding() || $"WallTypeRays/NonWallLeft".is_colliding()):
-		wall_type = -1
-	else:
+	#last_wall_type = wall_type
+	#if($WallTypeRays/NormalWallRight.is_colliding() || $WallTypeRays/NormalWallLeft.is_colliding()):
+		#wall_type = 1
+		#Wall.kick_power = Wall.NORMAL_KICK_POWER
+	#elif($"WallTypeRays/SlowWallRight".is_colliding() || $"WallTypeRays/SlowWallLeft".is_colliding()):
+		#wall_type = 2
+		#Wall.kick_power = Wall.SLOW_KICK_POWER
+	#elif($"WallTypeRays/IceWallRight".is_colliding() || $"WallTypeRays/IceWallLeft".is_colliding()):
+		#wall_type = 3
+		#Wall.kick_power = Wall.ICE_KICK_POWER
+	#elif($"WallTypeRays/NonWallRight".is_colliding() || $"WallTypeRays/NonWallLeft".is_colliding()):
+		#wall_type = -1
+	#else:
+	
+	wall_direction
+	var norm_collision = $WallTypeRays/NormalWallRight.is_colliding() || $WallTypeRays/NormalWallLeft.is_colliding()
+	var slow_collision = $"WallTypeRays/SlowWallRight".is_colliding() || $"WallTypeRays/SlowWallLeft".is_colliding()
+	var ice_collision = $"WallTypeRays/IceWallRight".is_colliding() || $"WallTypeRays/IceWallLeft".is_colliding()
+	var non_collision = $"WallTypeRays/NonWallRight".is_colliding() || $"WallTypeRays/NonWallLeft".is_colliding()
+	var collisions : int = int(norm_collision) + int(slow_collision) + int(ice_collision) + int(non_collision)
+	if(collisions == 0):
 		wall_type = 0
+	
+	elif(collisions > 1):
+		##	Finds the priority wall  (Distance of 8 pixels from the start of the ray is the hand, and the cutoff point)
+		var collision_points : Array[float] = [1.0, 1.0, 1.0, 1.0]
+		collision_points[0] = 1.0 if !norm_collision else -15.0 - (to_local($WallTypeRays/NormalWallRight.get_collision_point()).y if wall_direction == 1 else to_local($WallTypeRays/NormalWallRight.get_collision_point()).y)
+		collision_points[1] = 1.0 if !slow_collision else -15.0 - (to_local($WallTypeRays/NormalWallRight.get_collision_point()).y if wall_direction == 1 else to_local($WallTypeRays/NormalWallRight.get_collision_point()).y)
+		collision_points[2] = 1.0 if !ice_collision else -15.0 - (to_local($WallTypeRays/NormalWallRight.get_collision_point()).y if wall_direction == 1 else to_local($WallTypeRays/NormalWallRight.get_collision_point()).y)
+		collision_points[3] = 1.0 if !non_collision else -15.0 - (to_local($WallTypeRays/NormalWallRight.get_collision_point()).y if wall_direction == 1 else to_local($WallTypeRays/NormalWallRight.get_collision_point()).y)
+		
+		var current_best_height : float = -100.0
+		var current_most_adequet : int = 0
+		for i in range(collision_points.size()):
+			if(collision_points[i] == 1.0):
+				continue
+			if(collision_points[i] == 0.0 && current_best_height):
+				current_most_adequet = i
+			elif():
+				pass
+		
+	
+	else:
+		if(norm_collision):
+			wall_type = 1
+			Wall.kick_power = Wall.NORMAL_KICK_POWER
+		elif(slow_collision):
+			wall_type = 2
+			Wall.kick_power = Wall.SLOW_KICK_POWER
+		elif(ice_collision):
+			wall_type = 3
+			Wall.kick_power = Wall.ICE_KICK_POWER
+		elif(non_collision):
+			wall_type = -1
+	
 	new_wall_surface = wall_type != last_wall_type
+	last_wall_type = wall_type
 
 
 
