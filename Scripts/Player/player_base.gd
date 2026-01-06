@@ -315,7 +315,7 @@ func down_up_priority(down_pressed : bool, up_pressed : bool) -> Vector2:
 var wall_type : int = 1	##	1 - Normal, 2 - Slow, 3 - Ice, -1 - Non Wall
 var last_wall_type : int = 1
 var new_wall_surface : bool
-func determine_wall_type():
+func determine_wall_type() -> bool:
 	
 	"""  When determining height priority, avoid multiple high low rays, instead, simply find the height of the intersection for the ray  """
 	
@@ -333,6 +333,8 @@ func determine_wall_type():
 		#wall_type = -1
 	#else:
 	
+	var too_low : bool = false
+	
 	wall_direction
 	var norm_collision = $WallTypeRays/NormalWallRight.is_colliding() || $WallTypeRays/NormalWallLeft.is_colliding()
 	var slow_collision = $"WallTypeRays/SlowWallRight".is_colliding() || $"WallTypeRays/SlowWallLeft".is_colliding()
@@ -345,21 +347,25 @@ func determine_wall_type():
 	elif(collisions > 1):
 		##	Finds the priority wall  (Distance of 8 pixels from the start of the ray is the hand, and the cutoff point)
 		var collision_points : Array[float] = [1.0, 1.0, 1.0, 1.0]
-		collision_points[0] = 1.0 if !norm_collision else -15.0 - (to_local($WallTypeRays/NormalWallRight.get_collision_point()).y if wall_direction == 1 else to_local($WallTypeRays/NormalWallRight.get_collision_point()).y)
-		collision_points[1] = 1.0 if !slow_collision else -15.0 - (to_local($WallTypeRays/NormalWallRight.get_collision_point()).y if wall_direction == 1 else to_local($WallTypeRays/NormalWallRight.get_collision_point()).y)
-		collision_points[2] = 1.0 if !ice_collision else -15.0 - (to_local($WallTypeRays/NormalWallRight.get_collision_point()).y if wall_direction == 1 else to_local($WallTypeRays/NormalWallRight.get_collision_point()).y)
-		collision_points[3] = 1.0 if !non_collision else -15.0 - (to_local($WallTypeRays/NormalWallRight.get_collision_point()).y if wall_direction == 1 else to_local($WallTypeRays/NormalWallRight.get_collision_point()).y)
+		collision_points[0] = -1.0 if !norm_collision else 15.0 - ($WallTypeRays/NormalWallRight.get_collision_point().y - $WallTypeRays/NormalWallRight.global_position.y if wall_direction == 1 else $WallTypeRays/NormalWallLeft.get_collision_point().y - $WallTypeRays/NormalWallLeft.global_position.y)
+		collision_points[1] = -1.0 if !slow_collision else 15.0 - ($WallTypeRays/SlowWallRight.get_collision_point().y - $WallTypeRays/SlowWallRight.global_position.y if wall_direction == 1 else $WallTypeRays/SlowWallLeft.get_collision_point().y - $WallTypeRays/SlowWallLeft.global_position.y)
+		collision_points[2] = -1.0 if !ice_collision else 15.0 - ($WallTypeRays/IceWallRight.get_collision_point().y - $WallTypeRays/IceWallRight.global_position.y if wall_direction == 1 else $WallTypeRays/IceWallLeft.get_collision_point().y - $WallTypeRays/IceWallLeft.global_position.y)
+		collision_points[3] = -1.0 if !non_collision else 15.0 - ($WallTypeRays/NonWallRight.get_collision_point().y - $WallTypeRays/NonWallRight.global_position.y if wall_direction == 1 else $WallTypeRays/NonWallLeft.get_collision_point().y - $WallTypeRays/NonWallLeft.global_position.y)
 		
 		var current_best_height : float = -100.0
-		var current_most_adequet : int = 0
+		var current_most_adequet : int = -1
 		for i in range(collision_points.size()):
-			if(collision_points[i] == 1.0):
+			if(collision_points[i] == -1.0 || collision_points[i] < 8.0):
 				continue
-			if(collision_points[i] == 0.0 && current_best_height):
+			if(collision_points[i] >= 8.0 && collision_points[i] > current_best_height && collision_points[i] >= 12.0):
+				"""  8.0 is the height you can grab from"""
 				current_most_adequet = i
-			elif():
+			elif(collision_points[i] ):
 				pass
 		
+		wall_type = current_most_adequet + 1
+		if(wall_type == 4):
+			wall_type = -1
 	
 	else:
 		if(norm_collision):
@@ -376,6 +382,7 @@ func determine_wall_type():
 	
 	new_wall_surface = wall_type != last_wall_type
 	last_wall_type = wall_type
+	return too_low
 
 
 

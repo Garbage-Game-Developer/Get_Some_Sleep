@@ -35,23 +35,11 @@ platform_floor_layers = 4294901767
 platform_wall_layers = 7
 script = ExtResource("1_pcxub")
 DEBUG = true
-PLAYER_NAME = null
-can_swim = null
-combat_skills = null
-combat_power = null
 basic_movenment = true
 advanced_movenment = true
-item_double_jump = null
 free_double_jump = true
-special_dash = null
 normal_climb = true
-normal_corner_swing = null
-slow_climb = null
-slow_corner_swing = null
-ice_slide = null
-ice_corner_swing = null
 cutting_value = -10.0
-able_swing = null
 
 [node name="PlayerCollisions" type="CollisionShape2D" parent="."]
 position = Vector2(0, -7.5)
@@ -362,20 +350,20 @@ hit_from_inside = true
 [node name="C" type="Node2D" parent="."]
 material = SubResource("ShaderMaterial_hvnhq")
 script = ExtResource("1_sfkqq")
+animation = 1
 
 [node name="Right" type="AnimatedSprite2D" parent="C"]
 sprite_frames = ExtResource("8_2gvn5")
-animation = &"Wall"
+animation = &"JumpWall"
 autoplay = "Idle"
-frame_progress = 1.0
 offset = Vector2(0, -9)
 
 [node name="Left" type="AnimatedSprite2D" parent="C"]
 visible = false
 sprite_frames = ExtResource("9_sixxt")
-animation = &"Wall"
+animation = &"Idle"
 autoplay = "Idle"
-frame_progress = 1.0
+frame_progress = 0.9027167
 offset = Vector2(0, -9)
 
 [node name="InWater" type="Area2D" parent="."]
@@ -389,3 +377,4 @@ debug_color = Color(0.62699986, 0, 0.99, 0)
 
 [connection signal="area_entered" from="SpecialZone" to="." method="_on_special_zone_area_entered"]
 [connection signal="area_exited" from="SpecialZone" to="." method="_on_special_zone_area_exited"]
+[connection signal="animation_finished" from="C/Right" to="C" method="_on_right_animation_finished"]

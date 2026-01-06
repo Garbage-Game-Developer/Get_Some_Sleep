@@ -19,7 +19,7 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 
 """ Externals """
 @onready var P : Player = $"../.."
-@onready var C : Node2D = $"../../C"
+@onready var C : SpriteHandler = $"../../C"
 
 
 """ Constants """
@@ -257,20 +257,38 @@ func update(delta : float):
 	if(!new_action):
 		
 		if(P.just_switched_directions):
-			C.left_or_right = (1 if P.left_or_right else 0)
+			C.change_facing(P.left_or_right)
+		
+		"""  Movenment Animations  """
+		
+		if(velocity.y < 20.0):
+			C.play(C.Animations.JUMP)
+		
+		#elif(velocity.y > -20.0):
+			##	Play a holding in air animation
+		#	pass
+		
+		else:
+			C.play(C.Animations.FALL)
+		
+	else:
+		
+		"""  Action Animations  """
+		
+		if(action_is_punch):
+			pass
+		
+		##	Will need to receive the interaction type to figure out what kind of animation to play, might have to cutscene it
 		
 		pass
-		
-		##	Check if not dashing before checking if velocity.y < 0, and then setting animation to falling
-		
-		"""
-			Need a more advanced system for detecting if an animation is finished, so swapping between left and right doesn't re do 
-			the animation, and just skips to the end frame (Only for one shot animations)
-			
-			Could have a left and right sprite that show and hide based on left or right to ensure animation is always in sync, and 
-			it doesn't need to restart (probably the easiest and best solution for non mirrorable sprites)
-		"""
-		pass
+	
+	
+	"""  Animation Scale Stuff  """
+	
+	var desired_scale : Vector2 = Vector2.ONE
+	desired_scale.y = 1 + (abs(velocity.y) / ((abs(velocity.y) + 100.0) * (4.0 if sign(velocity.y) > 0 else 6.0)))
+	desired_scale.x = 1.0 / desired_scale.y
+	C.scale = lerp(C.scale, desired_scale, 0.4) 
 	
 	is_state_new = false
 	was_on_wall = false
@@ -313,7 +331,7 @@ func jump():
 
 
 func cut_clamber_hang() -> int:
-	var top_true : bool = $"../../WallTypeRays/WallRightHigh".is_colliding() if P.wall_direction > 0 else $"../../WallTypeRays/WallLeftHigh".is_colliding()
+	#var top_true : bool = $"../../WallTypeRays/WallRightHigh".is_colliding() if P.wall_direction > 0 else $"../../WallTypeRays/WallLeftHigh".is_colliding()
 	#if():
 	#	pass
 	#elif():

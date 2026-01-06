@@ -19,7 +19,7 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 
 """ Externals """
 @onready var P : Player = $"../.."
-@onready var C : Node2D = $"../../C"
+@onready var C : SpriteHandler = $"../../C"
 
 
 """ Constants """
@@ -216,7 +216,7 @@ func update(delta : float):
 	
 	
 	""" Movenement Vector """
-	var move_vector = P.move_vector
+	var move_vector : Vector2 = P.move_vector
 	
 	if(P.just_switched_directions || new_surface || is_state_new):
 		P.interference = false
@@ -232,29 +232,46 @@ func update(delta : float):
 	if(!new_action):
 		
 		if(P.just_switched_directions):
-			C.left_or_right = (1 if P.left_or_right else 0)
+			C.change_facing(P.left_or_right)
+		
+		"""  Movenment Animations  """
+		
+		if(move_vector.x != 0.0 && (sign(move_vector.x) == sign(velocity.x) || velocity.x == 0.0)):
+			##  Need to consider change in velocity from starting to ending to determine stuff at some point
+			C.play(C.Animations.RUN)
+		elif(sign(move_vector.x) != sign(velocity.x)):
+			##	Play a turning around animation, or a skidding to a stop while facing the other direction animation
+			C.play(C.Animations.RUN)  # for now
+		elif(abs(velocity.x) > 50.0):
+			##	Play some sort of skidding to a stop animation, or slow down animation
+			C.play(C.Animations.RUN)  # for now
+		else:
+			C.play(C.Animations.IDLE)
+		
+	else:
+		
+		"""  Action Animations  """
+		
+		if(action_is_punch):
+			pass
+		
+		##	Will need to receive the interaction type to figure out what kind of animation to play, might have to cutscene it
 		
 		pass
-		
-		##	Check if not dashing before checking if velocity.y < 0, and then setting animation to falling
-		
-		"""
-			Need a more advanced system for detecting if an animation is finished, so swapping between left and right doesn't re do 
-			the animation, and just skips to the end frame (Only for one shot animations)
-			
-			Could have a left and right sprite that show and hide based on left or right to ensure animation is always in sync, and 
-			it doesn't need to restart (probably the easiest and best solution for non mirrorable sprites)
-			
-			Also, could have shaders detect weather or not the leg sprite has gone up a pixel, and move the sprite up respectivly in
-			the shader (I really like this solution ngl)
-		"""
-		pass
+	
+	
+	"""  Scale Stuff  """
+	
+	
+	$"../../C".scale = Vector2.ONE
+	
 	
 	is_state_new = false
 	
 	""" Physics """
 	velocity.x *= P.speed_boost
 	P.velocity = velocity * 60.0 * delta
+
 
 
 func generate_movenment_package() -> Array:

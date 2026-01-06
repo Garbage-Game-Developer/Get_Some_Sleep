@@ -1,10 +1,18 @@
-[gd_resource type="SpriteFrames" load_steps=18 format=3 uid="uid://brf7fl6y2cs63"]
+[gd_resource type="SpriteFrames" load_steps=23 format=3 uid="uid://brf7fl6y2cs63"]
 
 [ext_resource type="Texture2D" uid="uid://cu7qxc0h31trf" path="res://Assets/Sprites/Actors/Grandpa/GrandpaSpritesheet.png" id="2_3u1p6"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_7mtym"]
 atlas = ExtResource("2_3u1p6")
 region = Rect2(26, 130, 26, 26)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lb70q"]
+atlas = ExtResource("2_3u1p6")
+region = Rect2(130, 130, 26, 26)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6ncs3"]
+atlas = ExtResource("2_3u1p6")
+region = Rect2(78, 130, 26, 26)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_w62np"]
 atlas = ExtResource("2_3u1p6")
@@ -25,6 +33,18 @@ region = Rect2(104, 0, 26, 26)
 [sub_resource type="AtlasTexture" id="AtlasTexture_4phoy"]
 atlas = ExtResource("2_3u1p6")
 region = Rect2(26, 104, 26, 26)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2dd2g"]
+atlas = ExtResource("2_3u1p6")
+region = Rect2(78, 104, 26, 26)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e5lt4"]
+atlas = ExtResource("2_3u1p6")
+region = Rect2(78, 78, 26, 26)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wndla"]
+atlas = ExtResource("2_3u1p6")
+region = Rect2(104, 78, 26, 26)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_b5qj0"]
 atlas = ExtResource("2_3u1p6")
@@ -77,6 +97,22 @@ animations = [{
 "speed": 5.0
 }, {
 "frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lb70q")
+}],
+"loop": false,
+"name": &"FallMoving",
+"speed": 20.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6ncs3")
+}],
+"loop": false,
+"name": &"FallMovingInto",
+"speed": 5.0
+}, {
+"frames": [{
 "duration": 5.0,
 "texture": SubResource("AtlasTexture_w62np")
 }, {
@@ -99,6 +135,25 @@ animations = [{
 }],
 "loop": false,
 "name": &"Jump",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2dd2g")
+}],
+"loop": false,
+"name": &"JumpMoving",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e5lt4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wndla")
+}],
+"loop": true,
+"name": &"JumpWall",
 "speed": 5.0
 }, {
 "frames": [{
