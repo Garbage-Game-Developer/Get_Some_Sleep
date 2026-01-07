@@ -19,17 +19,17 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 
 """ Externals """
 @onready var P : Player = $"../.."
-@onready var C : Node2D = $"../../C"
+@onready var C : SpriteHandler = $"../../C"
 
 
 """ Constants """
 @export_group("Into Air")
 @export_subgroup("Coyote Time")
-@export var COYOTE_TIME : float = 0.25
+@export var COYOTE_TIME : float = 0.1
 
 @export_group("Climbing or Sliding")
 
-@export var KICK_OFF_VELOCITY : float = 100.0		##	The x velocity (px * s) applied to the player when jumping off a wall
+@export var KICK_OFF_VELOCITY : float = 200.0		##	The x velocity (px * s) applied to the player when jumping off a wall
 
 @export_subgroup("Normal Wall") # -4.0
 @export var NORMAL_CLIMB_SPEED : float = 70.0		##	Maximum speed (px * s) the player can climb
@@ -103,16 +103,13 @@ func update(delta : float):
 	var state_change_to : State.s = this_state
 	var is_jumping : bool = false
 	
-	if(!P.on_wall()):
-		print(time, " ERROR - What the fuck is going on : ", P.move_vector.x, " ", P.wall_direction)
-	
 	was_climbing = climbing
 	grabbing = P.move_vector.x == float(P.wall_direction)
 	if(P.is_on_floor()):
 		state_change_to = State.s.GROUNDED
 	elif(P.on_wall()):
 		new_surface = P.new_wall_surface
-		if(-P.move_vector.x == float(P.wall_direction) || P.wall_type < 1):
+		if(-P.move_vector.x == float(P.wall_direction) || P.wall_type < 1 || P.stamina <= 0.0):
 			climbing = false
 			state_change_to = State.s.AIR
 			$"../../Timers/CoyoteTimer".start(COYOTE_TIME)
@@ -154,7 +151,7 @@ func update(delta : float):
 		""" Default Key : "Space"
 			Swap to the "Jump" state, from_ground = true   """
 		
-		
+		P.stamina -= 1.0
 		state_change_to = State.s.AIR
 		is_jumping = true
 	
@@ -190,8 +187,10 @@ func update(delta : float):
 	if(state_change_to != this_state):
 		print(time, " DEBUG - State changing to : ", state_change_to)
 		ACTIVE_STATE = false
+		C.material.set_shader_parameter("white_flash", false)
 		match state_change_to:
 			State.s.AIR:
+				Global.camera.shake(0.0 if P.stamina > 0.0 else (0.4 if is_jumping else 0.8))
 				P.current_state = State.s.AIR
 				kick_off(is_jumping)
 				P.Air.new_state(delta, this_state, generate_movenment_package(), is_jumping, kick_power)
@@ -245,31 +244,52 @@ func update(delta : float):
 			decceleration = get_propper_velocity(false)
 			was_climbing = false
 		velocity.y = max(velocity.y - decceleration, max_decc)
+	velocity.x += 5 * C.left_or_right
 	
 	#print(time, " DEBUG velocity : V=%8.3f" % velocity.x)
 	
+	if(climbing && velocity.y != 0.0):
+		P.stamina -= delta
+	elif(climbing):
+		P.stamina -= delta / 3.0
+	else:
+		P.stamina -= delta / 10.0
+	
+	if(P.stamina <= 1.0):
+		C.material.set_shader_parameter("white_flash", !$BlinkTimeout.is_stopped())
+		if($BlinkTimeout.is_stopped() && $LastBlink.is_stopped()):
+			$BlinkTimeout.start()
+			$LastBlink.start()
 	
 	""" Animations to Play """
 	if(!new_action):
 		
 		if(P.just_switched_directions):
-			C.left_or_right = (1 if P.left_or_right else 0)
+			C.change_facing(P.left_or_right)
+		
+		"""  Movenment Animations  """
+		
+		if(velocity.y == 0.0):
+			C.play(C.WALL if grabbing else C.WALL_SLIDING)
+		
+		elif(velocity.y < 0.0):  ##  Going up
+			C.play(C.WALL)
+		
+		elif(velocity.y > 0.0):  ##  Going down
+			C.play(C.WALL if grabbing else C.WALL_SLIDING)
+		
+	else:
+		
+		"""  Action Animations  """
 		
 		pass
 		
-		##	Check if not dashing before checking if velocity.y < 0, and then setting animation to falling
-		
-		"""
-			Need a more advanced system for detecting if an animation is finished, so swapping between left and right doesn't re do 
-			the animation, and just skips to the end frame (Only for one shot animations)
-			
-			Could have a left and right sprite that show and hide based on left or right to ensure animation is always in sync, and 
-			it doesn't need to restart (probably the easiest and best solution for non mirrorable sprites)
-			
-			Also, could have shaders detect weather or not the leg sprite has gone up a pixel, and move the sprite up respectivly in
-			the shader (I really like this solution ngl)
-		"""
-		pass
+		##	Will need to receive the interaction type to figure out what kind of animation to play, might have to cutscene it
+	
+	
+	"""  Scale Stuff  """
+	C.scale = Vector2.ONE
+	
 	
 	is_state_new = false
 	
@@ -285,7 +305,7 @@ func deterine_if_swap_state() -> bool:
 
 func kick_off(jump : bool):
 	if(jump):
-		P.velocity.x = KICK_OFF_VELOCITY * (2.0 if P.move_vector.x == float(P.wall_direction) else 1.0) * -P.wall_direction
+		P.velocity.x = KICK_OFF_VELOCITY * (1.2 if P.move_vector.x == float(P.wall_direction) else 1.0) * -P.wall_direction
 	else:
 		P.velocity.x = (KICK_OFF_VELOCITY / 20.0) * -P.wall_direction
 

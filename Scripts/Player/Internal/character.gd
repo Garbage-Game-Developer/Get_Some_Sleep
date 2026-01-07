@@ -2,22 +2,68 @@
 class_name SpriteHandler extends Node2D
 
 ##	Tool stuff (Could be used for cutescenes aswell)
-@export_enum("Left:0", "Right:1") var left_or_right : int = 1
+@export_enum("Left:-1", "Right:1") var left_or_right : int = 1
 var left_or_right_changed : int = 0  ##  Set to the most previous left_or_right value for checking against current
 enum {
-	NONE,
-	IDLE, 
+	NONE = 0,
+	
+	IDLE = 1, 
 		##	Can put other idle animations here
-	RUN, 
-	JUMP,
-		JUMP_MOVING,
-		JUMP_WALL,
-	FALL,
-		FALL_MOVING,
-	WALL,
-	SLIDE,
+	RUN = 2, 
+	
+	JUMP = 3,
+		JUMP_MOVING = 301,
+		JUMP_WALL = 302,
+		JUMP_WALL_SLIDEING = 303,  ##  Not implemented
+	
+	FLOATING_UP = 4,  ##  Not implemented
+		FLOATING_UP_MOVING = 401,  ##  Not implemented
+	
+	FLOATING_DOWN = 5,  ##  Not implemented
+		FLOATING_DOWN_MOVING = 501,  ##  Not implemented
+	
+	FALL = 6,
+		FALL_MOVING = 601,
+	
+	WALL = 7,
+		WALL_CLIMB_UP = 701,  ##  Not implemented
+		WALL_CLIMB_DOWN = 702,  ##  Not implemented
+		INTO_WALL = 703,  ##  Not implemented
+		WALL_SLIDING = 704,  ##  Not implemented
+		WALL_PUNCHING = 705,  ##  Not implemented
+	
+	SLIDE = 8,
 }
-@export var animation : int = 0
+@export_enum(
+	"NONE:0",
+	
+	"IDLE:1", 
+		##	Can put other idle animations here
+	"RUN:2", 
+	
+	"JUMP:3",
+		"JUMP_MOVING:301",
+		"JUMP_WALL:302",
+		"JUMP_WALL_SLIDEING:303",  ##  Not implemented
+	
+	"FLOATING_UP:4",
+		"FLOATING_UP_MOVING:401",
+	
+	"FLOATING_DOWN:5",  ##  Not implemented
+		"FLOATING_DOWN_MOVING:501",  ##  Not implemented
+	
+	"FALL:6",
+		"FALL_MOVING:601",
+	
+	"WALL:7",
+		"WALL_CLIMB_UP:701",  ##  Not implemented
+		"WALL_CLIMB_DOWN:702",  ##  Not implemented
+		"INTO_WALL:703",  ##  Not implemented
+		"WALL_SLIDING:704",
+		"WALL_PUNCHING:705",  ##  Not implemented 
+	
+	"SLIDE:9",
+) var animation : int = IDLE
 var current_animation : int = IDLE
 @export var reset_idle : bool = false
 
@@ -44,7 +90,6 @@ func _process(_delta):
 				current_animation = animation
 				play_animation()
 		
-		current_animation = 1
 		left_or_right_changed = left_or_right
 		
 	else:
@@ -55,6 +100,7 @@ func _process(_delta):
 func change_direction(direction : bool):
 	$Right.visible = direction
 	$Left.visible = !direction
+	left_or_right = 1 if direction else -1
 
 
 var last_animation : int = IDLE
@@ -75,15 +121,27 @@ func play_animation():
 		JUMP_WALL:
 			anim = "JumpWall"
 		
+		FLOATING_UP:
+			anim = "FloatUp"
+		FLOATING_UP_MOVING:
+			anim = "FloatUpMoving"
+	
+		FLOATING_DOWN:
+			anim = "FloatDown"
+		FLOATING_DOWN_MOVING:
+			anim = "FloatDownMoving"
+		
 		FALL:
 			anim = "Fall"
 		FALL_MOVING:
-			anim = "FallInto"
+			anim = "FallMovingInto" if last_animation == FALL else "FallMoving"
 		
 			##	For into fall animations, need to set them to the proper frame of the other when swapping between moving and not moving
 		
 		WALL:
 			anim = "Wall"
+		WALL_SLIDING:
+			anim = "WallSlide"
 		
 		SLIDE:
 			anim = "Slide"
@@ -97,6 +155,7 @@ func play_animation():
 	$Left.play(anim)
 	$Left.set_frame_and_progress(set_frame, frame_progress)
 	last_animation = current_animation
+	animation = current_animation
 
 
 
@@ -107,8 +166,11 @@ func _on_right_animation_finished():
 		"FallMovingInto":
 			$Right.play("FallMoving")
 			$Left.play("FallMoving")
-		"JumpMoving":
-			
+		"JumpWall":
+			current_animation = JUMP_MOVING
+			$Right.play("JumpMoving")
+			$Left.play("JumpMoving")
+	animation = current_animation
 
 
 

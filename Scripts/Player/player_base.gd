@@ -36,28 +36,29 @@ var walk_mode : bool = false  ##  A special grounded state and falling state whe
 @export var can_swim : bool = false  #  Player can swim
 
 @export_subgroup("Combat")
-#	Player can punch and air kick, sliding does half damage (rounded up) and upward knockback, dash does half damage (rounded up) and forward knockback
+##	Player can punch and air kick, sliding does half damage (rounded up) and upward knockback, dash does half damage (rounded up) and forward knockback
 @export var combat_skills : bool = false
 @export var combat_power : int = 5  #  Damage done by attacks
 
 @export_subgroup("Basic Movenment")
-@export var basic_movenment : bool = false  #  Allows for ground dash, wall dash, and swinging
-@export var advanced_movenment : bool = false  #  Allows for air normal dash, swinging dash, and advanced climbing
+@export var basic_movenment : bool = false ##  Allows for ground dash, wall dash, and swinging
+@export var advanced_movenment : bool = false  ##  Allows for air normal dash, swinging dash, and advanced climbing
 
 @export_subgroup("Double Jump")
-@export var item_double_jump : bool = false  #  Allows for air double jump under a condition
-@export var free_double_jump : bool = false  #  Allows for air double jump with no conditional
+@export var item_double_jump : bool = false  ##  Allows for air double jump under a condition
+@export var free_double_jump : bool = false  ##  Allows for air double jump with no conditional
 
 @export_subgroup("Dash")
-@export var special_dash : bool = false  #  Allows for special dash variation on ground, air, and water
+@export var special_dash : bool = false  ##  Allows for special dash variation on ground, air, and water
 
 @export_subgroup("Climbing")
-@export var normal_climb : bool = false  #  Allows for the player to climb on normal surfaces
-@export var normal_corner_swing : bool = false  #  Allows the player to swing when on the lower corner of a normal surface
-@export var slow_climb : bool = false  #  Allows for the player to climb on slow surfaces
-@export var slow_corner_swing : bool = false  #  Allows the player to swing when on the lower corner of a slow surface
-@export var ice_slide : bool = false  #  Allows for the player to slide down on ice surfaces
-@export var ice_corner_swing : bool = false  #  Allows the player to swing when on the lower corner of an ice surface
+@export var MAX_STAMINA : float = 5.0  ##  Meassured in seconds of climbing, kicking off takes one whole second, not climbing takes 1/4 seconds the time
+@export var normal_climb : bool = false  ##  Allows for the player to climb on normal surfaces
+@export var normal_corner_swing : bool = false  ##  Allows the player to swing when on the lower corner of a normal surface
+@export var slow_climb : bool = false  ##  Allows for the player to climb on slow surfaces
+@export var slow_corner_swing : bool = false  ##  Allows the player to swing when on the lower corner of a slow surface
+@export var ice_slide : bool = false  ##  Allows for the player to slide down on ice surfaces
+@export var ice_corner_swing : bool = false  ##  Allows the player to swing when on the lower corner of an ice surface
 
 @export_subgroup("Convenience")
 @export_range(-15.0, -1.0) var cutting_value : float = -2.0
@@ -101,6 +102,9 @@ var has_dashed_in_air = false  ##  Has dashed in the air
 # physics manipulation
 var speed_boost : float = 1.0  ##  Boosts to all speed stuff
 var layered_gravity : Vector2 = Vector2.ZERO  ##  Things like wind and extra gravity that are applied outside of the state
+
+# Player Variables
+@onready var stamina : float = MAX_STAMINA
 
 # Animations
 var left_or_right : bool = false  ## false for left, true for right
@@ -173,35 +177,23 @@ func _physics_process(delta):
 	velocity *= Global.time_speed  ##  Sets it to the speed of the game
 	
 	##	Set Velocity Rays
-	var temp_velocity = velocity / 60
-	$GroundTypeRays/VelocityBouncePad.target_position = temp_velocity
-	$WallTypeRays/VelocityBouncePadHigh.target_position = temp_velocity + (Vector2(5.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-5.0, 0.0))
-	$WallTypeRays/VelocityBouncePadLow.target_position = temp_velocity + (Vector2(5.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-5.0, 0.0))
-	$ConvenienceRays/VelocityNextPosition.target_position = temp_velocity + (Vector2(5.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-5.0, 0.0))
-	$ConvenienceRays/VelocityNextTopPosition.target_position = temp_velocity + (Vector2(5.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-5.0, 0.0))
-	$ConvenienceRays/VelocityCeilingSnapLeft.target_position.y = minf(0, temp_velocity.y)
-	$ConvenienceRays/VelocityCeilingSnapRight.target_position.y = minf(0, temp_velocity.y)
-	$ConvenienceRays/VelocityCeilingLeft.target_position.y = minf(0, temp_velocity.y)
-	$ConvenienceRays/VelocityCeilingRight.target_position.y = minf(0, temp_velocity.y)
+	#var temp_velocity = velocity / 60
+	#$GroundTypeRays/VelocityBouncePad.target_position = temp_velocity
+	#$WallTypeRays/VelocityBouncePadHigh.target_position = temp_velocity + (Vector2(5.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-5.0, 0.0))
+	#$WallTypeRays/VelocityBouncePadLow.target_position = temp_velocity + (Vector2(5.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-5.0, 0.0))
+	#$ConvenienceRays/VelocityNextPosition.target_position = temp_velocity + (Vector2(5.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-5.0, 0.0))
+	#$ConvenienceRays/VelocityNextTopPosition.target_position = temp_velocity + (Vector2(5.0, 0.0) if temp_velocity.x > 0.0 else Vector2(-5.0, 0.0))
 	
+	#$GroundTypeRays/VelocityBouncePad.force_update_transform()			##	Checks if the next frame will interact with a bouncepad on the ground
+	#$WallTypeRays/VelocityBouncePadHigh.force_update_transform()		##	Checks if the next frame will interact with a bouncepad on the wall
+	#$WallTypeRays/VelocityBouncePadLow.force_update_transform()			##	Checks if the next frame will interact with a bouncepad on the wall
+	#$ConvenienceRays/VelocityNextPosition.force_update_transform()		##	Checks if you're colliding with a surface or the ground next frame
+	#
+	#$GroundTypeRays/VelocityBouncePad.force_raycast_update()
+	#$WallTypeRays/VelocityBouncePadHigh.force_raycast_update()
+	#$WallTypeRays/VelocityBouncePadLow.force_raycast_update()
+	#$ConvenienceRays/VelocityNextPosition.force_raycast_update()
 	
-	$GroundTypeRays/VelocityBouncePad.force_update_transform()			##	Checks if the next frame will interact with a bouncepad on the ground
-	$WallTypeRays/VelocityBouncePadHigh.force_update_transform()		##	Checks if the next frame will interact with a bouncepad on the wall
-	$WallTypeRays/VelocityBouncePadLow.force_update_transform()			##	Checks if the next frame will interact with a bouncepad on the wall
-	$ConvenienceRays/VelocityNextPosition.force_update_transform()		##	Checks if you're colliding with a surface or the ground next frame
-	$ConvenienceRays/VelocityCeilingSnapLeft.force_update_transform()	##	Checks if you can't snap around the ceiling next frame
-	$ConvenienceRays/VelocityCeilingSnapRight.force_update_transform()	##	Checks if you can't snap around the ceiling next frame
-	$ConvenienceRays/VelocityCeilingLeft.force_update_transform()		##	Checks if you're colliding with the ceiling next frame
-	$ConvenienceRays/VelocityCeilingRight.force_update_transform()		##	Checks if you're colliding with the ceiling next frame
-	
-	$GroundTypeRays/VelocityBouncePad.force_raycast_update()
-	$WallTypeRays/VelocityBouncePadHigh.force_raycast_update()
-	$WallTypeRays/VelocityBouncePadLow.force_raycast_update()
-	$ConvenienceRays/VelocityNextPosition.force_raycast_update()
-	$ConvenienceRays/VelocityCeilingSnapLeft.force_raycast_update()
-	$ConvenienceRays/VelocityCeilingSnapRight.force_raycast_update()
-	$ConvenienceRays/VelocityCeilingLeft.force_raycast_update()
-	$ConvenienceRays/VelocityCeilingRight.force_raycast_update()
 	
 	#pingpong()
 	move_and_slide() # Might do this first, idk
@@ -335,7 +327,6 @@ func determine_wall_type() -> bool:
 	
 	var too_low : bool = false
 	
-	wall_direction
 	var norm_collision = $WallTypeRays/NormalWallRight.is_colliding() || $WallTypeRays/NormalWallLeft.is_colliding()
 	var slow_collision = $"WallTypeRays/SlowWallRight".is_colliding() || $"WallTypeRays/SlowWallLeft".is_colliding()
 	var ice_collision = $"WallTypeRays/IceWallRight".is_colliding() || $"WallTypeRays/IceWallLeft".is_colliding()
@@ -347,17 +338,18 @@ func determine_wall_type() -> bool:
 	elif(collisions > 1):
 		##	Finds the priority wall  (Distance of 8 pixels from the start of the ray is the hand, and the cutoff point)
 		var collision_points : Array[float] = [1.0, 1.0, 1.0, 1.0]
-		collision_points[0] = -1.0 if !norm_collision else 15.0 - ($WallTypeRays/NormalWallRight.get_collision_point().y - $WallTypeRays/NormalWallRight.global_position.y if wall_direction == 1 else $WallTypeRays/NormalWallLeft.get_collision_point().y - $WallTypeRays/NormalWallLeft.global_position.y)
-		collision_points[1] = -1.0 if !slow_collision else 15.0 - ($WallTypeRays/SlowWallRight.get_collision_point().y - $WallTypeRays/SlowWallRight.global_position.y if wall_direction == 1 else $WallTypeRays/SlowWallLeft.get_collision_point().y - $WallTypeRays/SlowWallLeft.global_position.y)
-		collision_points[2] = -1.0 if !ice_collision else 15.0 - ($WallTypeRays/IceWallRight.get_collision_point().y - $WallTypeRays/IceWallRight.global_position.y if wall_direction == 1 else $WallTypeRays/IceWallLeft.get_collision_point().y - $WallTypeRays/IceWallLeft.global_position.y)
-		collision_points[3] = -1.0 if !non_collision else 15.0 - ($WallTypeRays/NonWallRight.get_collision_point().y - $WallTypeRays/NonWallRight.global_position.y if wall_direction == 1 else $WallTypeRays/NonWallLeft.get_collision_point().y - $WallTypeRays/NonWallLeft.global_position.y)
+		collision_points[0] = -1.0 if !norm_collision else ($WallTypeRays/NormalWallRight.get_collision_point().y - $WallTypeRays/NormalWallRight.global_position.y if wall_direction == 1 else $WallTypeRays/NormalWallLeft.get_collision_point().y - $WallTypeRays/NormalWallLeft.global_position.y)
+		collision_points[1] = -1.0 if !slow_collision else ($WallTypeRays/SlowWallRight.get_collision_point().y - $WallTypeRays/SlowWallRight.global_position.y if wall_direction == 1 else $WallTypeRays/SlowWallLeft.get_collision_point().y - $WallTypeRays/SlowWallLeft.global_position.y)
+		collision_points[2] = -1.0 if !ice_collision else ($WallTypeRays/IceWallRight.get_collision_point().y - $WallTypeRays/IceWallRight.global_position.y if wall_direction == 1 else $WallTypeRays/IceWallLeft.get_collision_point().y - $WallTypeRays/IceWallLeft.global_position.y)
+		collision_points[3] = -1.0 if !non_collision else ($WallTypeRays/NonWallRight.get_collision_point().y - $WallTypeRays/NonWallRight.global_position.y if wall_direction == 1 else $WallTypeRays/NonWallLeft.get_collision_point().y - $WallTypeRays/NonWallLeft.global_position.y)
 		
 		var current_best_height : float = -100.0
 		var current_most_adequet : int = -1
 		for i in range(collision_points.size()):
-			if(collision_points[i] == -1.0 || collision_points[i] < 8.0):
+			if(collision_points[i] == -1.0 || collision_points[i] > 7.0):
 				continue
-			if(collision_points[i] >= 8.0 && collision_points[i] > current_best_height && collision_points[i] >= 12.0):
+				print(i)
+			if(collision_points[i] <= 7.0 && collision_points[i] < current_best_height):
 				"""  8.0 is the height you can grab from"""
 				current_most_adequet = i
 			elif(collision_points[i] ):
@@ -381,7 +373,7 @@ func determine_wall_type() -> bool:
 			wall_type = -1
 	
 	new_wall_surface = wall_type != last_wall_type
-	last_wall_type = wall_type
+	last_wall_type = wall_type if wall_type != 0 else last_wall_type
 	return too_low
 
 

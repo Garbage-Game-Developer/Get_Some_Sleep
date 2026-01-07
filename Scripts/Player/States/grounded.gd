@@ -84,6 +84,7 @@ func new_state(delta : float, change_state : State.s, movenment_package : Array)
 	last_state = change_state
 	
 	P.special_available = true
+	P.stamina = P.MAX_STAMINA
 	velocity = P.velocity / Global.time_speed
 	update(delta)
 
@@ -231,22 +232,22 @@ func update(delta : float):
 	""" Animations to Play """
 	if(!new_action):
 		
-		if(P.just_switched_directions):
+		if(P.just_switched_directions || is_state_new):
 			C.change_facing(P.left_or_right)
 		
 		"""  Movenment Animations  """
 		
 		if(move_vector.x != 0.0 && (sign(move_vector.x) == sign(velocity.x) || velocity.x == 0.0)):
 			##  Need to consider change in velocity from starting to ending to determine stuff at some point
-			C.play(C.Animations.RUN)
+			C.play(C.RUN)
 		elif(sign(move_vector.x) != sign(velocity.x)):
 			##	Play a turning around animation, or a skidding to a stop while facing the other direction animation
-			C.play(C.Animations.RUN)  # for now
+			C.play(C.RUN)  # for now
 		elif(abs(velocity.x) > 50.0):
 			##	Play some sort of skidding to a stop animation, or slow down animation
-			C.play(C.Animations.RUN)  # for now
+			C.play(C.RUN)  # for now
 		else:
-			C.play(C.Animations.IDLE)
+			C.play(C.IDLE)
 		
 	else:
 		

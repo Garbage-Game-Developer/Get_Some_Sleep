@@ -90,6 +90,7 @@ func new_state(delta : float, change_state : State.s, movenment_package : Array,
 	velocity = P.velocity / Global.time_speed
 	if(jumping):
 		jump()
+		$"../../Timers/CoyoteTimer".stop()
 	else:
 		y_decceleration = FALLING_TERMINAL_VELOCITY / FALLING_DECELERATION_TIME
 	
@@ -109,16 +110,20 @@ func update(delta : float):
 	elif(P.on_wall() && !P.is_on_floor() && !is_state_new && P.Wall.deterine_if_swap_state()):  ##  find if also holding direction
 		##	Seemlessly cut over
 		var temp_check : int = cut_clamber_hang()
-		if(temp_check == 1):
-			pass
-		##	Cut over
-		elif(temp_check == 2):
-			pass
-		##	Change to wall
-		elif(temp_check == 3):
-			pass
-		else:
+		if(temp_check == 1 && velocity.y >= 0.0):
+			##	Seemless cut
+			P.position.y -= 15.0 - collision_point + 0.1
+			velocity.y = -y_decceleration
+			P.position.x += 0.1 + P.wall_direction
+		elif(temp_check == 2 && velocity.y >= -10.0):
+			##	Clamber
+			velocity.y = -100.0
+		elif((temp_check == 3 || temp_check == 4) && (P.stamina > 0.0 || Input.is_action_just_pressed("JUMP") && $"../../Timers/CoyoteTimer".is_stopped() && !(double_jump_bool && P.special_available))):
+			##	Change to wall
 			state_change_to = State.s.WALL
+		else:
+			##	Check if can corner hang, if not, don't switch
+			pass
 	elif(!Input.is_action_pressed("JUMP") || velocity.y >= 0.0 || P.is_on_ceiling()):
 		y_decceleration = FALLING_TERMINAL_VELOCITY / FALLING_DECELERATION_TIME
 		if(P.is_on_ceiling() && is_jumping):
@@ -126,8 +131,11 @@ func update(delta : float):
 		is_jumping = false
 	
 	if(P.is_on_wall_only() && state_change_to != State.s.WALL && velocity.x != 0.0):
-		target_velocity = 0.0
-		movenment_curve_frame = 1000
+		target_velocity = 0.0 if sign(velocity.x) == P.wall_direction else target_velocity
+		movenment_curve_frame = 1000.0 if sign(velocity.x) == P.wall_direction else movenment_curve_frame
+		if(sign(velocity.x) == P.wall_direction && P.move_vector.x != P.wall_direction && !P.just_switched_directions):
+			gen_movenment_curve(P.move_vector.x)
+			movenment_curve_frame = 0.0
 		last_on_wall = true
 	if(last_on_wall && !P.on_wall()):
 		interferience = true
@@ -159,14 +167,17 @@ func update(delta : float):
 			if(P.special_areas > 0):
 				Global.emit_signal("player_special_used", P.player_id)
 				P.special_available = false
+				last_state = State.s.AIR
 				jump()
-			else:
-				pass
+		
 		elif(!$"../../Timers/CoyoteTimer".is_stopped()):
+			print("working???")
 			$"../../Timers/CoyoteTimer".stop()
 			jump()
+		
 		else:
 			P.special_available = false
+			last_state = State.s.AIR
 			jump()
 	
 	elif(Input.is_action_just_pressed("SLIDE")):
@@ -256,42 +267,52 @@ func update(delta : float):
 	""" Animations to Play """
 	if(!new_action):
 		
-		if(P.just_switched_directions):
-			C.change_facing(P.left_or_right)
+		#if(P.just_switched_directions):
+		#	C.change_facing(P.left_or_right)
+		
+		if(velocity.x != 0.0 && sign(velocity.x) != C.left_or_right):
+			C.change_facing(true if velocity.x > 0.0 else false)
 		
 		"""  Movenment Animations  """
 		
-		if(velocity.y < 20.0):
-			C.play(C.Animations.JUMP)
+		var moving_threshhold : float = 100.0 
+		var float_threshhold : float = 50.0
 		
-		#elif(velocity.y > -20.0):
-			##	Play a holding in air animation
-		#	pass
+		if(was_on_wall && is_jumping):
+			C.play(C.JUMP_WALL)
 		
-		else:
-			C.play(C.Animations.FALL)
+		elif(velocity.y < -float_threshhold && C.animation != C.JUMP_WALL):
+			C.play(C.JUMP_MOVING if abs(velocity.x) > moving_threshhold else C.JUMP)
+		
+		elif(velocity.y < 0.0 && C.animation != C.JUMP_WALL):
+			C.play(C.FLOATING_UP_MOVING if abs(velocity.x) > moving_threshhold else C.FLOATING_UP)
+		
+		elif(velocity.y < float_threshhold * 1.5 && C.animation != C.JUMP_WALL):
+			C.play(C.FLOATING_DOWN_MOVING if abs(velocity.x) > moving_threshhold else C.FLOATING_DOWN)
+		
+		elif(velocity.y > float_threshhold && C.animation != C.JUMP_WALL):
+			C.play(C.FALL_MOVING if abs(velocity.x) > moving_threshhold else C.FALL)
+
 		
 	else:
 		
 		"""  Action Animations  """
 		
-		if(action_is_punch):
-			pass
+		pass
 		
 		##	Will need to receive the interaction type to figure out what kind of animation to play, might have to cutscene it
-		
-		pass
+
 	
 	
 	"""  Animation Scale Stuff  """
 	
 	var desired_scale : Vector2 = Vector2.ONE
-	desired_scale.y = 1 + (abs(velocity.y) / ((abs(velocity.y) + 100.0) * (4.0 if sign(velocity.y) > 0 else 6.0)))
+	desired_scale.y = 1 + (abs(velocity.y) / ((abs(velocity.y) + 100.0) * (5.0 if sign(velocity.y) < 0 else 6.0)))
 	desired_scale.x = 1.0 / desired_scale.y
 	C.scale = lerp(C.scale, desired_scale, 0.4) 
 	
 	is_state_new = false
-	was_on_wall = false
+	was_on_wall = false 
 	
 	""" Physics """
 	
@@ -300,6 +321,41 @@ func update(delta : float):
 	
 	velocity.x *= P.speed_boost
 	P.velocity = velocity * 60.0 * delta
+	
+	
+	"""  Final Adjustments  """
+	
+	var temp_velocity = velocity * delta
+	$"../../ConvenienceRays/VelocityCeilingSnapLeft".target_position.y = minf(0, temp_velocity.y)
+	$"../../ConvenienceRays/VelocityCeilingSnapRight".target_position.y = minf(0, temp_velocity.y)
+	$"../../ConvenienceRays/VelocityCeilingLeft".target_position.y = minf(0, temp_velocity.y)
+	$"../../ConvenienceRays/VelocityCeilingRight".target_position.y = minf(0, temp_velocity.y)
+	$"../../ConvenienceRays/VelocityCeilingSnapLeft".force_update_transform()	##	Checks if you can't snap around the ceiling next frame
+	$"../../ConvenienceRays/VelocityCeilingSnapRight".force_update_transform()	##	Checks if you can't snap around the ceiling next frame
+	$"../../ConvenienceRays/VelocityCeilingLeft".force_update_transform()		##	Checks if you're colliding with the ceiling next frame
+	$"../../ConvenienceRays/VelocityCeilingRight".force_update_transform()		##	Checks if you're colliding with the ceiling next frame
+	$"../../ConvenienceRays/VelocityCeilingSnapLeft".force_raycast_update()
+	$"../../ConvenienceRays/VelocityCeilingSnapRight".force_raycast_update()
+	$"../../ConvenienceRays/VelocityCeilingLeft".force_raycast_update()
+	$"../../ConvenienceRays/VelocityCeilingRight".force_raycast_update()
+	
+	if(!($"../../ConvenienceRays/VelocityCeilingLeft".is_colliding() && !$"../../ConvenienceRays/VelocityCeilingSnapLeft".is_colliding()) && ($"../../ConvenienceRays/VelocityCeilingRight".is_colliding() && !$"../../ConvenienceRays/VelocityCeilingSnapRight".is_colliding())):
+		$"../../ConvenienceRays/CeilingSnapRight".position.y = -15 + temp_velocity.y
+		$"../../ConvenienceRays/CeilingSnapRight".force_update_transform()
+		$"../../ConvenienceRays/CeilingSnapRight".force_raycast_update()
+		P.position.x += $"../../ConvenienceRays/VelocityCeilingRight".to_local($"../../ConvenienceRays/CeilingSnapRight".get_collision_point()).x - 0.1
+		if(velocity.y < -50.0):
+			$"../../C".scale.y = 1.2 + (($"../../ConvenienceRays/VelocityCeilingRight".to_local($"../../ConvenienceRays/CeilingSnapRight".get_collision_point()).x - 0.1) / 7.0)
+			$"../../C".scale.x = 1 / $"../../C".scale.y
+	
+	elif($"../../ConvenienceRays/VelocityCeilingLeft".is_colliding() && !$"../../ConvenienceRays/VelocityCeilingSnapLeft".is_colliding()):
+		$"../../ConvenienceRays/CeilingSnapLeft".position.y = -15 + temp_velocity.y
+		$"../../ConvenienceRays/CeilingSnapLeft".force_update_transform()
+		$"../../ConvenienceRays/CeilingSnapLeft".force_raycast_update()
+		P.position.x += $"../../ConvenienceRays/VelocityCeilingLeft".to_local($"../../ConvenienceRays/CeilingSnapLeft".get_collision_point()).x + 0.1
+		if(velocity.y < -50.0):
+			$"../../C".scale.y = 1.2 + (($"../../ConvenienceRays/VelocityCeilingLeft".to_local($"../../ConvenienceRays/CeilingSnapLeft".get_collision_point()).x - 0.1) / 7.0)
+			$"../../C".scale.x = 1 / $"../../C".scale.y
 
 
 func generate_movenment_package() -> Array:
@@ -309,7 +365,8 @@ func generate_movenment_package() -> Array:
 
 var was_on_wall = false
 func jump():
-	is_jumping = true
+	var height_jumping : bool = P.stamina > 0.0 && ((P.wall_type == 1 && P.normal_climb) || (P.wall_type == 2 && P.slow_climb))
+	is_jumping = last_state != State.s.WALL || height_jumping
 	triggered_jump = true
 	match last_state:
 		State.s.GROUNDED:
@@ -318,9 +375,9 @@ func jump():
 			y_decceleration = -initial_y_velocity / GROUND_DECELERATION_TIME
 		State.s.WALL:
 			was_on_wall = true
-			initial_y_velocity = WALL_INITIAL_VELOCITY * kick_power
+			initial_y_velocity = (WALL_INITIAL_VELOCITY * kick_power if height_jumping else 0.0)
 			velocity.y = initial_y_velocity * kick_power
-			y_decceleration = -initial_y_velocity / WALL_DECELERATION_TIME
+			y_decceleration = (-initial_y_velocity / WALL_DECELERATION_TIME if height_jumping else FALLING_TERMINAL_VELOCITY / FALLING_DECELERATION_TIME)
 		this_state:
 			initial_y_velocity = DOUBLE_INITIAL_VELOCITY
 			velocity.y = initial_y_velocity
@@ -330,13 +387,25 @@ func jump():
 	last_state = this_state
 
 
+var collision_point : float = 0.0
+var low_collision_point : float = 0.0
+##	Return : 1 - seemless cut over, 2 - clamber, 3 - normal wall, 4 - ledge hang, 5 - corner hang
 func cut_clamber_hang() -> int:
-	#var top_true : bool = $"../../WallTypeRays/WallRightHigh".is_colliding() if P.wall_direction > 0 else $"../../WallTypeRays/WallLeftHigh".is_colliding()
-	#if():
-	#	pass
-	#elif():
-	#	pass
-	return 0
+	##  starts at y = -15.0 (0.0), and at the target position (which is downward, starting up) would be y = 0.0 (15.0)
+	collision_point = $"../../WallTypeRays/WallRight".get_collision_point().y - $"../../WallTypeRays/WallRight".global_position.y if P.wall_direction == 1 else $"../../WallTypeRays/WallLeft".get_collision_point().y - $"../../WallTypeRays/WallLeft".global_position.y
+	##  starts at y = 0.0 (0.0), and at the target position (which is upwards, starting down) would be y = -15.0 (15.0)
+	low_collision_point = -$"../../WallTypeRays/WallRightDown".get_collision_point().y - -$"../../WallTypeRays/WallRightDown".global_position.y if P.wall_direction == 1 else $"../../WallTypeRays/WallLeftDown".get_collision_point().y - $"../../WallTypeRays/WallLeftDown".global_position.y
+	if(collision_point == 0.0 && low_collision_point >= 12.0):
+		return 5
+	elif(collision_point == 0.0):
+		return 3
+	elif(collision_point >= 13.0):
+		return 1
+	elif(collision_point >= 9.0):
+		return 2
+	elif(collision_point >= 3.0):
+		return 4
+	return 3
 
 
 """ Movenment Curve Functions """

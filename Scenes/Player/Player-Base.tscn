@@ -1,12 +1,12 @@
 [gd_scene load_steps=16 format=3 uid="uid://bl7tp660hpbgu"]
 
 [ext_resource type="Script" uid="uid://coji8x5p1svqt" path="res://Scripts/Player/player_base.gd" id="1_pcxub"]
-[ext_resource type="Script" uid="uid://ivfkaytss4d5" path="res://Scripts/Player/Internal/character.gd" id="1_sfkqq"]
-[ext_resource type="Shader" uid="uid://bhw4eqxw532og" path="res://Scripts/Player/Shaders/Player-Base.gdshader" id="2_7oum1"]
+[ext_resource type="Shader" uid="uid://bhw4eqxw532og" path="res://Scripts/Player/Shaders/player-base.gdshader" id="2_7oum1"]
 [ext_resource type="Texture2D" uid="uid://c4nwp7n3x8i0s" path="res://Assets/Effects/Shaders/64FadedCircle.png" id="2_ii8om"]
 [ext_resource type="Script" uid="uid://dqhex5uyycpmy" path="res://Scripts/Player/States/air.gd" id="3_erevo"]
 [ext_resource type="Script" uid="uid://bboq2wxo458qt" path="res://Scripts/Player/States/grounded.gd" id="3_gri1l"]
 [ext_resource type="Script" uid="uid://cd8xjopapxhmk" path="res://Scripts/Player/States/wall.gd" id="5_2gvn5"]
+[ext_resource type="Script" uid="uid://ivfkaytss4d5" path="res://Scripts/Player/Internal/character.gd" id="7_2gvn5"]
 [ext_resource type="SpriteFrames" uid="uid://brf7fl6y2cs63" path="res://Assets/Sprites/Actors/Animated Sprites Base/BaseRight.tres" id="8_2gvn5"]
 [ext_resource type="SpriteFrames" uid="uid://bu3gd73sgmrj7" path="res://Assets/Sprites/Actors/Animated Sprites Base/BaseLeft.tres" id="9_sixxt"]
 
@@ -24,6 +24,19 @@ size = Vector2(12, 16)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_hvnhq"]
 shader = ExtResource("2_7oum1")
+shader_parameter/has_special = false
+shader_parameter/special_hair_color = Color(0.86, 0.8428, 0.51600003, 1)
+shader_parameter/hair_color = Color(0.81960785, 0.81960785, 0.81960785, 1)
+shader_parameter/special_eye_color = Color(1, 0.95, 0, 1)
+shader_parameter/eye_color = Color(0.11764706, 0.59607846, 0.16470589, 1)
+shader_parameter/special_outline_color = Color(0.5, 0.475, 0, 1)
+shader_parameter/has_other_overrides = true
+shader_parameter/special_overrides = PackedColorArray(0.7137255, 0.7137255, 0.7137255, 1)
+shader_parameter/special_override_colors = PackedColorArray(0.81960785, 0.8039216, 0.49019608, 1)
+shader_parameter/stamina_show = false
+shader_parameter/stamina_color = Color(1, 1, 1, 1)
+shader_parameter/stamina_thickness = 1.0
+shader_parameter/white_flash = false
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2u4vx"]
 size = Vector2(1, 4)
@@ -35,9 +48,9 @@ platform_floor_layers = 4294901767
 platform_wall_layers = 7
 script = ExtResource("1_pcxub")
 DEBUG = true
+PLAYER_NAME = "Peepa"
 basic_movenment = true
 advanced_movenment = true
-free_double_jump = true
 normal_climb = true
 cutting_value = -10.0
 
@@ -101,6 +114,16 @@ script = ExtResource("3_gri1l")
 
 [node name="Wall" type="Node" parent="S"]
 script = ExtResource("5_2gvn5")
+
+[node name="LastBlink" type="Timer" parent="S/Wall"]
+process_callback = 0
+wait_time = 0.2
+one_shot = true
+
+[node name="BlinkTimeout" type="Timer" parent="S/Wall"]
+process_callback = 0
+wait_time = 0.05
+one_shot = true
 
 [node name="Dead" type="Node" parent="S"]
 
@@ -201,8 +224,20 @@ target_position = Vector2(0, -10)
 collision_mask = 7
 hit_from_inside = true
 
+[node name="CeilingSnapLeft" type="RayCast2D" parent="ConvenienceRays"]
+position = Vector2(-3, -15)
+target_position = Vector2(-2, 0)
+collision_mask = 7
+hit_from_inside = true
+
+[node name="CeilingSnapRight" type="RayCast2D" parent="ConvenienceRays"]
+position = Vector2(3, -15)
+target_position = Vector2(2, 0)
+collision_mask = 7
+hit_from_inside = true
+
 [node name="WallTypeRays" type="Node2D" parent="."]
-z_index = 12
+visible = false
 
 [node name="WallRight" type="RayCast2D" parent="WallTypeRays"]
 position = Vector2(6, -15)
@@ -293,6 +328,7 @@ collision_mask = 512
 hit_from_inside = true
 
 [node name="GroundTypeRays" type="Node2D" parent="."]
+visible = false
 
 [node name="NormalGroundLeft" type="RayCast2D" parent="GroundTypeRays"]
 position = Vector2(-5, 0)
@@ -349,21 +385,24 @@ hit_from_inside = true
 
 [node name="C" type="Node2D" parent="."]
 material = SubResource("ShaderMaterial_hvnhq")
-script = ExtResource("1_sfkqq")
-animation = 1
+script = ExtResource("7_2gvn5")
+animation = 6
 
 [node name="Right" type="AnimatedSprite2D" parent="C"]
+use_parent_material = true
 sprite_frames = ExtResource("8_2gvn5")
-animation = &"JumpWall"
+animation = &"Fall"
 autoplay = "Idle"
+frame_progress = 1.0
 offset = Vector2(0, -9)
 
 [node name="Left" type="AnimatedSprite2D" parent="C"]
 visible = false
+use_parent_material = true
 sprite_frames = ExtResource("9_sixxt")
-animation = &"Idle"
+animation = &"Fall"
 autoplay = "Idle"
-frame_progress = 0.9027167
+frame_progress = 1.0
 offset = Vector2(0, -9)
 
 [node name="InWater" type="Area2D" parent="."]

@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=23 format=3 uid="uid://bu3gd73sgmrj7"]
+[gd_resource type="SpriteFrames" load_steps=29 format=3 uid="uid://bu3gd73sgmrj7"]
 
 [ext_resource type="Texture2D" uid="uid://cu7qxc0h31trf" path="res://Assets/Sprites/Actors/Grandpa/GrandpaSpritesheet.png" id="2_8wcnr"]
 
@@ -13,6 +13,22 @@ region = Rect2(364, 130, 26, 26)
 [sub_resource type="AtlasTexture" id="AtlasTexture_30pma"]
 atlas = ExtResource("2_8wcnr")
 region = Rect2(312, 130, 26, 26)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bn5eu"]
+atlas = ExtResource("2_8wcnr")
+region = Rect2(364, 156, 26, 26)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qf73p"]
+atlas = ExtResource("2_8wcnr")
+region = Rect2(416, 156, 26, 26)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bsk4f"]
+atlas = ExtResource("2_8wcnr")
+region = Rect2(260, 156, 26, 26)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vgdxx"]
+atlas = ExtResource("2_8wcnr")
+region = Rect2(312, 156, 26, 26)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_yik5y"]
 atlas = ExtResource("2_8wcnr")
@@ -40,11 +56,15 @@ region = Rect2(312, 104, 26, 26)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_2pejq"]
 atlas = ExtResource("2_8wcnr")
-region = Rect2(312, 78, 26, 26)
+region = Rect2(364, 78, 26, 26)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_2bnnx"]
 atlas = ExtResource("2_8wcnr")
-region = Rect2(338, 78, 26, 26)
+region = Rect2(390, 78, 26, 26)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ywhu8"]
+atlas = ExtResource("2_8wcnr")
+region = Rect2(312, 104, 26, 26)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_dvjty"]
 atlas = ExtResource("2_8wcnr")
@@ -86,6 +106,10 @@ region = Rect2(260, 52, 26, 26)
 atlas = ExtResource("2_8wcnr")
 region = Rect2(260, 78, 26, 26)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_8q27k"]
+atlas = ExtResource("2_8wcnr")
+region = Rect2(312, 78, 26, 26)
+
 [resource]
 animations = [{
 "frames": [{
@@ -110,6 +134,38 @@ animations = [{
 }],
 "loop": false,
 "name": &"FallMovingInto",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bn5eu")
+}],
+"loop": false,
+"name": &"FloatDown",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qf73p")
+}],
+"loop": false,
+"name": &"FloatDownMoving",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bsk4f")
+}],
+"loop": false,
+"name": &"FloatUp",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vgdxx")
+}],
+"loop": false,
+"name": &"FloatUpMoving",
 "speed": 5.0
 }, {
 "frames": [{
@@ -151,10 +207,13 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_2bnnx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ywhu8")
 }],
 "loop": false,
 "name": &"JumpWall",
-"speed": 20.0
+"speed": 15.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -199,5 +258,13 @@ animations = [{
 }],
 "loop": false,
 "name": &"Wall",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8q27k")
+}],
+"loop": true,
+"name": &"WallSlide",
 "speed": 5.0
 }]
