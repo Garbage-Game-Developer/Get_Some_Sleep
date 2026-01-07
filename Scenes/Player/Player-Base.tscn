@@ -393,7 +393,7 @@ use_parent_material = true
 sprite_frames = ExtResource("8_2gvn5")
 animation = &"Fall"
 autoplay = "Idle"
-frame_progress = 1.0
+frame_progress = 0.23212612
 offset = Vector2(0, -9)
 
 [node name="Left" type="AnimatedSprite2D" parent="C"]

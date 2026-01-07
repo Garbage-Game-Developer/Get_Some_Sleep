@@ -368,6 +368,7 @@ func jump():
 	var height_jumping : bool = P.stamina > 0.0 && ((P.wall_type == 1 && P.normal_climb) || (P.wall_type == 2 && P.slow_climb))
 	is_jumping = last_state != State.s.WALL || height_jumping
 	triggered_jump = true
+	
 	match last_state:
 		State.s.GROUNDED:
 			initial_y_velocity = GROUND_INITIAL_VELOCITY
