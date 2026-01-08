@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Get Some Sleep"
 config/description="A game about medicine tampering"
-run/main_scene="uid://bt73e02l1b1xk"
+run/main_scene="uid://cpqsf2tdxp3cd"
 config/features=PackedStringArray("4.5", "Forward Plus")
 boot_splash/bg_color=Color(0, 0, 0, 1)
 boot_splash/show_image=false
@@ -28,6 +28,7 @@ Global="*res://Scripts/Global/global.gd"
 window/size/viewport_width=640
 window/size/viewport_height=360
 window/size/mode=4
+window/size/initial_position_type=3
 window/stretch/mode="canvas_items"
 window/stretch/scale_mode="integer"
 
@@ -35,6 +36,7 @@ window/stretch/scale_mode="integer"
 
 folder_colors={
 "res://Assets/": "teal",
+"res://Assets/Themes/": "purple",
 "res://Scenes/": "blue",
 "res://Scripts/": "green",
 "res://Sounds/": "pink",

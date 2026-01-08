@@ -122,7 +122,8 @@ func _ready():
 	""" Check for global prefrences for controls and set the corresponding internal variables """
 	if(!DEBUG):
 		load_player_stats()
-	
+	else:
+		Global.active_player = self
 
 
 func _physics_process(delta):

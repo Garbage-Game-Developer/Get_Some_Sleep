@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3 uid="uid://cq8bmfo0nt8i7"]
+
+[ext_resource type="Script" uid="uid://dpvw8f30elegb" path="res://Scenes/GUI/Main Menu/main_menu.gd" id="1_svl5t"]
+[ext_resource type="Script" uid="uid://b4ns5clrce3be" path="res://Scripts/GUI/Tools/CenterPanel.gd" id="2_libdx"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_svl5t")
+
+[node name="CenterPanel" type="Control" parent="." node_paths=PackedStringArray("child_panel")]
+anchors_preset = 0
+offset_left = 320.0
+offset_top = 180.0
+offset_right = 320.0
+offset_bottom = 180.0
+script = ExtResource("2_libdx")
+child_panel = NodePath("Panel")
+metadata/_custom_type_script = "uid://b4ns5clrce3be"
+
+[node name="Panel" type="Panel" parent="CenterPanel"]
+layout_mode = 0
+offset_left = -50.0
+offset_top = -50.0
+offset_right = 50.0
+offset_bottom = 50.0

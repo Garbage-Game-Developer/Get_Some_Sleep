@@ -365,10 +365,9 @@ func generate_movenment_package() -> Array:
 
 var was_on_wall = false
 func jump():
-	var height_jumping : bool = P.stamina > 0.0 && ((P.wall_type == 1 && P.normal_climb) || (P.wall_type == 2 && P.slow_climb))
+	var height_jumping : bool = P.stamina > 0.0 && ((P.last_wall_type == 1 && P.normal_climb) || (P.last_wall_type == 2 && P.slow_climb))
 	is_jumping = last_state != State.s.WALL || height_jumping
 	triggered_jump = true
-	
 	match last_state:
 		State.s.GROUNDED:
 			initial_y_velocity = GROUND_INITIAL_VELOCITY
@@ -395,8 +394,9 @@ func cut_clamber_hang() -> int:
 	##  starts at y = -15.0 (0.0), and at the target position (which is downward, starting up) would be y = 0.0 (15.0)
 	collision_point = $"../../WallTypeRays/WallRight".get_collision_point().y - $"../../WallTypeRays/WallRight".global_position.y if P.wall_direction == 1 else $"../../WallTypeRays/WallLeft".get_collision_point().y - $"../../WallTypeRays/WallLeft".global_position.y
 	##  starts at y = 0.0 (0.0), and at the target position (which is upwards, starting down) would be y = -15.0 (15.0)
-	low_collision_point = -$"../../WallTypeRays/WallRightDown".get_collision_point().y - -$"../../WallTypeRays/WallRightDown".global_position.y if P.wall_direction == 1 else $"../../WallTypeRays/WallLeftDown".get_collision_point().y - $"../../WallTypeRays/WallLeftDown".global_position.y
+	low_collision_point = -$"../../WallTypeRays/WallRightDown".get_collision_point().y - -$"../../WallTypeRays/WallRightDown".global_position.y if P.wall_direction == 1 else -$"../../WallTypeRays/WallLeftDown".get_collision_point().y - -$"../../WallTypeRays/WallLeftDown".global_position.y
 	if(collision_point == 0.0 && low_collision_point >= 12.0):
+		print("too low")
 		return 5
 	elif(collision_point == 0.0):
 		return 3

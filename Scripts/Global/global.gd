@@ -3,14 +3,13 @@ extends Node
 
 """	Global scene/nodes to call """
 ##	Core components
-var game_controller : GameController
+#var game_controller : GameController
 #var level : Level
 var players : Array[Player]
-var player : Player
+var active_player : Player
 var camera : Camera
 
 ##	Level components
-var camera_lock : Node2D
 
 
 """	External signals """
