@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cu7qxc0h31trf"
-path="res://.godot/imported/GrandpaSpritesheet.png-7e1ebe13fd6887d1e7563be49bc63a76.ctex"
+uid="uid://1kvvpnbxaffd"
+path="res://.godot/imported/wall-climb.png-490a32c7f5ce35e53bef892878e41742.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/Sprites/Actors/Grandpa/GrandpaSpritesheet.png"
-dest_files=["res://.godot/imported/GrandpaSpritesheet.png-7e1ebe13fd6887d1e7563be49bc63a76.ctex"]
+source_file="res://Assets/Sprites/Actors/Grandpa/wall-climb.png"
+dest_files=["res://.godot/imported/wall-climb.png-490a32c7f5ce35e53bef892878e41742.ctex"]
 
 [params]
 
