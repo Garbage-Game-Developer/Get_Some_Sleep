@@ -24,6 +24,9 @@ size = Vector2(12, 16)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_hvnhq"]
 shader = ExtResource("2_7oum1")
+shader_parameter/left_facing = true
+shader_parameter/left_overrides = PackedColorArray(0.84313726, 0.6745098, 0.5058824, 1, 0.78431374, 0.56078434, 0.3372549, 1)
+shader_parameter/left_override_colors = PackedColorArray(0.78431374, 0.56078434, 0.3372549, 1, 0.84313726, 0.6745098, 0.5058824, 1)
 shader_parameter/has_special = false
 shader_parameter/special_hair_color = Color(0.86, 0.8428, 0.51600003, 1)
 shader_parameter/hair_color = Color(0.81960785, 0.81960785, 0.81960785, 1)
@@ -391,9 +394,9 @@ animation = 6
 [node name="Right" type="AnimatedSprite2D" parent="C"]
 use_parent_material = true
 sprite_frames = ExtResource("8_2gvn5")
-animation = &"Fall"
+animation = &"Run"
 autoplay = "Idle"
-frame_progress = 0.070282064
+frame_progress = 0.7563447
 offset = Vector2(0, -9)
 
 [node name="Left" type="AnimatedSprite2D" parent="C"]
@@ -402,7 +405,6 @@ use_parent_material = true
 sprite_frames = ExtResource("9_sixxt")
 animation = &"Fall"
 autoplay = "Idle"
-frame_progress = 1.0
 offset = Vector2(0, -9)
 
 [node name="InWater" type="Area2D" parent="."]

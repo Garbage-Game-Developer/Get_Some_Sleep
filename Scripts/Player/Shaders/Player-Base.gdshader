@@ -1,5 +1,8 @@
 shader_type canvas_item;
 
+uniform bool left_facing = false;
+uniform vec4 left_overrides[1] : source_color;
+uniform vec4 left_override_colors[1] : source_color;
 
 uniform bool has_special = false;
 uniform vec4 special_hair_color : source_color = vec4(1.0);
@@ -36,6 +39,16 @@ void vertex() {
 }
 
 void fragment() {
+	
+	if(left_facing && COLOR != vec4(0.0)){
+		bool break_out = false;
+		for(int i = 0; i < left_overrides.length(); i++){
+			COLOR = vec4
+//			break_out = COLOR == left_overrides[i]; 
+//			if(break_out){ COLOR = left_override_colors[i]; break; }
+		}
+	}
+	
 	if(stamina_show && COLOR.a == 0.0){
 		float outline_mask = has_solid_neighbor( TEXTURE, UV, TEXTURE_PIXEL_SIZE );
 		COLOR = (outline_mask > 0.0 ? stamina_color : COLOR);
@@ -54,7 +67,7 @@ void fragment() {
 			//COLOR = special_outline_color;
 		//}
 		 else if(has_other_overrides) {
-			for(int i = 0; i < special_overrides.length(); i++){
+			for(int i = 0; i <= special_overrides.length(); i++){
 				COLOR = (COLOR == special_overrides[i] && COLOR != vec4(0.0) ? special_override_colors[i] : COLOR);
 			}
 		}

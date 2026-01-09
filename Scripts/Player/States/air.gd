@@ -171,7 +171,6 @@ func update(delta : float):
 				jump()
 		
 		elif(!$"../../Timers/CoyoteTimer".is_stopped()):
-			print("working???")
 			$"../../Timers/CoyoteTimer".stop()
 			jump()
 		
@@ -278,7 +277,7 @@ func update(delta : float):
 		var moving_threshhold : float = 100.0 
 		var float_threshhold : float = 50.0
 		
-		if(was_on_wall && is_jumping):
+		if(was_on_wall && is_jumping && $"../../Timers/CoyoteTimer".is_stopped()):
 			C.play(C.JUMP_WALL)
 		
 		elif(velocity.y < -float_threshhold && C.animation != C.JUMP_WALL):
@@ -324,6 +323,9 @@ func update(delta : float):
 	
 	
 	"""  Final Adjustments  """
+	
+	if(!$"../../Timers/CoyoteTimer".is_stopped() && is_jumping):
+		$"../../Timers/CoyoteTimer".stop()
 	
 	var temp_velocity = velocity * delta
 	$"../../ConvenienceRays/VelocityCeilingSnapLeft".target_position.y = minf(0, temp_velocity.y)

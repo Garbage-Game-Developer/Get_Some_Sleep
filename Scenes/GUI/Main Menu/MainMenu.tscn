@@ -1,7 +1,50 @@
-[gd_scene load_steps=3 format=3 uid="uid://cq8bmfo0nt8i7"]
+[gd_scene load_steps=14 format=3 uid="uid://cq8bmfo0nt8i7"]
 
+[ext_resource type="Theme" uid="uid://dc6jvdvr6jifd" path="res://Assets/Themes/Themes/Main Menu Themes/GeneralTheme.tres" id="1_gaqvt"]
 [ext_resource type="Script" uid="uid://dpvw8f30elegb" path="res://Scenes/GUI/Main Menu/main_menu.gd" id="1_svl5t"]
-[ext_resource type="Script" uid="uid://b4ns5clrce3be" path="res://Scripts/GUI/Tools/CenterPanel.gd" id="2_libdx"]
+[ext_resource type="Script" uid="uid://bo7eo67i33xrq" path="res://Scenes/GUI/Main Menu/main-menu-bg.gd" id="2_6bb43"]
+[ext_resource type="Shader" uid="uid://ccdhd2qf86jx1" path="res://Scenes/GUI/Main Menu/MainMenuBackground.gdshader" id="3_0knys"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_0knys"]
+noise_type = 2
+fractal_type = 0
+cellular_distance_function = 1
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_j3jxe"]
+width = 640
+height = 360
+noise = SubResource("FastNoiseLite_0knys")
+seamless = true
+
+[sub_resource type="Gradient" id="Gradient_gaqvt"]
+offsets = PackedFloat32Array(0, 0.5427136, 1)
+colors = PackedColorArray(0, 0, 0, 1, 0.18003038, 0.55100054, 0.9999998, 1, 1, 0, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_0knys"]
+gradient = SubResource("Gradient_gaqvt")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_j3jxe"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_8c4y5"]
+width = 640
+height = 360
+noise = SubResource("FastNoiseLite_j3jxe")
+seamless = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8c4y5"]
+shader = ExtResource("3_0knys")
+shader_parameter/intensity = 1.0
+shader_parameter/NoiseMap1 = SubResource("NoiseTexture2D_j3jxe")
+shader_parameter/secondNoiseMap = SubResource("NoiseTexture2D_8c4y5")
+shader_parameter/colorTexture = SubResource("GradientTexture1D_0knys")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_gaqvt"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_0knys"]
+width = 640
+height = 360
+noise = SubResource("FastNoiseLite_gaqvt")
+seamless = true
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -10,21 +53,27 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_gaqvt")
 script = ExtResource("1_svl5t")
 
-[node name="CenterPanel" type="Control" parent="." node_paths=PackedStringArray("child_panel")]
-anchors_preset = 0
-offset_left = 320.0
-offset_top = 180.0
-offset_right = 320.0
-offset_bottom = 180.0
-script = ExtResource("2_libdx")
-child_panel = NodePath("Panel")
-metadata/_custom_type_script = "uid://b4ns5clrce3be"
+[node name="BG" type="Sprite2D" parent="."]
+texture_repeat = 2
+material = SubResource("ShaderMaterial_8c4y5")
+texture = SubResource("NoiseTexture2D_0knys")
+centered = false
+script = ExtResource("2_6bb43")
 
-[node name="Panel" type="Panel" parent="CenterPanel"]
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
 layout_mode = 0
-offset_left = -50.0
-offset_top = -50.0
-offset_right = 50.0
-offset_bottom = 50.0
+offset_left = 220.0
+offset_top = 130.0
+offset_right = 420.0
+offset_bottom = 166.0
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/normal_font_size = 26
+text = "PLAY"
+fit_content = true
+scroll_active = false
+autowrap_trim_flags = 0
+shortcut_keys_enabled = false
+horizontal_alignment = 1

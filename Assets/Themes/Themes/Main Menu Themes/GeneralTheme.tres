@@ -1,0 +1,7 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://dc6jvdvr6jifd"]
+
+[ext_resource type="FontFile" uid="uid://ciwopujinovve" path="res://Assets/Themes/Fonts/alphbeta/alphbeta.ttf" id="1_020ai"]
+
+[resource]
+RichTextLabel/font_sizes/normal_font_size = 13
+RichTextLabel/fonts/normal_font = ExtResource("1_020ai")

@@ -44,7 +44,8 @@ enum {
 	"JUMP:3",
 		"JUMP_MOVING:301",
 		"JUMP_WALL:302",
-		"JUMP_WALL_SLIDEING:303",  ##  Not implemented
+		"JUMP_WALL_UP:303",
+		"JUMP_WALL_SLIDEING:304",  ##  Not implemented
 	
 	"FLOATING_UP:4",
 		"FLOATING_UP_MOVING:401",

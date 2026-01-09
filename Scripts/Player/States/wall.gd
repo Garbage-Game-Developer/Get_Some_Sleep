@@ -25,7 +25,7 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 """ Constants """
 @export_group("Into Air")
 @export_subgroup("Coyote Time")
-@export var COYOTE_TIME : float = 0.1
+@export var COYOTE_TIME : float = 0.15
 
 @export_group("Climbing or Sliding")
 
