@@ -41,12 +41,12 @@ void vertex() {
 void fragment() {
 	
 	if(left_facing && COLOR != vec4(0.0)){
-		bool break_out = false;
-		for(int i = 0; i < left_overrides.length(); i++){
-			COLOR = vec4
-//			break_out = COLOR == left_overrides[i]; 
-//			if(break_out){ COLOR = left_override_colors[i]; break; }
-		}
+		//bool break_out = false;
+		//for(int i = 0; i < left_overrides.length(); i++){
+			//COLOR = vec4;
+////			break_out = COLOR == left_overrides[i]; 
+////			if(break_out){ COLOR = left_override_colors[i]; break; }
+		//}
 	}
 	
 	if(stamina_show && COLOR.a == 0.0){

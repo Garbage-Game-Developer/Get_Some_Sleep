@@ -95,6 +95,7 @@ const DASH_AIR_MAX_TIME : float = 0.6  ##  Max time in the dash state (seconds)
 
 ##	Internal Variables (Extends to states)
 # available actions
+var can_use_actions : bool = true
 var passive_state = false  ##  Most animations locked, can only walk
 var special_available = true  ##  Can double jump or dash mid air
 var has_dashed_in_air = false  ##  Has dashed in the air
@@ -105,6 +106,7 @@ var layered_gravity : Vector2 = Vector2.ZERO  ##  Things like wind and extra gra
 
 # Player Variables
 @onready var stamina : float = MAX_STAMINA
+var last_stamina : float = 1.0
 
 # Animations
 var left_or_right : bool = false  ## false for left, true for right
@@ -120,6 +122,7 @@ var wall_direction : int = 1  ##  -1 is left, 0 is no wall, 1 is right
 """ Godot Built-In Functions """
 func _ready():
 	""" Check for global prefrences for controls and set the corresponding internal variables """
+	can_use_actions = false
 	if(!DEBUG):
 		load_player_stats()
 	else:
@@ -129,8 +132,8 @@ func _ready():
 func _physics_process(delta):
 	
 	##	Check velocity rays and other state related stuff
-	move_vector.x = left_right_priority(Input.is_action_pressed("LEFT"), Input.is_action_pressed("RIGHT")).x
-	move_vector.y = down_up_priority(Input.is_action_pressed("DOWN"), Input.is_action_pressed("UP")).y
+	move_vector.x = left_right_priority(is_action_pressed("LEFT"), is_action_pressed("RIGHT")).x
+	move_vector.y = down_up_priority(is_action_pressed("DOWN"), is_action_pressed("UP")).y
 	
 	wall_direction = 1 if $WallTypeRays/WallRight.is_colliding() else (-1 if $WallTypeRays/WallLeft.is_colliding() else 0)
 	determine_wall_type()
@@ -197,6 +200,8 @@ func _physics_process(delta):
 	
 	
 	#pingpong()
+	
+	last_stamina = stamina
 	move_and_slide() # Might do this first, idk
 
 
@@ -304,6 +309,12 @@ func down_up_priority(down_pressed : bool, up_pressed : bool) -> Vector2:
 	return Vector2.ZERO
 
 
+func is_action_just_pressed(action : StringName, override : bool = false) -> bool:
+	return Input.is_action_just_pressed(action) if can_use_actions || override else false
+func is_action_pressed(action : StringName, override : bool = false) -> bool:
+	return Input.is_action_pressed(action) if can_use_actions || override else false
+
+
 
 var wall_type : int = 1	##	1 - Normal, 2 - Slow, 3 - Ice, -1 - Non Wall
 var last_wall_type : int = 1
@@ -311,20 +322,6 @@ var new_wall_surface : bool
 func determine_wall_type() -> bool:
 	
 	"""  When determining height priority, avoid multiple high low rays, instead, simply find the height of the intersection for the ray  """
-	
-	#last_wall_type = wall_type
-	#if($WallTypeRays/NormalWallRight.is_colliding() || $WallTypeRays/NormalWallLeft.is_colliding()):
-		#wall_type = 1
-		#Wall.kick_power = Wall.NORMAL_KICK_POWER
-	#elif($"WallTypeRays/SlowWallRight".is_colliding() || $"WallTypeRays/SlowWallLeft".is_colliding()):
-		#wall_type = 2
-		#Wall.kick_power = Wall.SLOW_KICK_POWER
-	#elif($"WallTypeRays/IceWallRight".is_colliding() || $"WallTypeRays/IceWallLeft".is_colliding()):
-		#wall_type = 3
-		#Wall.kick_power = Wall.ICE_KICK_POWER
-	#elif($"WallTypeRays/NonWallRight".is_colliding() || $"WallTypeRays/NonWallLeft".is_colliding()):
-		#wall_type = -1
-	#else:
 	
 	var too_low : bool = false
 	

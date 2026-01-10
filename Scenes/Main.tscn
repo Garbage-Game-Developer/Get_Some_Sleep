@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://cpqsf2tdxp3cd"]
 
 [ext_resource type="Script" uid="uid://b6v6y6av7bquf" path="res://Scenes/game-controller.gd" id="1_idj7w"]
-[ext_resource type="PackedScene" uid="uid://cocx3qj5cxwri" path="res://Scenes/Levels/Camera/Camera.tscn" id="1_r150o"]
+[ext_resource type="PackedScene" uid="uid://cocx3qj5cxwri" path="res://Scenes/Camera/Camera.tscn" id="1_r150o"]
 
 [node name="Main" type="Node"]
 

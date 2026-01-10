@@ -115,7 +115,7 @@ func update(delta : float):
 	""" Actions """
 	var new_action = false
 	var action_is_punch = false
-	if(Input.is_action_just_pressed("DASH") && $"../../Timers/DashFloorCooldown".is_stopped()):
+	if(P.is_action_just_pressed("DASH") && $"../../Timers/DashFloorCooldown".is_stopped()):
 		""" Default Key : "Shift"
 			Swap to the "Dash" state, from_ground = true   """
 		
@@ -128,14 +128,14 @@ func update(delta : float):
 			$"../../Timers/DashFloorCooldown".start()
 	
 	
-	elif(Input.is_action_just_pressed("SLIDE")):
+	elif(P.is_action_just_pressed("SLIDE")):
 		""" Default Key : "C"
 			Swap to the "Slide" state, from_ground = true   """
 		
 		state_change_to = State.s.SLIDE
 	
 	
-	elif(Input.is_action_just_pressed("JUMP") || !$"../../Timers/PrecisionJumpTimer".is_stopped()):
+	elif(P.is_action_just_pressed("JUMP") || !$"../../Timers/PrecisionJumpTimer".is_stopped()):
 		""" Default Key : "Space"
 			Swap to the "Jump" state, from_ground = true   """
 		
@@ -147,7 +147,7 @@ func update(delta : float):
 	
 	
 	else:
-		if(Input.is_action_just_pressed("ATTACK")):
+		if(P.is_action_just_pressed("ATTACK")):
 			""" Default Keys : "F", "V", "Right Mouse Button"
 				Sub action that calls the parent's Punch function, and plays an animation   """
 			
@@ -157,7 +157,7 @@ func update(delta : float):
 			action_is_punch = true
 		
 		
-		elif(Input.is_action_just_pressed("INTERACT")):
+		elif(P.is_action_just_pressed("INTERACT")):
 			""" Default Keys : "E", "Left Mouse Button"
 				Sub action that calls the parent's Interact function, and plays an animation   """
 			

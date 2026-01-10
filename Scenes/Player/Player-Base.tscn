@@ -75,7 +75,7 @@ debug_color = Color(0, 0.5950001, 0.7, 0.13725491)
 [node name="BackLight" type="PointLight2D" parent="."]
 z_index = -1
 color = Color(1, 0.9916667, 0.75, 1)
-energy = 0.2
+energy = 0.1
 range_z_max = -1
 texture = ExtResource("2_ii8om")
 offset = Vector2(0, -8)
@@ -83,7 +83,7 @@ offset = Vector2(0, -8)
 [node name="FrontLight" type="PointLight2D" parent="."]
 z_index = -1
 color = Color(1, 0.9916667, 0.75, 1)
-energy = 0.15
+energy = 0.1
 range_z_min = 1
 texture = ExtResource("2_ii8om")
 offset = Vector2(0, -8)
@@ -389,22 +389,22 @@ hit_from_inside = true
 [node name="C" type="Node2D" parent="."]
 material = SubResource("ShaderMaterial_hvnhq")
 script = ExtResource("7_2gvn5")
-animation = 6
 
 [node name="Right" type="AnimatedSprite2D" parent="C"]
 use_parent_material = true
 sprite_frames = ExtResource("8_2gvn5")
-animation = &"Run"
+animation = &"Idle"
 autoplay = "Idle"
-frame_progress = 0.7563447
+frame_progress = 0.698397
 offset = Vector2(0, -9)
 
 [node name="Left" type="AnimatedSprite2D" parent="C"]
 visible = false
 use_parent_material = true
 sprite_frames = ExtResource("9_sixxt")
-animation = &"Fall"
+animation = &"Idle"
 autoplay = "Idle"
+frame_progress = 0.698397
 offset = Vector2(0, -9)
 
 [node name="InWater" type="Area2D" parent="."]

@@ -24,23 +24,26 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 
 """ Constants """
 ##	Horizontal Movenment
-@export var AIR_MAX_X_SPEED : float = 210.0		##	Maximum speed (px * s) the player can move in the air
+@export var AIR_MAX_X_SPEED : float = 190.0		##	Maximum speed (px * s) the player can move in the air
 @export var AIR_MAX_ACC_TIME : int = 42			##	Ammount of time (frames/60) it takes for the player to accelerate to maximum speed
 @export var AIR_MAX_DEC_TIME : int = 18			##	Ammount of time (frames/60) it takes for the player to decelerate to 0 px*s
 @export var AIR_MAX_OVER_DEC_TIME : int  = 48	##	Ammount of time (frames/60) it takes for the player to decelerate to AIR_MAX_SPEED px*s from AIR_MAX_SPEED * 2 px*s
 
 ##	Jumping (-6.25)
-@export var GROUND_INITIAL_VELOCITY : float = -200		##	Initial speed (px * s) the player gets if jumping from the ground
-@export var GROUND_DECELERATION_TIME : int = 32			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
-#	(-5.313)
+@export var GROUND_INITIAL_VELOCITY : float = -240		##	Initial speed (px * s) the player gets if jumping from the ground
+@export var GROUND_DECELERATION_TIME : int = 26			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
+#	(-5.625)
 @export var DOUBLE_INITIAL_VELOCITY : float = -180.0	##	Initial speed (px * s) the player gets if jumping from the air
 @export var DOUBLE_DECELERATION_TIME : int = 32			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
-##	Wall (-6.25)
+##	Wall (-5.625)
 @export var WALL_INITIAL_VELOCITY : float = -180		##	Initial speed (px * s) the player gets if jumping off a wall
 @export var WALL_DECELERATION_TIME : int = 32			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
+##	Wall (-5.625)
+@export var UP_WALL_INITIAL_VELOCITY : float = -260		##	Initial speed (px * s) the player gets if jumping off a wall
+@export var UP_WALL_DECELERATION_TIME : int = 28			##	Ammount of time (frames/60) it takes for the player to go from full jump velocity to 0
 ##	Falling (8.889)
 @export var FALLING_TERMINAL_VELOCITY : float = 800.0		##	Maximum downward y velocity (px * s)
-@export var FALLING_DECELERATION_TIME : int = 90			##	Ammount of time (frames/60) it takes for the player to go from 0 velocity to terminal
+@export var FALLING_DECELERATION_TIME : int = 80			##	Ammount of time (frames/60) it takes for the player to go from 0 velocity to terminal
 
 ##	Slope of final velocity over time will determine acceleration
 ##	Falling should be greater than rising
@@ -83,6 +86,7 @@ func new_state(delta : float, change_state : State.s, movenment_package : Array,
 	last_state = change_state
 	kick_power = power
 	last_on_wall = false
+	wall_jump_up = false
 	
 	mid_curve = movenment_package[0]
 	starting_velocity = movenment_package[1]
@@ -118,13 +122,14 @@ func update(delta : float):
 		elif(temp_check == 2 && velocity.y >= -10.0):
 			##	Clamber
 			velocity.y = -100.0
-		elif((temp_check == 3 || temp_check == 4) && (P.stamina > 0.0 || Input.is_action_just_pressed("JUMP") && $"../../Timers/CoyoteTimer".is_stopped() && !(double_jump_bool && P.special_available))):
+		elif((temp_check == 3 || temp_check == 4) && (P.stamina > 0.0 || P.is_action_just_pressed("JUMP") && $"../../Timers/CoyoteTimer".is_stopped() && !(double_jump_bool && P.special_available))):
 			##	Change to wall
-			state_change_to = State.s.WALL
+			if(!wall_jump_up || (wall_jump_up && velocity.y > -10.0)):
+				state_change_to = State.s.WALL
 		else:
 			##	Check if can corner hang, if not, don't switch
 			pass
-	elif(!Input.is_action_pressed("JUMP") || velocity.y >= 0.0 || P.is_on_ceiling()):
+	elif(!P.is_action_pressed("JUMP") || velocity.y >= 0.0 || P.is_on_ceiling()):
 		y_decceleration = FALLING_TERMINAL_VELOCITY / FALLING_DECELERATION_TIME
 		if(P.is_on_ceiling() && is_jumping):
 			velocity.y = -y_decceleration
@@ -144,7 +149,7 @@ func update(delta : float):
 	""" Actions """
 	var new_action = false
 	var action_is_punch = false
-	if(Input.is_action_just_pressed("DASH") && $"../../Timers/DashFloorCooldown".is_stopped()):
+	if(P.is_action_just_pressed("DASH") && $"../../Timers/DashFloorCooldown".is_stopped()):
 		""" Default Key : "Shift"
 			Swap to the "Dash" state """
 		
@@ -159,7 +164,7 @@ func update(delta : float):
 			$"../../Timers/DashFloorCooldown".start()
 	
 	
-	elif(Input.is_action_just_pressed("JUMP") && !is_jumping && (!$"../../Timers/CoyoteTimer".is_stopped() || (double_jump_bool && P.special_available))):
+	elif(P.is_action_just_pressed("JUMP") && !is_jumping && (!$"../../Timers/CoyoteTimer".is_stopped() || (double_jump_bool && P.special_available))):
 		""" Default Key : "Space"
 			run the jump() function """
 		
@@ -179,7 +184,7 @@ func update(delta : float):
 			last_state = State.s.AIR
 			jump()
 	
-	elif(Input.is_action_just_pressed("SLIDE")):
+	elif(P.is_action_just_pressed("SLIDE")):
 		""" Default Key : "C"
 			Swap to the "Slide" state, from_ground = false   """
 		
@@ -189,7 +194,7 @@ func update(delta : float):
 	
 	
 	else:
-		if(Input.is_action_just_pressed("ATTACK")):
+		if(P.is_action_just_pressed("ATTACK")):
 			""" Default Keys : "F", "V", "Right Mouse Button"
 				Sub action that calls the parent's Punch function, and plays an animation   """
 			
@@ -200,7 +205,7 @@ func update(delta : float):
 	
 	
 	##	Precision Jump
-	if(Input.is_action_just_pressed("JUMP") && !is_jumping && !triggered_jump):
+	if(P.is_action_just_pressed("JUMP") && !is_jumping && !triggered_jump):
 		$"../../Timers/PrecisionJumpTimer".start()
 	
 	
@@ -277,19 +282,21 @@ func update(delta : float):
 		var moving_threshhold : float = 100.0 
 		var float_threshhold : float = 50.0
 		
-		if(was_on_wall && is_jumping && $"../../Timers/CoyoteTimer".is_stopped()):
-			C.play(C.JUMP_WALL)
+		var anim_on_wall : bool = C.animation != C.JUMP_WALL && C.animation != C.JUMP_WALL_UP
 		
-		elif(velocity.y < -float_threshhold && C.animation != C.JUMP_WALL):
+		if(was_on_wall && is_jumping && $"../../Timers/CoyoteTimer".is_stopped()):
+			C.play(C.JUMP_WALL_UP if wall_jump_up else C.JUMP_WALL)
+		
+		elif(velocity.y < -float_threshhold && anim_on_wall):
 			C.play(C.JUMP_MOVING if abs(velocity.x) > moving_threshhold else C.JUMP)
 		
-		elif(velocity.y < 0.0 && C.animation != C.JUMP_WALL):
+		elif(velocity.y < 0.0 && anim_on_wall):
 			C.play(C.FLOATING_UP_MOVING if abs(velocity.x) > moving_threshhold else C.FLOATING_UP)
 		
-		elif(velocity.y < float_threshhold * 1.5 && C.animation != C.JUMP_WALL):
+		elif(velocity.y < float_threshhold * 1.5 && anim_on_wall):
 			C.play(C.FLOATING_DOWN_MOVING if abs(velocity.x) > moving_threshhold else C.FLOATING_DOWN)
 		
-		elif(velocity.y > float_threshhold && C.animation != C.JUMP_WALL):
+		elif(velocity.y > float_threshhold && anim_on_wall):
 			C.play(C.FALL_MOVING if abs(velocity.x) > moving_threshhold else C.FALL)
 
 		
@@ -300,8 +307,6 @@ func update(delta : float):
 		pass
 		
 		##	Will need to receive the interaction type to figure out what kind of animation to play, might have to cutscene it
-
-	
 	
 	"""  Animation Scale Stuff  """
 	
@@ -366,8 +371,9 @@ func generate_movenment_package() -> Array:
 
 
 var was_on_wall = false
+var wall_jump_up = false
 func jump():
-	var height_jumping : bool = P.stamina > 0.0 && ((P.last_wall_type == 1 && P.normal_climb) || (P.last_wall_type == 2 && P.slow_climb))
+	var height_jumping : bool = P.last_stamina > 0.0 && ((P.last_wall_type == 1 && P.normal_climb) || (P.last_wall_type == 2 && P.slow_climb))
 	is_jumping = last_state != State.s.WALL || height_jumping
 	triggered_jump = true
 	match last_state:
@@ -376,10 +382,19 @@ func jump():
 			velocity.y = initial_y_velocity
 			y_decceleration = -initial_y_velocity / GROUND_DECELERATION_TIME
 		State.s.WALL:
-			was_on_wall = true
-			initial_y_velocity = (WALL_INITIAL_VELOCITY * kick_power if height_jumping else 0.0)
-			velocity.y = initial_y_velocity * kick_power
-			y_decceleration = (-initial_y_velocity / WALL_DECELERATION_TIME if height_jumping else FALLING_TERMINAL_VELOCITY / FALLING_DECELERATION_TIME)
+			wall_jump_up = height_jumping && P.Wall.upward_jump
+			if(wall_jump_up):
+				was_on_wall = true
+				initial_y_velocity = (UP_WALL_INITIAL_VELOCITY * kick_power if height_jumping else 0.0)
+				velocity.y = initial_y_velocity * kick_power
+				y_decceleration = (-initial_y_velocity / UP_WALL_DECELERATION_TIME if height_jumping else FALLING_TERMINAL_VELOCITY / FALLING_DECELERATION_TIME)
+				P.Wall.upward_jump = false
+			else:
+				was_on_wall = true
+				initial_y_velocity = (WALL_INITIAL_VELOCITY * kick_power if height_jumping else 0.0)
+				velocity.y = initial_y_velocity * kick_power
+				y_decceleration = (-initial_y_velocity / WALL_DECELERATION_TIME if height_jumping else FALLING_TERMINAL_VELOCITY / FALLING_DECELERATION_TIME)
+				P.Wall.upward_jump = false
 		this_state:
 			initial_y_velocity = DOUBLE_INITIAL_VELOCITY
 			velocity.y = initial_y_velocity

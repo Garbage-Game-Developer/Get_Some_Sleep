@@ -29,7 +29,7 @@ o (Punch)		Sub action that calls the parent's Punch function, and plays an anima
 
 @export_group("Climbing or Sliding")
 
-@export var KICK_OFF_VELOCITY : float = 200.0		##	The x velocity (px * s) applied to the player when jumping off a wall
+@export var KICK_OFF_VELOCITY : float = 150.0		##	The x velocity (px * s) applied to the player when jumping off a wall
 
 @export_subgroup("Normal Wall") # -4.0
 @export var NORMAL_CLIMB_SPEED : float = 70.0		##	Maximum speed (px * s) the player can climb
@@ -102,6 +102,7 @@ func update(delta : float):
 	""" States (Pre Change) """
 	var state_change_to : State.s = this_state
 	var is_jumping : bool = false
+	var is_upward_jump : bool = false
 	
 	was_climbing = climbing
 	grabbing = P.move_vector.x == float(P.wall_direction)
@@ -127,7 +128,7 @@ func update(delta : float):
 	""" Actions """
 	var new_action = false
 	var action_is_punch = false
-	if(Input.is_action_just_pressed("DASH") && $"../../Timers/DashFloorCooldown".is_stopped()):
+	if(P.is_action_just_pressed("DASH") && $"../../Timers/DashFloorCooldown".is_stopped()):
 		""" Default Key : "Shift"
 			Swap to the "Dash" state, from_ground = true   """
 		
@@ -140,24 +141,25 @@ func update(delta : float):
 			$"../../Timers/DashFloorCooldown".start()
 	
 	
-	elif(Input.is_action_just_pressed("SLIDE")):
+	elif(P.is_action_just_pressed("SLIDE")):
 		""" Default Key : "C"
 			Swap to the "Slide" state, from_ground = true   """
 		
 		state_change_to = State.s.SLIDE
 	
 	
-	elif(Input.is_action_just_pressed("JUMP") || !$"../../Timers/PrecisionJumpTimer".is_stopped()):
+	elif(P.is_action_just_pressed("JUMP") || !$"../../Timers/PrecisionJumpTimer".is_stopped()):
 		""" Default Key : "Space"
 			Swap to the "Jump" state, from_ground = true   """
 		
 		P.stamina -= 1.0
 		state_change_to = State.s.AIR
 		is_jumping = true
+		is_upward_jump = P.move_vector.y < 0.0
 	
 	
 	else:
-		if(Input.is_action_just_pressed("ATTACK")):
+		if(P.is_action_just_pressed("ATTACK")):
 			""" Default Keys : "F", "V", "Right Mouse Button"
 				Sub action that calls the parent's Punch function, and plays an animation   """
 			
@@ -167,7 +169,7 @@ func update(delta : float):
 			action_is_punch = true
 		
 		
-		elif(Input.is_action_just_pressed("INTERACT")):
+		elif(P.is_action_just_pressed("INTERACT")):
 			""" Default Keys : "E", "Left Mouse Button"
 				Sub action that calls the parent's Interact function, and plays an animation   """
 			
@@ -192,7 +194,7 @@ func update(delta : float):
 			State.s.AIR:
 				Global.camera.shake(0.0 if P.stamina > 0.0 else (0.4 if is_jumping else 0.8))
 				P.current_state = State.s.AIR
-				kick_off(is_jumping)
+				kick_off(is_jumping, is_upward_jump)
 				P.Air.new_state(delta, this_state, generate_movenment_package(), is_jumping, kick_power)
 			State.s.DASH:
 				#P.current_state = State.s.DASH
@@ -269,14 +271,14 @@ func update(delta : float):
 		
 		"""  Movenment Animations  """
 		
-		if(velocity.y == 0.0):
-			C.play(C.WALL if grabbing else C.WALL_SLIDING)
+		if(abs(velocity.y) <= 10.0):
+			C.play(C.WALL if climbing else C.WALL_SLIDING)
 		
-		elif(velocity.y < 0.0):  ##  Going up
-			C.play(C.WALL)
+		elif(velocity.y < -10.0):  ##  Going up
+			C.play(C.WALL_CLIMB_UP)
 		
-		elif(velocity.y > 0.0):  ##  Going down
-			C.play(C.WALL if grabbing else C.WALL_SLIDING)
+		elif(velocity.y >= 0.0):  ##  Going down
+			C.play(C.WALL_CLIMB_DOWN if climbing else C.WALL_SLIDING)
 		
 	else:
 		
@@ -303,8 +305,10 @@ func deterine_if_swap_state() -> bool:
 	return temp_bool
 
 
-func kick_off(jump : bool):
-	if(jump):
+var upward_jump : bool = false
+func kick_off(jump : bool, up_jump : bool):
+	upward_jump = up_jump
+	if(jump && !upward_jump):
 		P.velocity.x = KICK_OFF_VELOCITY * (1.2 if P.move_vector.x == float(P.wall_direction) else 1.0) * -P.wall_direction
 	else:
 		P.velocity.x = (KICK_OFF_VELOCITY / 20.0) * -P.wall_direction
