@@ -122,7 +122,6 @@ var wall_direction : int = 1  ##  -1 is left, 0 is no wall, 1 is right
 """ Godot Built-In Functions """
 func _ready():
 	""" Check for global prefrences for controls and set the corresponding internal variables """
-	can_use_actions = false
 	if(!DEBUG):
 		load_player_stats()
 	else:

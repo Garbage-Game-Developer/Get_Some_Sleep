@@ -395,7 +395,7 @@ use_parent_material = true
 sprite_frames = ExtResource("8_2gvn5")
 animation = &"Idle"
 autoplay = "Idle"
-frame_progress = 0.698397
+frame_progress = 0.19539349
 offset = Vector2(0, -9)
 
 [node name="Left" type="AnimatedSprite2D" parent="C"]
@@ -404,7 +404,7 @@ use_parent_material = true
 sprite_frames = ExtResource("9_sixxt")
 animation = &"Idle"
 autoplay = "Idle"
-frame_progress = 0.698397
+frame_progress = 0.19539349
 offset = Vector2(0, -9)
 
 [node name="InWater" type="Area2D" parent="."]
