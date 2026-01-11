@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://bfhb7mfsc2245"]
+[gd_scene load_steps=6 format=3 uid="uid://bfhb7mfsc2245"]
 
 [ext_resource type="Script" uid="uid://ctr7oiega7sdq" path="res://Scripts/Level/level-handler.gd" id="1_aqbfh"]
 [ext_resource type="PackedScene" uid="uid://bl7tp660hpbgu" path="res://Scenes/Player/Player-Base.tscn" id="2_iflc6"]
 [ext_resource type="PackedScene" uid="uid://urw14shmgf6n" path="res://Scenes/Level/Room.tscn" id="2_t84g8"]
-[ext_resource type="PackedScene" uid="uid://cypcp27xy6at8" path="res://Scenes/Level/Testing-Room.tscn" id="4_iflc6"]
+[ext_resource type="PackedScene" uid="uid://cypcp27xy6at8" path="res://Scenes/Levels/-1-Testing/SpikeRoom.tscn" id="4_iflc6"]
+[ext_resource type="PackedScene" uid="uid://dkyrofutgh7g2" path="res://Scenes/Levels/-1-Testing/IceClimb.tscn" id="5_6f1pe"]
 
 [node name="LevelHandler" type="Node2D" node_paths=PackedStringArray("first_room")]
 script = ExtResource("1_aqbfh")
@@ -14,8 +15,10 @@ first_room_entrance = &"TopEntrance"
 [node name="DropIn" parent="." node_paths=PackedStringArray("level_handler_parent") instance=ExtResource("2_t84g8")]
 level_handler_parent = NodePath("..")
 
-[node name="Room2" parent="." node_paths=PackedStringArray("level_handler_parent") instance=ExtResource("4_iflc6")]
+[node name="SpikeRoom" parent="." instance=ExtResource("4_iflc6")]
 position = Vector2(752, -48)
-level_handler_parent = NodePath("..")
+
+[node name="Room" parent="." instance=ExtResource("5_6f1pe")]
+position = Vector2(1952, -224)
 
 [node name="Player" type="Node2D" parent="."]
