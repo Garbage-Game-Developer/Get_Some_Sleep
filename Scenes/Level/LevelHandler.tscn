@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://bfhb7mfsc2245"]
+
+[ext_resource type="Script" uid="uid://ctr7oiega7sdq" path="res://Scripts/Level/level-handler.gd" id="1_aqbfh"]
+[ext_resource type="PackedScene" uid="uid://bl7tp660hpbgu" path="res://Scenes/Player/Player-Base.tscn" id="2_iflc6"]
+[ext_resource type="PackedScene" uid="uid://urw14shmgf6n" path="res://Scenes/Level/Room.tscn" id="2_t84g8"]
+
+[node name="LevelHandler" type="Node2D" node_paths=PackedStringArray("first_room")]
+script = ExtResource("1_aqbfh")
+player_scene = ExtResource("2_iflc6")
+first_room = NodePath("Room")
+first_room_entrance = &"FromRight"
+
+[node name="Room" parent="." node_paths=PackedStringArray("level_handler_parent") instance=ExtResource("2_t84g8")]
+level_handler_parent = NodePath("..")
+
+[node name="Player" type="Node2D" parent="."]

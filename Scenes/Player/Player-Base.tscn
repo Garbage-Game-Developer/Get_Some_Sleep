@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://bl7tp660hpbgu"]
+[gd_scene load_steps=25 format=3 uid="uid://bl7tp660hpbgu"]
 
 [ext_resource type="Script" uid="uid://coji8x5p1svqt" path="res://Scripts/Player/player_base.gd" id="1_pcxub"]
 [ext_resource type="Shader" uid="uid://bhw4eqxw532og" path="res://Scripts/Player/Shaders/player-base.gdshader" id="2_7oum1"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://dqhex5uyycpmy" path="res://Scripts/Player/States/air.gd" id="3_erevo"]
 [ext_resource type="Script" uid="uid://bboq2wxo458qt" path="res://Scripts/Player/States/grounded.gd" id="3_gri1l"]
 [ext_resource type="Script" uid="uid://cd8xjopapxhmk" path="res://Scripts/Player/States/wall.gd" id="5_2gvn5"]
+[ext_resource type="Script" uid="uid://bc7m3s8q6ul88" path="res://Scripts/Player/States/dead.gd" id="6_sixxt"]
 [ext_resource type="Script" uid="uid://ivfkaytss4d5" path="res://Scripts/Player/Internal/character.gd" id="7_2gvn5"]
 [ext_resource type="SpriteFrames" uid="uid://brf7fl6y2cs63" path="res://Assets/Sprites/Actors/Animated Sprites Base/BaseRight.tres" id="8_2gvn5"]
 [ext_resource type="SpriteFrames" uid="uid://bu3gd73sgmrj7" path="res://Assets/Sprites/Actors/Animated Sprites Base/BaseLeft.tres" id="9_sixxt"]
@@ -16,17 +17,29 @@ size = Vector2(10, 15)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ii8om"]
 size = Vector2(10, 15)
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_sixxt"]
+radius = 15.0
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sixxt"]
 size = Vector2(8, 13)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_erevo"]
 size = Vector2(12, 16)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_nxqjj"]
+size = Vector2(10, 2)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_c2mg2"]
+size = Vector2(2, 15)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xwsk7"]
+size = Vector2(10, 2)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2tyb8"]
+size = Vector2(2, 15)
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_hvnhq"]
 shader = ExtResource("2_7oum1")
-shader_parameter/left_facing = true
-shader_parameter/left_overrides = PackedColorArray(0.84313726, 0.6745098, 0.5058824, 1, 0.78431374, 0.56078434, 0.3372549, 1)
-shader_parameter/left_override_colors = PackedColorArray(0.78431374, 0.56078434, 0.3372549, 1, 0.84313726, 0.6745098, 0.5058824, 1)
 shader_parameter/has_special = false
 shader_parameter/special_hair_color = Color(0.86, 0.8428, 0.51600003, 1)
 shader_parameter/hair_color = Color(0.81960785, 0.81960785, 0.81960785, 1)
@@ -43,6 +56,91 @@ shader_parameter/white_flash = false
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2u4vx"]
 size = Vector2(1, 4)
+
+[sub_resource type="Animation" id="Animation_sixxt"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("C:material:shader_parameter/stamina_show")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("C:material:shader_parameter/white_flash")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("C:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
+[sub_resource type="Animation" id="Animation_2gvn5"]
+resource_name = "normal_death"
+length = 0.7333
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("C:material:shader_parameter/stamina_show")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.7, 0.7333),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("C:material:shader_parameter/white_flash")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.0667, 0.2, 0.2667, 0.4, 0.4667, 0.6667, 0.7333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [true, false, true, false, true, false, true, false]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("C:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.7333),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_sixxt"]
+_data = {
+&"RESET": SubResource("Animation_sixxt"),
+&"normal_death": SubResource("Animation_2gvn5")
+}
 
 [node name="PlayerBase" type="CharacterBody2D" groups=["Player"]]
 collision_layer = 0
@@ -79,6 +177,7 @@ energy = 0.1
 range_z_max = -1
 texture = ExtResource("2_ii8om")
 offset = Vector2(0, -8)
+texture_scale = 0.6
 
 [node name="FrontLight" type="PointLight2D" parent="."]
 z_index = -1
@@ -87,7 +186,7 @@ energy = 0.1
 range_z_min = 1
 texture = ExtResource("2_ii8om")
 offset = Vector2(0, -8)
-texture_scale = 0.8
+texture_scale = 0.5
 
 [node name="S" type="Node" parent="."]
 
@@ -129,6 +228,11 @@ wait_time = 0.05
 one_shot = true
 
 [node name="Dead" type="Node" parent="S"]
+script = ExtResource("6_sixxt")
+
+[node name="DeathTime" type="Timer" parent="S/Dead"]
+wait_time = 1.2
+one_shot = true
 
 [node name="Cutscene" type="Node" parent="S"]
 
@@ -172,9 +276,18 @@ one_shot = true
 wait_time = 0.2
 one_shot = true
 
+[node name="InteractionRange" type="Area2D" parent="."]
+collision_layer = 128
+collision_mask = 64
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionRange"]
+position = Vector2(0, -7)
+shape = SubResource("CircleShape2D_sixxt")
+
 [node name="HitBox" type="Area2D" parent="."]
 collision_layer = 4096
 collision_mask = 256
+input_pickable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox"]
 position = Vector2(0, -7.5)
@@ -386,6 +499,52 @@ target_position = Vector2(0, 2)
 collision_mask = 512
 hit_from_inside = true
 
+[node name="DeathAreas" type="Node2D" parent="."]
+
+[node name="Up" type="Area2D" parent="DeathAreas"]
+collision_layer = 0
+collision_mask = 16399
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DeathAreas/Up"]
+position = Vector2(0, -16)
+shape = SubResource("RectangleShape2D_nxqjj")
+debug_color = Color(0.7, 0, 0, 0)
+
+[node name="Right" type="Area2D" parent="DeathAreas"]
+collision_layer = 0
+collision_mask = 16399
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DeathAreas/Right"]
+position = Vector2(6, -7.5)
+shape = SubResource("RectangleShape2D_c2mg2")
+debug_color = Color(0.7, 0, 0, 0)
+
+[node name="Down" type="Area2D" parent="DeathAreas"]
+collision_layer = 0
+collision_mask = 16399
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DeathAreas/Down"]
+position = Vector2(0, 1)
+shape = SubResource("RectangleShape2D_xwsk7")
+debug_color = Color(0.7, 0, 0, 0)
+
+[node name="Left" type="Area2D" parent="DeathAreas"]
+collision_layer = 0
+collision_mask = 16399
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DeathAreas/Left"]
+position = Vector2(-6, -7.5)
+shape = SubResource("RectangleShape2D_2tyb8")
+debug_color = Color(0.7, 0, 0, 0)
+
 [node name="C" type="Node2D" parent="."]
 material = SubResource("ShaderMaterial_hvnhq")
 script = ExtResource("7_2gvn5")
@@ -416,6 +575,16 @@ position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_2u4vx")
 debug_color = Color(0.62699986, 0, 0.99, 0)
 
+[node name="DeathAnimations" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_sixxt")
+}
+
+[node name="SpecialAnimations" type="AnimationPlayer" parent="."]
+
+[connection signal="timeout" from="S/Dead/DeathTime" to="S/Dead" method="_on_death_time_timeout"]
+[connection signal="area_entered" from="HitBox" to="." method="_on_hit_box_area_entered"]
+[connection signal="body_entered" from="HitBox" to="." method="_on_hit_box_body_entered"]
 [connection signal="area_entered" from="SpecialZone" to="." method="_on_special_zone_area_entered"]
 [connection signal="area_exited" from="SpecialZone" to="." method="_on_special_zone_area_exited"]
 [connection signal="animation_finished" from="C/Right" to="C" method="_on_right_animation_finished"]

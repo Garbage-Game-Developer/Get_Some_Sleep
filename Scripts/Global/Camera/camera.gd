@@ -9,7 +9,7 @@ enum type { FREE, LOCK_POINT, HORIZONTAL_TRACK, VERTICAL_TRACK, BOUNDS, HORIZONT
 var follow_type : type = type.FREE
 
 var lock_position : Vector2 = Vector2.ZERO
-var track : Array[Vector2]
+var track : PackedVector2Array
 var bounds : Rectangle
 var area : Polygon2D
 var complex_type : int
@@ -39,21 +39,24 @@ func _process(delta):
 	
 	shake_strength = lerpf(shake_strength, 0.0, shake_decay_rate * delta) if !dont_decrease else shake_strength
 	dont_decrease = false
-	camera.offset = get_noise_offset(delta)
+	camera.offset = get_noise_offset(delta) if lerping else get_noise_offset(delta)
+	lerping = true
 
 
 """  Camera Follow Stuff  """
-func set_follow_type(par_type : type, value):
+var lerping : bool = true
+func set_follow_type(par_type : type, value, lerp : bool = false):
 	follow_type = par_type
+	lerping = lerp
 	match follow_type:
 		type.FREE:
 			pass
 		type.LOCK_POINT:
 			lock_position = value as Vector2
 		type.HORIZONTAL_TRACK:
-			track = value as Array[Vector2]
+			track = value as PackedVector2Array
 		type.VERTICAL_TRACK:
-			track = value as Array[Vector2]
+			track = value as PackedVector2Array
 		type.BOUNDS:
 			bounds = value as Rectangle
 		type.HORIZONTAL_POLYGON:
@@ -76,29 +79,29 @@ func get_camera_position(desired_position : Vector2) -> Vector2:
 		
 		type.HORIZONTAL_TRACK:
 			if(track.size() == 2):
-				return Vector2(clampf(desired_position.x, track[0].x, track[1].x), track[0].y)
-			if(desired_position.x < track[0].x):
-				return track[0]
-			if(desired_position.x > track[track.size() - 1].x):
-				return track[track.size() - 1]
+				return Vector2(clampf(desired_position.x, track.get(0).x, track.get(1).x), track.get(0).y)
+			if(desired_position.x < track.get(0).x):
+				return track.get(0)
+			if(desired_position.x > track.get(track.size() - 1).x):
+				return track.get(track.size() - 1)
 			
 			var i : int = 1
-			while(!(desired_position.x < track[i].x || i == track.size() - 1)):
+			while(!(desired_position.x < track.get(i).x || i == track.size() - 1)):
 				i += 1
-			return Vector2(desired_position.x, track[i-1].y + (track[i-1].x - desired_position.x) / (track[i-1].x - track[i].x) * (track[i-1].y - track[i].y))
+			return Vector2(desired_position.x, track.get(i-1).y + (track.get(i-1).x - desired_position.x) / (track.get(i-1).x - track.get(i).x) * (track.get(i-1).y - track.get(i).y))
 		
 		type.VERTICAL_TRACK:
 			if(track.size() == 2):
-				return Vector2(track[0].x, clampf(desired_position.y, track[0].y, track[1].y))
-			if(desired_position.y < track[0].y):
-				return track[0]
-			if(desired_position.y > track[track.size() - 1].y):
-				return track[track.size() - 1]
+				return Vector2(track.get(0).x, clampf(desired_position.y, track.get(0).y, track.get(1).y))
+			if(desired_position.y < track.get(0).y):
+				return track.get(0)
+			if(desired_position.y > track.get(track.size() - 1).y):
+				return track.get(track.size() - 1)
 			
 			var i : int = 1
-			while(!(desired_position.y < track[i].y || i == track.size() - 1)):
+			while(!(desired_position.y < track.get(i).y || i == track.size() - 1)):
 				i += 1
-			return Vector2(track[i-1].x + (track[i-1].y - desired_position.y) / (track[i-1].y - track[i].y) * (track[i-1].x - track[i].x), desired_position.y)
+			return Vector2(track.get(i-1).x + (track.get(i-1).y - desired_position.y) / (track.get(i-1).y - track.get(i).y) * (track.get(i-1).x - track.get(i).x), desired_position.y)
 		
 		type.BOUNDS:
 			return bounds.get_in_area(desired_position)

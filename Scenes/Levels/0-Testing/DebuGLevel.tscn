@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://cocx3qj5cxwri" path="res://Scenes/Camera/Camera.tscn" id="2_6qo1b"]
 [ext_resource type="PackedScene" uid="uid://bl7tp660hpbgu" path="res://Scenes/Player/Player-Base.tscn" id="3_xauhi"]
 
-[node name="LevelHandler" type="Node2D"]
+[node name="DebugLevel" type="Node2D"]
 
 [node name="Level" type="Node2D" parent="."]
 

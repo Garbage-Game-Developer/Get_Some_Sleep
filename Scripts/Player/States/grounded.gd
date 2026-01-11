@@ -79,9 +79,10 @@ func new_state(delta : float, change_state : State.s, movenment_package : Array)
 	
 	ACTIVE_STATE = true
 	is_state_new = true
-	mid_curve = movenment_package[0]
-	starting_velocity = movenment_package[1]
-	last_state = change_state
+	if(change_state != State.s.DEAD):
+		mid_curve = movenment_package[0]
+		starting_velocity = movenment_package[1]
+		last_state = change_state
 	
 	P.special_available = true
 	P.stamina = P.MAX_STAMINA

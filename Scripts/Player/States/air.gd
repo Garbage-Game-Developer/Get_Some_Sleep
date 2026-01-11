@@ -247,8 +247,6 @@ func update(delta : float):
 			State.s.WALL:
 				P.current_state = State.s.WALL
 				P.Wall.new_state(delta, this_state, generate_movenment_package())
-			State.s.DEAD:
-				pass
 			State.s.CUTSCENE:
 				pass
 		return

@@ -5,6 +5,7 @@ extends Node
 ##	Core components
 #var game_controller : GameController
 #var level : Level
+var current_room : Room
 var players : Array[Player]
 var active_player : Player
 var camera : Camera
@@ -14,6 +15,7 @@ var camera : Camera
 
 """	External signals """
 signal player_special_used(player_value : int)
+signal player_ready_respawn(action_cooldown)
 
 
 """	Global variables """
@@ -61,7 +63,7 @@ func get_saved_data(KEY : String):
 	pass
 
 
-func update_player_saved_data(KEY : String, index : int, value):
+func update_player_saved_data(value : Variant, ...KEYS):
 	pass
 
 

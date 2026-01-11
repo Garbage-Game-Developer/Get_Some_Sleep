@@ -14,7 +14,7 @@ class_name Player extends CharacterBody2D
 #@onready var Swim : SwimState = $S/Swim
 #@onready var Swing : SwingState = $S/Swing
 @onready var Wall : WallState = $S/Wall
-#@onready var Dead : DeadState = $S/Dead
+@onready var Dead : DeadState = $S/Dead
 #@onready var Cutscene : CutsceneState = $S/Cutscene
 
 var current_state : State.s = State.s.GROUNDED
@@ -145,7 +145,7 @@ func _physics_process(delta):
 	match current_state:
 		State.s.AIR:
 			##	Call the velocity ray checks first
-			Air.update(delta)			##	Unfinished - Prototyped (Needs review)
+			Air.update(delta)			##	Prototyped
 		#State.s.DASH:
 			#Dash.update(delta)			##	Unfinished
 		#State.s.DAZED:
@@ -158,7 +158,7 @@ func _physics_process(delta):
 			#Ghost.update(delta)		##	Unfinished
 		State.s.GROUNDED:
 			##	Call the velocity ray checks first
-			Grounded.update(delta)		##	Unfinished - Prototyped (Needs review)
+			Grounded.update(delta)		##	Prototyped
 		#State.s.KICK:
 			#Kick.update(delta)			##	Unfinished
 		#State.s.SLIDE:
@@ -169,9 +169,9 @@ func _physics_process(delta):
 			#Swing.update(delta)		##	Unfinished
 		State.s.WALL:
 			##	Call the velocity ray checks first
-			Wall.update(delta)			##	Unfinished - Working on
-		#State.s.DEAD:
-			#Dead.update(delta)			##	Unfinished
+			Wall.update(delta)			##	Prototyped
+		State.s.DEAD:
+			Dead.update(delta)			##	Unfinished - Working on
 		#State.s.CUTSCENE:
 			#Cutscene.update(delta)		##	Unfinished
 	
@@ -209,8 +209,41 @@ func load_player_stats():
 	""" Might want to move movenment speed things into THIS class instead of the states themselves """
 	
 	""" Pull from the saved data what the abilities should be, or if you get an upgrade """
-	pass
+	
+	reset()
 
+
+func _on_hit_box_body_entered(body):
+	die()
+func _on_hit_box_area_entered(area):
+	
+	##	Checks area hazard type for death type
+	die()
+
+
+func transition_in(spawn_point : SpawnPoint):
+	global_position = spawn_point.global_position
+	can_use_actions = spawn_point.player_control
+	left_right_priority(!spawn_point.facing_right, spawn_point.facing_right)
+	Global.current_room.trigger(spawn_point.spawn_trigger)
+
+
+func die():
+	Dead.new_state(0.0, current_state, [])
+	current_state = State.s.DEAD
+
+
+
+func reset():
+	current_state = State.s.GROUNDED
+	Grounded.new_state(1.0 / 60.0, State.s.DEAD, [])
+	$C.material.set_shader_parameter("stamina_show", false)
+	$C.material.set_shader_parameter("white_flash", false)
+	$C.visible = true
+	$DeathAreas/Up.monitoring = false
+	$DeathAreas/Right.monitoring = false
+	$DeathAreas/Down.monitoring = false
+	$DeathAreas/Left.monitoring = false
 
 
 """ Interference """

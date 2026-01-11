@@ -33,6 +33,8 @@ enum {
 		WALL_PUNCHING = 705,  ##  Not implemented
 	
 	SLIDE = 8,
+	
+	DEAD = -1
 }
 @export_enum(
 	"NONE:0",
@@ -180,6 +182,11 @@ func play_animation():
 		
 		SLIDE:
 			pass
+		
+		DEAD:
+			no_change = true
+			$Right.pause()
+			$Left.pause()
 	
 	if(!no_change):
 		var frame_progress : float = 0.0
