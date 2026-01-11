@@ -15,7 +15,7 @@ var camera : Camera
 
 """	External signals """
 signal player_special_used(player_value : int)
-signal player_ready_respawn(action_cooldown)
+signal player_ready_respawn(spawn_point : SpawnPoint, wait_time : float)
 
 
 """	Global variables """

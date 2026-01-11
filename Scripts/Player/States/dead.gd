@@ -62,9 +62,9 @@ func _on_death_time_timeout():
 	##	Level handler stuff
 
 
-func player_respawn():
-	P.position = respawn_pos.position
-	P.left_right_priority(!respawn_pos.facing_right, respawn_pos.facing_right)
+func player_respawn(spawn_point : SpawnPoint, wait_time : float = 0.0):
+	P.global_position = spawn_point.global_position
+	P.left_right_priority(!spawn_point.facing_right, spawn_point.facing_right)
 	P.reset()
 
 

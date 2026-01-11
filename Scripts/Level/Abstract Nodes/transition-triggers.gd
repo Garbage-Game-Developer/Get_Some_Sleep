@@ -11,10 +11,12 @@ class_name TransitionTrigger extends Area2D
 
 func _ready():
 	room_parent.connect("Triggered", receive_trigger)
-	self.connect("area_entered", transition)
+	connect("area_entered", transition)
+	connect("body_entered", transition)
 
 
-func transition():
+func transition(_area : Node2D):
+	print("received signal")
 	if(!active):
 		return
 	room_parent.transition(transition_room, spawn_point)

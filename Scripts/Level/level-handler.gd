@@ -26,9 +26,12 @@ func rooms() -> Array[Room]:
 	return temp
 
 
+
+
+
 func set_player():
 	"""  Remember when you hit continue, we need to check where they player was and adjust for that  """
-	var player : Player = player_scene.instantiate()
+	player = player_scene.instantiate()
 	$Player.add_child(player)
 	player.DEBUG = false
 	Global.active_player = player
@@ -36,11 +39,18 @@ func set_player():
 	
 	"""  Check for different spawn room  """
 	
-	first_room.enter()
 	var room_spawn_point : SpawnPoint = first_room.get_spawn()
+	first_room.enter(room_spawn_point.spawn_id)
 	##
 	player.transition_in(room_spawn_point) 
 
 
 func transition(transition_room : StringName, spawn_point : StringName):
-	pass
+	var room : Room = Global.current_room
+	if(room != null):
+		room.exit()
+	
+	room = room_dictionary.get(transition_room)
+	room.enter(spawn_point)
+	Global.current_room = room
+	player.transition_in(room.get_entry(spawn_point))
