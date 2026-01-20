@@ -1,14 +1,21 @@
-[gd_scene load_steps=5 format=3 uid="uid://b2coao2u17ps2"]
+[gd_scene load_steps=7 format=3 uid="uid://b2coao2u17ps2"]
 
 [ext_resource type="Script" uid="uid://cov3jr5wa420q" path="res://Scripts/Global/gui.gd" id="1_linlh"]
 [ext_resource type="Script" uid="uid://dg14i8omkkky7" path="res://Scripts/GUI/Tools/gui-variable.gd" id="2_17j7b"]
 [ext_resource type="PackedScene" uid="uid://cq8bmfo0nt8i7" path="res://Scenes/GUI/Main Menu/MainMenu.tscn" id="2_n3sgb"]
+[ext_resource type="PackedScene" uid="uid://blraba84jb4ym" path="res://Scenes/GUI/Transitions/BlackScreen.tscn" id="4_8vxqm"]
 
 [sub_resource type="Resource" id="Resource_n3sgb"]
 script = ExtResource("2_17j7b")
 scene = ExtResource("2_n3sgb")
 metadata/_custom_type_script = "uid://dg14i8omkkky7"
 
+[sub_resource type="Resource" id="Resource_pu3jy"]
+script = ExtResource("2_17j7b")
+scene = ExtResource("4_8vxqm")
+metadata/_custom_type_script = "uid://dg14i8omkkky7"
+
 [node name="GUI" type="CanvasLayer"]
 script = ExtResource("1_linlh")
 VAR_Start_Screen = SubResource("Resource_n3sgb")
+VAR_Transition_Screen = SubResource("Resource_pu3jy")

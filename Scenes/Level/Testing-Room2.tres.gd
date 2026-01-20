@@ -11,6 +11,7 @@ func enter(entry_point : StringName):
 	if(temp is Vector2):
 		temp += global_position
 	elif(temp is PackedVector2Array):
+		temp = temp.duplicate()
 		for i in range(temp.size()):
 			temp.set(i, temp.get(i) + global_position)
 	

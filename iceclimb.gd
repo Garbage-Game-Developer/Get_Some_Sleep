@@ -11,6 +11,7 @@ func enter(entry_point : StringName):
 	if(temp is Vector2):
 		temp += global_position
 	elif(temp is PackedVector2Array):
+		temp = temp.duplicate()
 		for i in range(temp.size()):
 			temp.set(i, temp.get(i) + global_position)
 	
@@ -40,7 +41,10 @@ func unload():
 
 
 func trigger(signal_name : StringName):
-	pass
+	signal_name = signal_name.remove_chars(" ")
+	print(signal_name)
+	if(signal_name == "Respawn1"):
+		active_respawn_point = get_entry("Respawn1")
 	
 	"""  Check if this consumes the signal  """
 	

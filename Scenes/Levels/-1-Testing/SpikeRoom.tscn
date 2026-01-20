@@ -148,8 +148,8 @@ collision_mask = 4096
 monitorable = false
 script = ExtResource("6_cab8j")
 room_parent = NodePath("../../..")
-transition_room = &"IceDrop"
-spawn_point = &"FromRight"
+transition_room = &"IceClimb"
+spawn_point = &"LeftEntrance"
 metadata/_custom_type_script = "uid://bvji4rf1owh67"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Collisions/TransitionTriggers/RightExit"]
@@ -163,8 +163,8 @@ collision_mask = 4096
 monitorable = false
 script = ExtResource("6_cab8j")
 room_parent = NodePath("../../..")
-transition_room = &"IceClimb"
-spawn_point = &"LeftEntrance "
+transition_room = &"IceDrop"
+spawn_point = &"FromRight"
 metadata/_custom_type_script = "uid://bvji4rf1owh67"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Collisions/TransitionTriggers/LeftExit"]

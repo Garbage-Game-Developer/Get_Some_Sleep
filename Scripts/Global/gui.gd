@@ -9,6 +9,8 @@ var Start_Screen : UIObject
 @export_group("In Game")
 @export var VAR_Pause_Screen : UIVariable
 var Pause_Screen : UIObject
+@export var VAR_Transition_Screen : UIVariable
+var Transition_Screen : UIObject
 
 
 func Get(name : StringName, instance_if_null : bool = true, z_index : int = 0) -> UIObject:

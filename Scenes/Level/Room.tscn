@@ -179,7 +179,7 @@ spawn_id = &"TopEntrance"
 metadata/_custom_type_script = "uid://c2lh8hsjs8cdl"
 
 [node name="FromRight" type="Marker2D" parent="SpawnPoints"]
-position = Vector2(287, -32)
+position = Vector2(287, -48)
 script = ExtResource("1_uiyfy")
 spawn_id = &"FromRight"
 facing_right = false

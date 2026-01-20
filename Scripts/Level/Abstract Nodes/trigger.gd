@@ -28,7 +28,7 @@ func reset(overwrite : bool = false):
 	triggered = false
 
 
-func trigger():
+func trigger(_area : Node2D):
 	if(triggered):
 		return
 	room_parent.trigger(trigger_name)

@@ -10,6 +10,10 @@ func enter(entry_point : StringName):
 	var temp = follow_value
 	if(temp is Vector2):
 		temp += global_position
+	elif(temp is PackedVector2Array):
+		temp = temp.duplicate()
+		for i in range(temp.size()):
+			temp.set(i, temp.get(i) + global_position)
 	
 	Global.camera.set_follow_type(camera_follow, temp)
 	active_respawn_point = Spawns.get_spawn(entry_point)

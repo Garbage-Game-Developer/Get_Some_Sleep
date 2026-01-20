@@ -15,10 +15,12 @@ first_room_entrance = &"TopEntrance"
 [node name="DropIn" parent="." node_paths=PackedStringArray("level_handler_parent") instance=ExtResource("2_t84g8")]
 level_handler_parent = NodePath("..")
 
-[node name="SpikeRoom" parent="." instance=ExtResource("4_iflc6")]
+[node name="SpikeRoom" parent="." node_paths=PackedStringArray("level_handler_parent") instance=ExtResource("4_iflc6")]
 position = Vector2(752, -48)
+level_handler_parent = NodePath("..")
 
-[node name="Room" parent="." instance=ExtResource("5_6f1pe")]
+[node name="IceClimb" parent="." node_paths=PackedStringArray("level_handler_parent") instance=ExtResource("5_6f1pe")]
 position = Vector2(1952, -224)
+level_handler_parent = NodePath("..")
 
 [node name="Player" type="Node2D" parent="."]

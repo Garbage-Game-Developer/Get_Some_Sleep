@@ -11,7 +11,7 @@ var player : Player
 
 func _ready():
 	for room in rooms():
-		room_dictionary.get_or_add(room.room_name, room)
+		room_dictionary.get_or_add(room.room_name.remove_chars(" "), room)
 		if(room != first_room):
 			room.unload()
 	Global.current_room = first_room
@@ -50,7 +50,7 @@ func transition(transition_room : StringName, spawn_point : StringName):
 	if(room != null):
 		room.exit()
 	
-	room = room_dictionary.get(transition_room)
+	room = room_dictionary.get(transition_room.remove_chars(" "))
 	room.enter(spawn_point)
 	Global.current_room = room
 	player.transition_in(room.get_entry(spawn_point))

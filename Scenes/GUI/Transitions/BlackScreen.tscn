@@ -1,0 +1,115 @@
+[gd_scene load_steps=8 format=3 uid="uid://blraba84jb4ym"]
+
+[ext_resource type="Script" uid="uid://cpoa2i0wh0l3p" path="res://Scenes/GUI/Transitions/black_screen.gd" id="1_6tg5f"]
+[ext_resource type="Shader" uid="uid://bql2cny6hi4jc" path="res://Scenes/GUI/Transitions/BlackScreen.gdshader" id="1_fcg8r"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6tg5f"]
+shader = ExtResource("1_fcg8r")
+shader_parameter/rightside_show = 0.0
+shader_parameter/leftside_show = 1.05
+
+[sub_resource type="Animation" id="Animation_fcg8r"]
+resource_name = "transition_in"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ColorRect:material:shader_parameter/rightside_show")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ColorRect:material:shader_parameter/leftside_show")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.05]
+}
+
+[sub_resource type="Animation" id="Animation_6tg5f"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ColorRect:material:shader_parameter/rightside_show")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ColorRect:material:shader_parameter/leftside_show")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.05]
+}
+
+[sub_resource type="Animation" id="Animation_nup61"]
+resource_name = "transition_out"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ColorRect:material:shader_parameter/rightside_show")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ColorRect:material:shader_parameter/leftside_show")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.0, 1.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_nup61"]
+_data = {
+&"RESET": SubResource("Animation_6tg5f"),
+&"transition_in": SubResource("Animation_fcg8r"),
+&"transition_out": SubResource("Animation_nup61")
+}
+
+[node name="BlackScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_6tg5f")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_6tg5f")
+custom_minimum_size = Vector2(640, 360)
+layout_mode = 0
+color = Color(0, 0, 0, 1)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_nup61")
+}
